@@ -1,75 +1,64 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient'
+import { Search } from 'lucide-react-native'
+import React from 'react'
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const subjects = [
+    {
+        name: 'Physics',
+        image: 'https://res.cloudinary.com/diyxwdtjd/image/upload/v1750884469/projects/blue-molecular-sphere-reveals-futuristic-genetic-research-data-generated-by-ai_patqst.jpg',
+    },
+    {
+        name: 'Biology',
+        image: 'https://res.cloudinary.com/diyxwdtjd/image/upload/v1750884633/projects/14_agexsk.jpg',
+    },
+]
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
-}
+    <View className='flex-1 bg-slate-50'>
+        <ScrollView className='flex-1' contentContainerStyle={{ paddingBottom: 32 }}>
+            <View className='px-6 pt-12'>
+                {/* Header */}
+                <View className='flex-row justify-between items-center'>
+                    <View>
+                        <Text className='text-lg text-slate-600'>Hello Guest</Text>
+                        <Text className='text-3xl font-bold text-slate-900'>Find your course</Text>
+                    </View>
+                    <TouchableOpacity className='bg-white p-3 rounded-full shadow-md'>
+                        <Search size={24} />
+                    </TouchableOpacity>
+                </View>
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+                {/* Banner */}
+                <View className='mt-8 rounded-2xl overflow-hidden'>
+                    <LinearGradient colors={['#4F46E5', '#818CF8']} className='p-6 flex-row items-center justify-between'>
+                        <View className='flex-1'>
+                            <Text className='text-3xl font-bold text-white'>60% off</Text>
+                            <Text className='text-sm text-white/80 mt-1'>Feb 14 - Mar 20</Text>
+                            <TouchableOpacity className='bg-yellow-400 w-28 py-2 rounded-full mt-4'>
+                                <Text className='text-center font-bold text-slate-900'>Join Now</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <Image source={{ uri: 'https://res.cloudinary.com/diyxwdtjd/image/upload/v1750885008/projects/20944363-Photoroom_exvbcp.png' }} className='w-48 h-48' resizeMode='contain' />
+                    </LinearGradient>
+                </View>
+
+                {/* Subjects */}
+                <View className='mt-8 flex-row justify-between items-center'>
+                    <Text className='text-2xl font-bold text-slate-900'>Subject</Text>
+                </View>
+
+                <View className='mt-4 flex-row flex-wrap justify-between'>
+                    {subjects.map((subject, index) => (
+                        <TouchableOpacity key={index} className='bg-white rounded-2xl p-4 w-[48%] mb-4 shadow-sm'>
+                            <Image source={{ uri: subject.image }} className='w-full h-24 rounded-lg' resizeMode='cover'/>
+                            <Text className='text-lg font-bold text-slate-900 mt-2 text-center'>{subject.name}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+        </ScrollView>
+    </View>
+  )
+}
