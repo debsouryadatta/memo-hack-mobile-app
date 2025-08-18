@@ -5,7 +5,7 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 export default function LandingScreen() {
   const router = useRouter();
-  
+
   return (
     <View className='flex-1'>
       <LinearGradient
@@ -35,7 +35,7 @@ export default function LandingScreen() {
                   <Text className='text-white text-center text-lg font-bold'>Sign in with OTP</Text>
               </TouchableOpacity>
             </Link>
-              <TouchableOpacity onPress={() => router.push('/(tabs)')} className='w-full rounded-full py-4 mt-4 bg-white/20'>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/home')} className='w-full rounded-full py-4 mt-4 bg-white/20'>
                   <Text className='text-white text-center text-lg font-bold'>Guest</Text>
               </TouchableOpacity>
           </View>

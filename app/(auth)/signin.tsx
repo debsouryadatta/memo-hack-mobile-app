@@ -27,7 +27,7 @@ export default function SignInScreen() {
         // Mock OTP verification
         console.log('Signing in with:', phoneNumber, otp);
         Alert.alert('Success', 'You have been signed in successfully!');
-        router.replace('/(tabs)'); // Navigate to home screen after sign in
+        router.replace('/(tabs)/home'); // Navigate to home screen after sign in
     }
 
   return (
