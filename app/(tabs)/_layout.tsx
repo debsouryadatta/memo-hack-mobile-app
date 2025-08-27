@@ -2,8 +2,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Tabs } from 'expo-router';
 import { Compass, Home, User } from 'lucide-react-native';
 import React from 'react';
+import * as NavigationBar from 'expo-navigation-bar';
 
 export default function TabLayout() {
+  const visibility = NavigationBar.useVisibility();
   return (
     <Tabs
       screenOptions={{
@@ -20,6 +22,8 @@ export default function TabLayout() {
             borderTopWidth: 0,
             position: 'absolute',
             elevation: 0,
+            height: visibility === 'visible' ? 90 : 70,
+            paddingTop: visibility === 'visible' ? 4 : 10,
         },
       }}>
       <Tabs.Screen
