@@ -3,7 +3,7 @@ export const cbseSyllabusChapters2025 = {
       "physics": {
         "chapters": [
           "Motion",
-          "Force and Newton’s Laws",
+          "Force and Newton's Laws",
           "Gravitation",
           "Floatation",
           "Work, Energy and Power",

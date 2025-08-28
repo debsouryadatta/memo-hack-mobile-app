@@ -22,7 +22,7 @@ export default function TabLayout() {
             borderTopWidth: 0,
             position: 'absolute',
             elevation: 0,
-            height: visibility === 'visible' ? 90 : 70,
+            height: visibility === 'visible' ? 100 : 70,
             paddingTop: visibility === 'visible' ? 4 : 10,
         },
       }}>

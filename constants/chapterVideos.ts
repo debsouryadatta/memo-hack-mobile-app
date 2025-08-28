@@ -2446,8 +2446,37 @@ export const getChapterIdFromTitle = (classKey: string, subject: string, chapter
     const subjectData = classData[subject];
     if (!subjectData) return null;
     
-    const chapterData = subjectData[chapterTitle];
-    return chapterData?.id || null;
+    // Normalize the chapter title by replacing curly quotes with straight quotes
+    const normalizeTitle = (title: string) => {
+      return title
+        .replace(/['']/g, "'") // Replace curly single quotes with straight apostrophe
+        .replace(/[""]/g, '"') // Replace curly double quotes with straight quotes
+        .trim();
+    };
+    
+    const normalizedChapterTitle = normalizeTitle(chapterTitle);
+    
+    // Check each available chapter for exact match
+    for (const availableChapter of Object.keys(subjectData)) {
+      const normalizedAvailableChapter = normalizeTitle(availableChapter);
+      
+      if (normalizedChapterTitle === normalizedAvailableChapter) {
+        return subjectData[availableChapter].id;
+      }
+    }
+    
+    // If still no match, try case-insensitive comparison
+    const lowerCaseTitle = normalizedChapterTitle.toLowerCase();
+    for (const availableChapter of Object.keys(subjectData)) {
+      const normalizedAvailableChapter = normalizeTitle(availableChapter).toLowerCase();
+      
+      if (lowerCaseTitle === normalizedAvailableChapter) {
+        return subjectData[availableChapter].id;
+      }
+    }
+    
+    console.log(`Chapter ID not found for: ${chapterTitle} in ${classKey} ${subject}`);
+    return null;
   } catch (error) {
     console.log('Error getting chapter ID from title:', error);
     return null;

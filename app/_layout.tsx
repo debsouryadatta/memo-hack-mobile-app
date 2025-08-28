@@ -6,6 +6,7 @@ import 'react-native-reanimated';
 import "./global.css"
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import Providers from '@/components/Providers';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -19,13 +20,15 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Providers>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </Providers>
   );
 }

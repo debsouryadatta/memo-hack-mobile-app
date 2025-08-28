@@ -1,10 +1,18 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { useApp } from '@/components/ContextProvider';
 
 export default function LandingScreen() {
   const router = useRouter();
+  const { isAuthenticated, isLoading } = useApp();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace('/(tabs)/home');
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   return (
     <View className='flex-1'>
@@ -32,12 +40,17 @@ export default function LandingScreen() {
           <View className='w-full mt-8'>
             <Link href="/(auth)/signin" asChild>
               <TouchableOpacity className='w-full rounded-full py-4 bg-indigo-600'>
-                  <Text className='text-white text-center text-lg font-bold'>Sign in with OTP</Text>
+                  <Text className='text-white text-center text-lg font-bold'>Sign In</Text>
               </TouchableOpacity>
             </Link>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/home')} className='w-full rounded-full py-4 mt-4 bg-white/20'>
-                  <Text className='text-white text-center text-lg font-bold'>Guest</Text>
+            <Link href="/(auth)/signup" asChild>
+              <TouchableOpacity className='w-full rounded-full py-4 mt-4 bg-white/20 border border-white/30'>
+                  <Text className='text-white text-center text-lg font-bold'>Sign Up</Text>
               </TouchableOpacity>
+            </Link>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/home')} className='w-full rounded-full py-4 mt-4 bg-white/10'>
+                <Text className='text-white/80 text-center text-base font-medium'>Continue as Guest</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>

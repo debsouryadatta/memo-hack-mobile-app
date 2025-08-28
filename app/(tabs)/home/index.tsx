@@ -145,7 +145,7 @@ export default function HomeScreen() {
         </Animated.View>
 
         {/* Subjects Section */}
-        <View className="bg-slate-50 rounded-t-[32px] px-6 pt-8 pb-6 mt-4">
+        <View className="bg-slate-50 rounded-t-[32px] px-6 pt-8 pb-6 mt-4 min-h-full">
           <View className="flex-row items-center justify-between mb-6">
             <View>
               <Text className="text-slate-900 text-2xl font-bold">Explore Subjects</Text>
@@ -185,19 +185,12 @@ export default function HomeScreen() {
                       </View>
                       
                       <View className="flex-row items-center justify-between mt-4">
-                        <View className="flex-row items-center">
+                        <View className="flex-row items-center mr-2">
                           <View className="bg-slate-100 rounded-full p-2 mr-2">
                             <BookOpen size={16} color="#64748B" />
                           </View>
                           <Text className="text-slate-600 text-sm font-medium">{subject.chapters} Chapters</Text>
                         </View>
-                        
-                        <LinearGradient
-                          colors={['#6366F1', '#4F46E5']}
-                          className="rounded-2xl px-4 py-2"
-                        >
-                          <Text className="text-white text-sm font-bold">Explore →</Text>
-                        </LinearGradient>
                       </View>
                     </View>
                     
