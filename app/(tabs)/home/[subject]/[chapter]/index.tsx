@@ -1,12 +1,12 @@
-import { getChapterDataById } from "@/lib/utils";
 import { VideoData } from "@/lib/types";
-import { chapterVideosData } from "@/constants/chapterVideos";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, BookOpen, Clock, FileText, Play, Users } from "lucide-react-native";
+import { ArrowLeft, BookOpen, Clock, FileText, Loader2, Play, Users } from "lucide-react-native";
 import React from "react";
 import { Animated, Dimensions, Linking, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { WebView } from "react-native-webview";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -46,11 +46,30 @@ export default function ChapterScreen() {
     ]).start();
   }, []);
 
-  // Get chapter data using the unique ID
-  const chapterResult = getChapterDataById(chapter || "", chapterVideosData);
-  const chapterData = chapterResult?.data || null;
-  const classKey = chapterResult?.classKey || null;
-  const detectedSubject = chapterResult?.subject || subject;
+  // Get chapter data using Convex
+  const chapterData = useQuery(api.chapter.getChapterById, { 
+    chapterId: chapter || "" 
+  });
+
+  // Loading state
+  if (chapterData === undefined) {
+    return (
+      <View className="flex-1 bg-slate-50 justify-center items-center">
+        <Animated.View
+          style={{
+            transform: [{
+              rotate: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0deg', '360deg']
+              })
+            }]
+          }}
+        >
+          <Loader2 size={48} color="#4F46E5" />
+        </Animated.View>
+      </View>
+    );
+  }
 
   if (!chapterData) {
     return (
@@ -67,8 +86,8 @@ export default function ChapterScreen() {
   }
 
   const hasVideos = chapterData.videos && chapterData.videos.length > 0;
-  const safeActiveVideoIndex = hasVideos && activeVideoIndex < chapterData.videos.length ? activeVideoIndex : 0;
-  const currentVideo = hasVideos ? chapterData.videos[safeActiveVideoIndex] : null;
+  const safeActiveVideoIndex = hasVideos && chapterData.videos && activeVideoIndex < chapterData.videos.length ? activeVideoIndex : 0;
+  const currentVideo = hasVideos && chapterData.videos ? chapterData.videos[safeActiveVideoIndex] : null;
   const difficultyColors = getDifficultyColor(chapterData.difficulty);
 
   const getYouTubeEmbedUrl = (videoId: string) => {
@@ -118,7 +137,7 @@ export default function ChapterScreen() {
             
             <View className="mb-4">
               <Text className="text-white/80 text-sm font-medium capitalize mb-1">
-                {detectedSubject} • {classKey ? classKey.replace('class', 'Class ') : 'Class'}
+                {chapterData.subject} • {chapterData.class.replace('class', 'Class ')}
               </Text>
               <Text className="text-white text-2xl font-bold mb-2">
                 {chapterData.title}
@@ -135,7 +154,7 @@ export default function ChapterScreen() {
                   <Play size={16} color="white" />
                 </View>
                 <Text className="text-white/90 text-sm font-medium">
-                  {hasVideos ? `${chapterData.videos.length} Videos` : 'No Videos'}
+                  {hasVideos ? `${chapterData.videos?.length || 0} Videos` : 'No Videos'}
                 </Text>
               </View>
               <View className="flex-row items-center">
@@ -170,7 +189,7 @@ export default function ChapterScreen() {
               <Text className="text-slate-900 text-lg font-bold">Now Playing</Text>
               <View className="bg-indigo-100 px-3 py-1 rounded-full">
                 <Text className="text-indigo-600 text-xs font-semibold">
-                  {safeActiveVideoIndex + 1} of {chapterData.videos.length}
+                  {safeActiveVideoIndex + 1} of {chapterData.videos?.length || 0}
                 </Text>
               </View>
             </View>
@@ -272,12 +291,12 @@ export default function ChapterScreen() {
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-slate-900 text-xl font-bold">Chapter Videos</Text>
               <Text className="text-slate-500 text-sm">
-                {chapterData.videos.length} videos
+                {chapterData.videos?.length || 0} videos
               </Text>
             </View>
 
             <View className="space-y-3">
-              {chapterData.videos.map((video: VideoData, index: number) => (
+              {chapterData.videos?.map((video: VideoData, index: number) => (
               <Animated.View
                 key={index}
                 style={{

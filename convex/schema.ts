@@ -18,13 +18,13 @@ export default defineSchema({
     description: v.string(),
     estimatedTime: v.string(),
     difficulty: v.string(),
-    videos: v.array(v.object({
+    videos: v.optional(v.array(v.object({
       id: v.string(),
       title: v.string(),
       duration: v.string(),
       description: v.string(),
-      notes: v.string(),
-    })),
+      notes: v.optional(v.string()),
+    }))),
     class: v.string(),
     subject: v.string(),
   }).index("by_chapterId", ["chapterId"]),

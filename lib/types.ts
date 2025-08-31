@@ -7,10 +7,14 @@ export interface VideoData {
 }
 
 export interface ChapterData {
-  id: string;
+  _id: string;
+  _creationTime: number;
+  chapterId: string;
   title: string;
   description: string;
-  videos: VideoData[];
+  videos?: VideoData[];
   estimatedTime: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  difficulty: string;
+  class: string;
+  subject: string;
 }

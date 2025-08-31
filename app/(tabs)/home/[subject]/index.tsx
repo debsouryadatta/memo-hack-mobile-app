@@ -1,10 +1,10 @@
-import { chapterVideosData } from "@/constants/chapterVideos";
-import { ChapterData } from "@/lib/types";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, BookOpen, ChevronDown, GraduationCap } from "lucide-react-native";
+import { ArrowLeft, BookOpen, ChevronDown, GraduationCap, Loader2 } from "lucide-react-native";
 import React from "react";
 import { Animated, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 type ClassKey = "class9" | "class10" | "class11" | "class12";
 type SubjectKey = "physics" | "biology";
@@ -41,6 +41,23 @@ export default function SubjectScreen() {
   const slideAnim = React.useRef(new Animated.Value(50)).current;
   const scrollViewRef = React.useRef<ScrollView>(null);
 
+  const subjectName = subject as SubjectKey;
+
+  // Fetch all chapters for this subject from Convex
+  const chaptersByClass = useQuery(api.chapter.getAllChaptersBySubject, { 
+    subject: subjectName 
+  });
+
+  // Calculate stats on client side
+  const stats = React.useMemo(() => {
+    if (!chaptersByClass) return { totalChapters: 0, classesWithChapters: 0 };
+    
+    const totalChapters = Object.values(chaptersByClass).reduce((sum, chapters) => sum + chapters.length, 0);
+    const classesWithChapters = Object.keys(chaptersByClass).length;
+    
+    return { totalChapters, classesWithChapters };
+  }, [chaptersByClass]);
+
   React.useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -55,8 +72,6 @@ export default function SubjectScreen() {
       }),
     ]).start();
   }, [fadeAnim, slideAnim]);
-
-  const subjectName = subject as SubjectKey;
 
   const toggleClass = (classKey: string) => {
     const newOpenClass = openClass === classKey ? null : classKey;
@@ -77,16 +92,29 @@ export default function SubjectScreen() {
     }
   };
 
-  const getChapters = (classKey: ClassKey, subject: SubjectKey): ChapterData[] => {
-    try {
-      const classData = chapterVideosData[classKey];
-      const subjectData = classData?.[subject];
-      return subjectData ? Object.values(subjectData) : [];
-    } catch (error) {
-      console.log(`Error getting chapters for ${classKey} ${subject}:`, error);
-      return [];
-    }
+  const getChapters = (classKey: ClassKey) => {
+    return chaptersByClass?.[classKey] || [];
   };
+
+  // Loading state
+  if (chaptersByClass === undefined) {
+    return (
+      <View className="flex-1 bg-indigo-50 justify-center items-center">
+        <Animated.View
+          style={{
+            transform: [{
+              rotate: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0deg', '360deg']
+              })
+            }]
+          }}
+        >
+          <Loader2 size={48} color="#4F46E5" />
+        </Animated.View>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-indigo-50">
@@ -124,13 +152,13 @@ export default function SubjectScreen() {
                 <View className="items-center">
                   <Text className="text-white/80 text-sm">Classes</Text>
                   <Text className="text-white font-bold text-lg">
-                    {classes.filter(classKey => getChapters(classKey, subjectName).length > 0).length}
+                    {stats?.classesWithChapters || 0}
                   </Text>
                 </View>
                 <View className="items-center">
                   <Text className="text-white/80 text-sm">Total Chapters</Text>
                   <Text className="text-white font-bold text-lg">
-                    {classes.reduce((total, classKey) => total + getChapters(classKey, subjectName).length, 0)}
+                    {stats?.totalChapters || 0}
                   </Text>
                 </View>
               </View>
@@ -164,7 +192,7 @@ export default function SubjectScreen() {
 
             <View className="space-y-3">
               {classes.map((classKey, index) => {
-                const chapters = getChapters(classKey, subjectName);
+                const chapters = getChapters(classKey);
                 const isOpen = openClass === classKey;
 
                 if (chapters.length === 0) {
@@ -238,13 +266,13 @@ export default function SubjectScreen() {
                               </Text>
                             </View>
                             <View className="space-y-2">
-                              {chapters.map((chapter: ChapterData, chapterIndex: number) => (
+                              {chapters.map((chapter, chapterIndex: number) => (
                                 <TouchableOpacity
-                                  key={chapter.id}
+                                  key={chapter.chapterId}
                                   className="flex-row items-center p-4 bg-white rounded-xl border border-slate-100 shadow-sm active:bg-slate-50"
                                   activeOpacity={0.9}
                                   onPress={() => {
-                                    router.push(`/(tabs)/home/${subjectName}/${chapter.id}`);
+                                    router.push(`/(tabs)/home/${subjectName}/${chapter.chapterId}`);
                                   }}
                                 >
                                   <View className="bg-indigo-500 rounded-xl p-3 mr-4 shadow-sm">
