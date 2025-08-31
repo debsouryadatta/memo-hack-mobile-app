@@ -1,4 +1,6 @@
-import { getChapterDataById, VideoData } from "@/constants/chapterVideos";
+import { getChapterDataById } from "@/lib/utils";
+import { VideoData } from "@/lib/types";
+import { chapterVideosData } from "@/constants/chapterVideos";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, BookOpen, Clock, FileText, Play, Users } from "lucide-react-native";
@@ -45,7 +47,7 @@ export default function ChapterScreen() {
   }, []);
 
   // Get chapter data using the unique ID
-  const chapterResult = getChapterDataById(chapter || "");
+  const chapterResult = getChapterDataById(chapter || "", chapterVideosData);
   const chapterData = chapterResult?.data || null;
   const classKey = chapterResult?.classKey || null;
   const detectedSubject = chapterResult?.subject || subject;

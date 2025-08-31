@@ -1,19 +1,3 @@
-export interface VideoData {
-  id: string;
-  title: string;
-  duration: string;
-  description: string;
-  notes?: string; // Optional PDF link for notes
-}
-
-export interface ChapterData {
-  id: string;
-  title: string;
-  description: string;
-  videos: VideoData[];
-  estimatedTime: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-}
 
 export const chapterVideosData = {
   "class9": {
@@ -22,7 +6,7 @@ export const chapterVideosData = {
         id: "motion-class9",
         title: "Motion",
         description: "Understanding motion, distance, displacement, speed, and velocity",
-        estimatedTime: "45 mins",
+        estimatedTime: "0 mins",
         difficulty: "Beginner" as const,
         videos: []
       },
@@ -2409,107 +2393,3 @@ export const chapterVideosData = {
   }
 };
 
-// Helper function to get chapter data by ID
-export const getChapterDataById = (chapterId: string): { data: ChapterData; classKey: string; subject: string } | null => {
-  try {
-    const classes = ["class9", "class10", "class11", "class12"];
-    const subjects = ["physics", "biology"];
-    
-    for (const classKey of classes) {
-      for (const subject of subjects) {
-        const classData = (chapterVideosData as any)[classKey];
-        if (!classData) continue;
-        
-        const subjectData = classData[subject];
-        if (!subjectData) continue;
-        
-        const chapters = Object.values(subjectData) as ChapterData[];
-        const chapter = chapters.find((ch: ChapterData) => ch.id === chapterId);
-        if (chapter) {
-          return { data: chapter, classKey, subject };
-        }
-      }
-    }
-    return null;
-  } catch (error) {
-    console.log('Error getting chapter data by ID:', error);
-    return null;
-  }
-};
-
-// Helper function to get chapter ID from title and class
-export const getChapterIdFromTitle = (classKey: string, subject: string, chapterTitle: string): string | null => {
-  try {
-    const classData = (chapterVideosData as any)[classKey];
-    if (!classData) return null;
-    
-    const subjectData = classData[subject];
-    if (!subjectData) return null;
-    
-    // Normalize the chapter title by replacing curly quotes with straight quotes
-    const normalizeTitle = (title: string) => {
-      return title
-        .replace(/['']/g, "'") // Replace curly single quotes with straight apostrophe
-        .replace(/[""]/g, '"') // Replace curly double quotes with straight quotes
-        .trim();
-    };
-    
-    const normalizedChapterTitle = normalizeTitle(chapterTitle);
-    
-    // Check each available chapter for exact match
-    for (const availableChapter of Object.keys(subjectData)) {
-      const normalizedAvailableChapter = normalizeTitle(availableChapter);
-      
-      if (normalizedChapterTitle === normalizedAvailableChapter) {
-        return subjectData[availableChapter].id;
-      }
-    }
-    
-    // If still no match, try case-insensitive comparison
-    const lowerCaseTitle = normalizedChapterTitle.toLowerCase();
-    for (const availableChapter of Object.keys(subjectData)) {
-      const normalizedAvailableChapter = normalizeTitle(availableChapter).toLowerCase();
-      
-      if (lowerCaseTitle === normalizedAvailableChapter) {
-        return subjectData[availableChapter].id;
-      }
-    }
-    
-    console.log(`Chapter ID not found for: ${chapterTitle} in ${classKey} ${subject}`);
-    return null;
-  } catch (error) {
-    console.log('Error getting chapter ID from title:', error);
-    return null;
-  }
-};
-
-// Helper function to get chapter data (kept for backward compatibility)
-export const getChapterData = (classKey: string, subject: string, chapterTitle: string): ChapterData | null => {
-  try {
-    // Decode the chapter title in case it was URL encoded
-    const decodedChapterTitle = decodeURIComponent(chapterTitle);
-    
-    const classData = (chapterVideosData as any)[classKey];
-    if (!classData) return null;
-    
-    const subjectData = classData[subject];
-    if (!subjectData) return null;
-    
-    const chapterData = subjectData[decodedChapterTitle];
-    return chapterData || null;
-  } catch (error) {
-    console.log('Error getting chapter data:', error);
-    return null;
-  }
-};
-
-// Helper function to get all chapters for a class and subject
-export const getAllChapters = (classKey: string, subject: string): ChapterData[] => {
-  const classData = (chapterVideosData as any)[classKey];
-  if (!classData) return [];
-  
-  const subjectData = classData[subject];
-  if (!subjectData) return [];
-  
-  return Object.values(subjectData);
-};

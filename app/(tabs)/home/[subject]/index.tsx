@@ -1,5 +1,5 @@
-import { cbseSyllabusChapters2025 } from "@/constants/constants";
-import { getChapterIdFromTitle } from "@/constants/chapterVideos";
+import { chapterVideosData } from "@/constants/chapterVideos";
+import { ChapterData } from "@/lib/types";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, BookOpen, ChevronDown, GraduationCap } from "lucide-react-native";
@@ -77,11 +77,11 @@ export default function SubjectScreen() {
     }
   };
 
-  const getChapters = (classKey: ClassKey, subject: SubjectKey): string[] => {
+  const getChapters = (classKey: ClassKey, subject: SubjectKey): ChapterData[] => {
     try {
-      const classData = cbseSyllabusChapters2025[classKey];
+      const classData = chapterVideosData[classKey];
       const subjectData = classData?.[subject];
-      return subjectData?.chapters || [];
+      return subjectData ? Object.values(subjectData) : [];
     } catch (error) {
       console.log(`Error getting chapters for ${classKey} ${subject}:`, error);
       return [];
@@ -238,18 +238,13 @@ export default function SubjectScreen() {
                               </Text>
                             </View>
                             <View className="space-y-2">
-                              {chapters.map((chapter: string, chapterIndex: number) => (
+                              {chapters.map((chapter: ChapterData, chapterIndex: number) => (
                                 <TouchableOpacity
-                                  key={chapterIndex}
+                                  key={chapter.id}
                                   className="flex-row items-center p-4 bg-white rounded-xl border border-slate-100 shadow-sm active:bg-slate-50"
                                   activeOpacity={0.9}
                                   onPress={() => {
-                                    const chapterId = getChapterIdFromTitle(classKey, subjectName, chapter);
-                                    if (chapterId) {
-                                      router.push(`/(tabs)/home/${subjectName}/${chapterId}`);
-                                    } else {
-                                      console.log(`Chapter ID not found for: ${chapter} in ${classKey} ${subjectName}`);
-                                    }
+                                    router.push(`/(tabs)/home/${subjectName}/${chapter.id}`);
                                   }}
                                 >
                                   <View className="bg-indigo-500 rounded-xl p-3 mr-4 shadow-sm">
@@ -258,7 +253,7 @@ export default function SubjectScreen() {
                                     </Text>
                                   </View>
                                   <Text className="text-slate-800 text-base flex-1 font-medium leading-5">
-                                    {chapter}
+                                    {chapter.title}
                                   </Text>
                                   <View className="bg-slate-100 rounded-full p-2 ml-2">
                                     <ChevronDown 

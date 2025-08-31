@@ -12,4 +12,20 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_email", ["email"]),
+  chapters: defineTable({
+    chapterId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    estimatedTime: v.string(),
+    difficulty: v.string(),
+    videos: v.array(v.object({
+      id: v.string(),
+      title: v.string(),
+      duration: v.string(),
+      description: v.string(),
+      notes: v.string(),
+    })),
+    class: v.string(),
+    subject: v.string(),
+  }).index("by_chapterId", ["chapterId"]),
 });
