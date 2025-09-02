@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { useApp } from '@/components/ContextProvider';
 
 export default function LandingScreen() {
@@ -13,6 +13,27 @@ export default function LandingScreen() {
       router.replace('/(tabs)/home');
     }
   }, [isAuthenticated, isLoading, router]);
+
+  // Show loading screen while checking authentication status
+  if (isLoading) {
+    return (
+      <View className='flex-1'>
+        <LinearGradient
+          colors={['#4F46E5', '#818CF8']}
+          className='absolute top-0 left-0 right-0 bottom-0'
+        />
+        <View className="flex-1 justify-center items-center">
+          <Image
+            source={{ uri: 'https://res.cloudinary.com/diyxwdtjd/image/upload/v1750876111/projects/8848682-removebg-preview_y6w1fz.png' }}
+            className='w-32 h-32 mb-8'
+            resizeMode='contain'
+          />
+          <ActivityIndicator size="large" color="white" />
+          <Text className='text-white text-lg mt-4 font-medium'>Loading...</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View className='flex-1'>

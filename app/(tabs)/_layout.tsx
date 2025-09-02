@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Tabs } from 'expo-router';
-import { Compass, Home, User } from 'lucide-react-native';
+import { Bot, Home, User } from 'lucide-react-native';
 import React from 'react';
 import * as NavigationBar from 'expo-navigation-bar';
 
@@ -34,10 +34,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="ai"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, size }) => <Compass color={color} size={size} />,
+          title: 'AI',
+          tabBarIcon: ({ color, size }) => <Bot color={color} size={35} />,
         }}
       />
       <Tabs.Screen

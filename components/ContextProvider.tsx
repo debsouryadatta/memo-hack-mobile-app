@@ -36,6 +36,7 @@ export function AppProvider({ children }: AppProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
+  const [hasCheckedStorage, setHasCheckedStorage] = useState(false);
 
   const signinMutation = useMutation(api.user.signin);
   const signupMutation = useMutation(api.user.signup);
@@ -46,27 +47,38 @@ export function AppProvider({ children }: AppProviderProps) {
   }, []);
 
   useEffect(() => {
-    if (getCurrentUserQuery) {
-      setUser(getCurrentUserQuery);
-      setIsLoading(false);
-    } else if (token && getCurrentUserQuery === null) {
-      // Token is invalid, clear it
-      signout();
-    } else if (!token) {
+    // Only process loading state after we've checked AsyncStorage
+    if (!hasCheckedStorage) return;
+    
+    if (token) {
+      if (getCurrentUserQuery !== undefined) {
+        if (getCurrentUserQuery) {
+          setUser(getCurrentUserQuery);
+          setIsLoading(false);
+        } else {
+          signout();
+          setIsLoading(false);
+        }
+      }
+      // If getCurrentUserQuery is undefined, keep loading
+    } else {
+      // No token and we've checked storage, stop loading
       setIsLoading(false);
     }
-  }, [getCurrentUserQuery, token]);
+  }, [getCurrentUserQuery, token, hasCheckedStorage]);
 
   const loadStoredAuth = async () => {
     try {
       const storedToken = await AsyncStorage.getItem('auth_token');
+      setHasCheckedStorage(true);
       if (storedToken) {
         setToken(storedToken);
-      } else {
-        setIsLoading(false);
+        // Keep isLoading true - it will be set to false when the query resolves
       }
+      // If no token, the useEffect will handle setting isLoading to false
     } catch (error) {
       console.error('Error loading stored auth:', error);
+      setHasCheckedStorage(true);
       setIsLoading(false);
     }
   };
