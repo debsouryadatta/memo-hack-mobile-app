@@ -22,7 +22,12 @@ export default function RootLayout() {
   return (
     <Providers>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack 
+          screenOptions={{ 
+            headerShown: false,
+            animation: 'none',
+          }}
+        >
           <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />

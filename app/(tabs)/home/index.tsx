@@ -87,7 +87,10 @@ export default function HomeScreen() {
                 Ready to learn?
               </Text>
             </View>
-            <TouchableOpacity className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl">
+            <TouchableOpacity 
+              className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl"
+              onPress={() => router.push('/(tabs)/home/search')}
+            >
               <Search size={24} color="white" />
             </TouchableOpacity>
           </View>
@@ -222,7 +225,10 @@ export default function HomeScreen() {
                 <Text className="text-indigo-600 font-semibold text-sm">Browse All</Text>
               </TouchableOpacity>
               
-              <TouchableOpacity className="bg-slate-50 rounded-2xl p-4 flex-1 ml-2 items-center border border-slate-200">
+              <TouchableOpacity 
+                className="bg-slate-50 rounded-2xl p-4 flex-1 ml-2 items-center border border-slate-200"
+                onPress={() => router.push('/(tabs)/home/search')}
+              >
                 <View className="bg-slate-100 rounded-full p-3 mb-2">
                   <Search size={24} color="#64748B" />
                 </View>
