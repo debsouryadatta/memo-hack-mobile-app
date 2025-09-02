@@ -1,8 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, BookOpen, ChevronDown, GraduationCap, Loader2 } from "lucide-react-native";
+import { ArrowLeft, BookOpen, ChevronDown, GraduationCap } from "lucide-react-native";
 import React from "react";
-import { Animated, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Animated, ScrollView, Text, TouchableOpacity, View, SafeAreaView, ActivityIndicator } from "react-native";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
@@ -99,20 +99,33 @@ export default function SubjectScreen() {
   // Loading state
   if (chaptersByClass === undefined) {
     return (
-      <View className="flex-1 bg-indigo-50 justify-center items-center">
-        <Animated.View
-          style={{
-            transform: [{
-              rotate: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: ['0deg', '360deg']
-              })
-            }]
-          }}
-        >
-          <Loader2 size={48} color="#4F46E5" />
-        </Animated.View>
-      </View>
+      <SafeAreaView className="flex-1">
+        <LinearGradient
+          colors={getSubjectGradient(subjectName)}
+          className='absolute top-0 left-0 right-0 bottom-0'
+        />
+        
+        {/* Header */}
+        <View className="pt-12 pb-6 px-4">
+          <View className="flex-row items-center justify-between mb-4">
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="bg-white/20 backdrop-blur-sm p-3 rounded-full"
+            >
+              <ArrowLeft size={24} color="white" />
+            </TouchableOpacity>
+            <Text className="text-white text-xl font-bold capitalize">
+              {subjectName}
+            </Text>
+            <View className="w-12" />
+          </View>
+        </View>
+
+        <View className="bg-slate-50 rounded-t-[32px] flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#6366F1" />
+          <Text className="text-slate-600 text-base mt-4">Loading chapters...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 

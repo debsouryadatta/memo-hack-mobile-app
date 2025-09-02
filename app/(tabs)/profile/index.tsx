@@ -2,8 +2,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, Image, Text, TouchableOpacity, View, ScrollView, SafeAreaView, Dimensions, Platform } from 'react-native';
-import { useApp } from '../../components/ContextProvider';
-import { User, Phone, GraduationCap, Mail, Settings, LogOut, Edit2, Calendar, ChevronRight } from 'lucide-react-native';
+import { useApp } from '@/components/ContextProvider';
+import { User, Phone, GraduationCap, Mail, Settings, LogOut, Edit2, Calendar, ChevronRight, Shield } from 'lucide-react-native';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -53,6 +53,8 @@ export default function ProfileScreen() {
   const handleEditProfile = () => {
     Alert.alert('Coming Soon', 'Profile editing will be available in the next update.');
   };
+
+  const isAdmin = user?.email === 'deb@gmail.com';
 
   if (!user) {
     return (
@@ -310,6 +312,25 @@ export default function ProfileScreen() {
                       <ChevronRight size={20} color="#94A3B8" />
                     </View>
                   </TouchableOpacity>
+
+                  {/* Admin Panel - Only visible for admin users */}
+                  {isAdmin && (
+                    <TouchableOpacity 
+                      className="bg-white rounded-2xl p-4 shadow-lg shadow-slate-200/50 border border-indigo-200"
+                      onPress={() => router.push('/(tabs)/profile/admin')}
+                    >
+                      <View className="flex-row items-center">
+                        <View className="bg-indigo-100 rounded-full p-3 mr-4">
+                          <Shield size={22} color="#4F46E5" />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-slate-900 text-base font-semibold">Admin Panel</Text>
+                          <Text className="text-slate-500 text-sm">Manage chapters and content</Text>
+                        </View>
+                        <ChevronRight size={20} color="#94A3B8" />
+                      </View>
+                    </TouchableOpacity>
+                  )}
 
                   <TouchableOpacity 
                     className="bg-white rounded-2xl p-4 shadow-lg shadow-slate-200/50 border border-red-200"
