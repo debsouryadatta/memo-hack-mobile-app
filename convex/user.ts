@@ -7,7 +7,7 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "your-secr
 async function generateToken(email: string): Promise<string> {
   return await new SignJWT({ email })
     .setProtectedHeader({ alg: 'HS256' })
-    .setExpirationTime('7d')
+    .setExpirationTime('1095d')
     .setIssuedAt()
     .sign(JWT_SECRET);
 }

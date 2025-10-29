@@ -1,0 +1,25 @@
+{
+  "cli": {
+    "version": ">= 16.18.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EAS_BUILD_DISABLE_MAVEN_CACHE": "1",
+        "EAS_BUILD_DISABLE_COCOAPODS_CACHE": "1"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

@@ -1,7 +1,9 @@
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { AppProvider } from "./ContextProvider";
 
-const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+const EXPO_PUBLIC_CONVEX_URL = "https://quirky-husky-406.convex.cloud";
+
+const convex = new ConvexReactClient(EXPO_PUBLIC_CONVEX_URL, {
     unsavedChangesWarning: false,
 });
 
