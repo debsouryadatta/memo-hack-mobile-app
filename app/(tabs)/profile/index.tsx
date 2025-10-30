@@ -1,9 +1,9 @@
+import { useApp } from '@/components/ContextProvider';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { Calendar, ChevronRight, Edit2, GraduationCap, LogOut, Mail, Phone, Settings, Shield, User } from 'lucide-react-native';
 import React from 'react';
-import { Alert, Image, Text, TouchableOpacity, View, ScrollView, SafeAreaView, Dimensions, Platform } from 'react-native';
-import { useApp } from '@/components/ContextProvider';
-import { User, Phone, GraduationCap, Mail, Settings, LogOut, Edit2, Calendar, ChevronRight, Shield } from 'lucide-react-native';
+import { Alert, Dimensions, Image, Platform, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -54,7 +54,7 @@ export default function ProfileScreen() {
     Alert.alert('Coming Soon', 'Profile editing will be available in the next update.');
   };
 
-  const isAdmin = user?.email === 'deb@gmail.com';
+  const isAdmin = user?.admin === true;
 
   if (!user) {
     return (
@@ -273,6 +273,24 @@ export default function ProfileScreen() {
                       </Text>
                     </View>
                   </View>
+
+                  {user.memohackStudent !== null && user.memohackStudent !== undefined && (
+                    <>
+                      <View className="h-px bg-slate-200" />
+
+                      <View className="flex-row items-center">
+                        <View className="bg-indigo-100 rounded-full p-3 mr-4">
+                          <GraduationCap size={22} color="#4F46E5" />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-slate-500 text-sm font-medium">MemoHack Student</Text>
+                          <Text className="text-slate-900 text-base font-semibold mt-1">
+                            {user.memohackStudent ? 'Yes' : 'No'}
+                          </Text>
+                        </View>
+                      </View>
+                    </>
+                  )}
                 </View>
               </View>
 

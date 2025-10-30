@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '../convex/_generated/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMutation, useQuery } from 'convex/react';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { api } from '../convex/_generated/api';
 
 interface User {
   _id: string;
@@ -10,6 +10,8 @@ interface User {
   phone: string;
   image: string;
   class: string;
+  admin?: boolean;
+  memohackStudent?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -21,7 +23,7 @@ interface AppContextType {
   isAuthenticated: boolean;
   token: string | null;
   signin: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name: string, phone: string, className: string, image?: string) => Promise<void>;
+  signup: (email: string, password: string, name: string, phone: string, className: string, image?: string, memohackStudent?: boolean) => Promise<void>;
   signout: () => Promise<void>;
   getCurrentUser: () => Promise<void>;
 }
@@ -98,10 +100,10 @@ export function AppProvider({ children }: AppProviderProps) {
     }
   };
 
-  const signup = async (email: string, password: string, name: string, phone: string, className: string, image?: string) => {
+  const signup = async (email: string, password: string, name: string, phone: string, className: string, image?: string, memohackStudent?: boolean) => {
     try {
       setIsLoading(true);
-      const result = await signupMutation({ email, password, name, phone, class: className, image });
+      const result = await signupMutation({ email, password, name, phone, class: className, image, memohackStudent: memohackStudent ?? false });
       setToken(result.token);
       setUser(result.user);
       await AsyncStorage.setItem('auth_token', result.token);

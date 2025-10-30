@@ -1,10 +1,10 @@
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, BookOpen, ChevronDown, GraduationCap } from "lucide-react-native";
 import React from "react";
-import { Animated, ScrollView, Text, TouchableOpacity, View, SafeAreaView, ActivityIndicator } from "react-native";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { ActivityIndicator, Animated, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 type ClassKey = "class9" | "class10" | "class11" | "class12";
 type SubjectKey = "physics" | "biology";
@@ -281,11 +281,11 @@ export default function SubjectScreen() {
                             <View className="space-y-2">
                               {chapters.map((chapter, chapterIndex: number) => (
                                 <TouchableOpacity
-                                  key={chapter.chapterId}
+                                  key={chapter._id}
                                   className="flex-row items-center p-4 bg-white rounded-xl border border-slate-100 shadow-sm active:bg-slate-50"
                                   activeOpacity={0.9}
                                   onPress={() => {
-                                    router.push(`/(tabs)/home/${subjectName}/${chapter.chapterId}`);
+                                    router.push(`/(tabs)/home/${subjectName}/${chapter._id}`);
                                   }}
                                 >
                                   <View className="bg-indigo-500 rounded-xl p-3 mr-4 shadow-sm">

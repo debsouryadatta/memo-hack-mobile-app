@@ -3,29 +3,30 @@ import { v } from "convex/values";
 
 export default defineSchema({
   users: defineTable({
+    _id: v.id("users"),
     email: v.string(),
     password: v.string(),
     name: v.string(),
     phone: v.string(),
     image: v.string(),
     class: v.string(),
+    memohackStudent: v.optional(v.boolean()),
+    admin: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_email", ["email"]),
   chapters: defineTable({
-    chapterId: v.string(),
+    _id: v.id("chapters"),
     title: v.string(),
     description: v.string(),
-    estimatedTime: v.string(),
     difficulty: v.string(),
-    videos: v.optional(v.array(v.object({
-      id: v.string(),
-      title: v.string(),
-      duration: v.string(),
-      description: v.string(),
-      notes: v.optional(v.string()),
-    }))),
     class: v.string(),
     subject: v.string(),
-  }).index("by_chapterId", ["chapterId"]),
+    notes: v.optional(v.array(v.string())),
+    videos: v.optional(v.array(v.object({
+      title: v.string(),
+      description: v.optional(v.string()),
+      youtubeUrl: v.string(),
+    }))),
+  }),
 });

@@ -1,37 +1,44 @@
-import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { jwtVerify } from "jose";
+import { Id } from "./_generated/dataModel";
+import { mutation, query } from "./_generated/server";
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "your-secret-key");
 
-async function verifyToken(token: string): Promise<{ email: string }> {
+async function verifyToken(token: string): Promise<{ userId: string }> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    return { email: payload.email as string };
+    return { userId: payload.userId as string };
   } catch (error) {
     throw new Error("Invalid or expired token");
   }
 }
 
-async function requireAdminAuth(token: string) {
+async function requireAuth(token: string) {
+  if (!token) {
+    throw new Error("Authentication required");
+  }
+  
   const decoded = await verifyToken(token);
-  const email = decoded.email;
-  if (email !== "deb@gmail.com") {
+  return decoded.userId;
+}
+
+async function requireAdminAuth(ctx: any, token: string) {
+  const userId = await requireAuth(token);
+  
+  const user = await ctx.db.get(userId as Id<"users">);
+  if (!user?.admin) {
     throw new Error("Admin access required");
   }
-  return email;
+  return user;
 }
 
 export const getChapterById = query({
   args: {
-    chapterId: v.string(),
+    chapterId: v.id("chapters"),
   },
   handler: async (ctx, args) => {
-    const chapter = await ctx.db
-      .query("chapters")
-      .filter((q) => q.eq(q.field("chapterId"), args.chapterId))
-      .first();
-    
+    const chapter = await ctx.db.get(args.chapterId);
     return chapter;
   },
 });
@@ -85,43 +92,29 @@ export const getAllChapters = query({
 export const createChapter = mutation({
   args: {
     token: v.string(),
-    chapterId: v.string(),
     title: v.string(),
     description: v.string(),
-    estimatedTime: v.string(),
     difficulty: v.string(),
     class: v.string(),
     subject: v.string(),
     videos: v.optional(v.array(v.object({
-      id: v.string(),
       title: v.string(),
-      duration: v.string(),
-      description: v.string(),
-      notes: v.optional(v.string()),
+      description: v.optional(v.string()),
+      youtubeUrl: v.string(),
     }))),
+    notes: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    await requireAdminAuth(args.token);
-    
-    // Check if chapter with same ID already exists
-    const existingChapter = await ctx.db
-      .query("chapters")
-      .filter((q) => q.eq(q.field("chapterId"), args.chapterId))
-      .first();
-    
-    if (existingChapter) {
-      throw new Error("Chapter with this ID already exists");
-    }
+    await requireAdminAuth(ctx, args.token);
     
     const chapterId = await ctx.db.insert("chapters", {
-      chapterId: args.chapterId,
       title: args.title,
       description: args.description,
-      estimatedTime: args.estimatedTime,
       difficulty: args.difficulty,
       class: args.class,
       subject: args.subject,
-      videos: args.videos || [],
+      videos: args.videos,
+      notes: args.notes,
     });
     
     return await ctx.db.get(chapterId);
@@ -131,26 +124,21 @@ export const createChapter = mutation({
 export const updateChapter = mutation({
   args: {
     token: v.string(),
-    chapterId: v.string(),
+    chapterId: v.id("chapters"),
     title: v.optional(v.string()),
     description: v.optional(v.string()),
-    estimatedTime: v.optional(v.string()),
     difficulty: v.optional(v.string()),
     videos: v.optional(v.array(v.object({
-      id: v.string(),
       title: v.string(),
-      duration: v.string(),
-      description: v.string(),
-      notes: v.optional(v.string()),
+      description: v.optional(v.string()),
+      youtubeUrl: v.string(),
     }))),
+    notes: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    await requireAdminAuth(args.token);
+    await requireAdminAuth(ctx, args.token);
     
-    const chapter = await ctx.db
-      .query("chapters")
-      .filter((q) => q.eq(q.field("chapterId"), args.chapterId))
-      .first();
+    const chapter = await ctx.db.get(args.chapterId);
     
     if (!chapter) {
       throw new Error("Chapter not found");
@@ -162,30 +150,27 @@ export const updateChapter = mutation({
       )
     );
     
-    await ctx.db.patch(chapter._id, updates);
+    await ctx.db.patch(args.chapterId, updates);
     
-    return await ctx.db.get(chapter._id);
+    return await ctx.db.get(args.chapterId);
   },
 });
 
 export const deleteChapter = mutation({
   args: {
     token: v.string(),
-    chapterId: v.string(),
+    chapterId: v.id("chapters"),
   },
   handler: async (ctx, args) => {
-    await requireAdminAuth(args.token);
+    await requireAdminAuth(ctx, args.token);
     
-    const chapter = await ctx.db
-      .query("chapters")
-      .filter((q) => q.eq(q.field("chapterId"), args.chapterId))
-      .first();
+    const chapter = await ctx.db.get(args.chapterId);
     
     if (!chapter) {
       throw new Error("Chapter not found");
     }
     
-    await ctx.db.delete(chapter._id);
+    await ctx.db.delete(args.chapterId);
     
     return { success: true, deletedChapterId: args.chapterId };
   },

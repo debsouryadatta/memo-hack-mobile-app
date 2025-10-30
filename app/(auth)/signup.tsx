@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
-import { Eye, EyeOff, GraduationCap, ImageIcon, Lock, Mail, Phone, User } from 'lucide-react-native';
+import { ChevronDown, Eye, EyeOff, GraduationCap, ImageIcon, Lock, Mail, Phone, User } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useApp } from '../../components/ContextProvider';
@@ -21,21 +21,29 @@ export default function SignUpScreen() {
         name: '',
         phone: '',
         className: '',
-        image: ''
+        image: '',
+        memohackStudent: null as boolean | null
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [focusedField, setFocusedField] = useState<string | null>(null);
+    const [showClassDropdown, setShowClassDropdown] = useState(false);
+    const classOptions = ['9', '10', '11', '12', 'Repeater'];
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
     const handleSignUp = async () => {
-        const { email, password, confirmPassword, name, phone, className } = formData;
+        const { email, password, confirmPassword, name, phone, className, memohackStudent } = formData;
 
         if (!email.trim() || !password.trim() || !name.trim() || !phone.trim() || !className.trim()) {
             Alert.alert('Error', 'Please fill in all required fields');
+            return;
+        }
+
+        if (memohackStudent === null) {
+            Alert.alert('Error', 'Please select whether you study in MemoHack');
             return;
         }
 
@@ -54,7 +62,7 @@ export default function SignUpScreen() {
             return;
         }
 
-        if (phone.length < 10) {
+        if (phone.length < 10 || phone.length > 10) {
             Alert.alert('Error', 'Please enter a valid phone number');
             return;
         }
@@ -66,7 +74,8 @@ export default function SignUpScreen() {
                 name.trim(), 
                 phone.trim(), 
                 className.trim(),
-                formData.image.trim() || undefined
+                formData.image.trim() || undefined,
+                memohackStudent
             );
             router.replace('/(tabs)/home');
         } catch (error: any) {
@@ -77,8 +86,8 @@ export default function SignUpScreen() {
     return (
         <KeyboardAvoidingView 
             className='flex-1' 
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
         >
             <LinearGradient
                 colors={['#4F46E5', '#818CF8']}
@@ -169,20 +178,44 @@ export default function SignUpScreen() {
                             {/* Class Field */}
                             <View className='mb-4'>
                                 <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>CLASS *</Text>
-                                <View className={`flex-row items-center bg-white/15 rounded-xl border-2 ${focusedField === 'className' ? 'border-white/60' : 'border-white/25'} px-3`}>
-                                    <GraduationCap size={18} color="rgba(255,255,255,0.7)" />
-                                    <TextInput
-                                        className='flex-1 text-white py-3 px-3 text-sm'
-                                        placeholder="e.g., 12th, Class XI, etc."
-                                        placeholderTextColor="rgba(255,255,255,0.5)"
-                                        value={formData.className}
-                                        onChangeText={(value) => handleInputChange('className', value)}
-                                        onFocus={() => setFocusedField('className')}
-                                        onBlur={() => setFocusedField(null)}
-                                        editable={!isLoading}
-                                        selectionColor="white"
+                                <TouchableOpacity
+                                    onPress={() => setShowClassDropdown(!showClassDropdown)}
+                                    disabled={isLoading}
+                                    className={`flex-row items-center justify-between bg-white/15 rounded-xl border-2 ${focusedField === 'className' ? 'border-white/60' : 'border-white/25'} px-3 py-3`}
+                                >
+                                    <View className='flex-row items-center flex-1'>
+                                        <GraduationCap size={18} color="rgba(255,255,255,0.7)" />
+                                        <Text className={`flex-1 py-3 px-3 text-sm ${formData.className ? 'text-white' : 'text-white/50'}`}>
+                                            {formData.className || 'Select your class'}
+                                        </Text>
+                                    </View>
+                                    <ChevronDown 
+                                        size={18} 
+                                        color="rgba(255,255,255,0.7)"
+                                        style={{ transform: [{ rotate: showClassDropdown ? '180deg' : '0deg' }] }}
                                     />
-                                </View>
+                                </TouchableOpacity>
+                                
+                                {/* Dropdown Menu */}
+                                {showClassDropdown && (
+                                    <View className='absolute top-full left-0 right-0 mt-1 bg-indigo-600/90 rounded-xl border border-indigo-400 overflow-hidden z-50 shadow-lg' style={{ marginTop: 8 }}>
+                                        {classOptions.map((option) => (
+                                            <TouchableOpacity
+                                                key={option}
+                                                onPress={() => {
+                                                    handleInputChange('className', option);
+                                                    setShowClassDropdown(false);
+                                                }}
+                                                className='px-4 py-3 border-b border-indigo-500/30 last:border-b-0'
+                            activeOpacity={0.7}
+                                            >
+                                                <Text className={`text-sm ${formData.className === option ? 'text-white font-semibold bg-indigo-700/50 px-2 py-1 rounded' : 'text-white/90'}`}>
+                                                    {option}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                )}
                             </View>
 
                             {/* Password Field */}
@@ -253,6 +286,43 @@ export default function SignUpScreen() {
                                         editable={!isLoading}
                                         selectionColor="white"
                                     />
+                                </View>
+                            </View>
+
+                            {/* MemoHack Student Field */}
+                            <View className='mb-6'>
+                                <Text className='text-white/90 text-xs font-semibold mb-3 ml-1'>STUDYING IN MEMOHACK? *</Text>
+                                <View className='flex-row space-x-3'>
+                                    <TouchableOpacity
+                                        onPress={() => setFormData(prev => ({ ...prev, memohackStudent: true }))}
+                                        disabled={isLoading}
+                                        className={`flex-1 rounded-xl py-3 px-4 border-2 ${
+                                            formData.memohackStudent === true
+                                                ? 'bg-white/30 border-white/80'
+                                                : 'bg-white/10 border-white/25'
+                                        }`}
+                                    >
+                                        <Text className={`text-center font-semibold text-sm ${
+                                            formData.memohackStudent === true ? 'text-white' : 'text-white/70'
+                                        }`}>
+                                            Yes
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => setFormData(prev => ({ ...prev, memohackStudent: false }))}
+                                        disabled={isLoading}
+                                        className={`flex-1 rounded-xl py-3 px-4 border-2 ${
+                                            formData.memohackStudent === false
+                                                ? 'bg-white/30 border-white/80'
+                                                : 'bg-white/10 border-white/25'
+                                        }`}
+                                    >
+                                        <Text className={`text-center font-semibold text-sm ${
+                                            formData.memohackStudent === false ? 'text-white' : 'text-white/70'
+                                        }`}>
+                                            No
+                                        </Text>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
 

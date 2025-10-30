@@ -1,35 +1,33 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ArrowLeft, BookOpen, Search, X } from "lucide-react-native";
-import React, { useState, useMemo } from "react";
-import { 
-  Animated, 
-  FlatList, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  View 
+import React, { useMemo, useState } from "react";
+import {
+  Animated,
+  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface Chapter {
-  _id: string;
-  chapterId: string;
+  _id: Id<"chapters">;
   title: string;
   description: string;
-  estimatedTime: string;
   difficulty: string;
   class: string;
   subject: string;
   videos?: Array<{
-    id: string;
     title: string;
-    duration: string;
-    description: string;
-    notes?: string;
+    description?: string;
+    youtubeUrl: string;
   }>;
+  notes?: string[];
 }
 
 export default function SearchScreen() {
@@ -79,7 +77,7 @@ export default function SearchScreen() {
   const renderChapterItem = ({ item }: { item: Chapter }) => (
     <TouchableOpacity
       className="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-slate-100"
-      onPress={() => router.push(`/(tabs)/home/${item.subject.toLowerCase()}/${item.chapterId}`)}
+      onPress={() => router.push(`/(tabs)/home/${item.subject.toLowerCase()}/${item._id}`)}
       activeOpacity={0.7}
     >
       <View className="flex-row justify-between items-start mb-2">
@@ -109,11 +107,6 @@ export default function SearchScreen() {
         </View>
         
         <View className="flex-row items-center space-x-2">
-          <View className="bg-green-50 rounded-full px-2 py-1">
-            <Text className="text-green-600 text-xs font-medium">
-              {item.estimatedTime}
-            </Text>
-          </View>
           <View className="bg-orange-50 rounded-full px-2 py-1">
             <Text className="text-orange-600 text-xs font-medium capitalize">
               {item.difficulty}

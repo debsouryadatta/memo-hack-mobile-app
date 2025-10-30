@@ -1,12 +1,13 @@
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { VideoData } from "@/lib/types";
+import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, BookOpen, Clock, FileText, Loader2, Play, Users } from "lucide-react-native";
+import { ArrowLeft, FileText, Loader2, Play } from "lucide-react-native";
 import React from "react";
 import { Animated, Dimensions, Linking, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { WebView } from "react-native-webview";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import YoutubePlayer from "react-native-youtube-iframe";
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -28,6 +29,7 @@ export default function ChapterScreen() {
   const router = useRouter();
   const [activeVideoIndex, setActiveVideoIndex] = React.useState(0);
   const [isVideoLoaded, setIsVideoLoaded] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<'video' | 'notes'>('video');
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(30)).current;
 
@@ -48,7 +50,7 @@ export default function ChapterScreen() {
 
   // Get chapter data using Convex
   const chapterData = useQuery(api.chapter.getChapterById, { 
-    chapterId: chapter || "" 
+    chapterId: chapter as Id<"chapters"> 
   });
 
   // Loading state
@@ -90,8 +92,17 @@ export default function ChapterScreen() {
   const currentVideo = hasVideos && chapterData.videos ? chapterData.videos[safeActiveVideoIndex] : null;
   const difficultyColors = getDifficultyColor(chapterData.difficulty);
 
-  const getYouTubeEmbedUrl = (videoId: string) => {
-    return `https://www.youtube.com/embed/${videoId}?autoplay=0&controls=1&showinfo=0&rel=0`;
+  const getVideoId = (youtubeUrl: string) => {
+    // Extract just the video ID
+    if (youtubeUrl.includes('youtu.be/')) {
+      return youtubeUrl.split('youtu.be/')[1]?.split('?')[0] || '';
+    } else if (youtubeUrl.includes('youtube.com')) {
+      return youtubeUrl.split('v=')[1]?.split('&')[0] || '';
+    } else if (youtubeUrl.includes('youtube.com/embed/')) {
+      return youtubeUrl.split('embed/')[1]?.split('?')[0] || '';
+    } else {
+      return youtubeUrl;
+    }
   };
 
   const handlePDFOpen = async (pdfUrl: string) => {
@@ -157,14 +168,6 @@ export default function ChapterScreen() {
                   {hasVideos ? `${chapterData.videos?.length || 0} Videos` : 'No Videos'}
                 </Text>
               </View>
-              <View className="flex-row items-center">
-                <View className="bg-white/20 rounded-full p-2 mr-2">
-                  <Clock size={16} color="white" />
-                </View>
-                <Text className="text-white/90 text-sm font-medium">
-                  {chapterData.estimatedTime}
-                </Text>
-              </View>
             </View>
           </View>
         </LinearGradient>
@@ -175,80 +178,122 @@ export default function ChapterScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
       >
-        {/* Video Player Section or No Videos Message */}
-        {hasVideos && currentVideo ? (
-          <Animated.View 
-            className="bg-white mx-4 -mt-4 rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100"
-            style={{
-              opacity: fadeAnim,
-              transform: [{ translateY: Animated.add(slideAnim, new Animated.Value(10)) }],
-            }}
-          >
-          <View className="p-4 pb-2">
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-slate-900 text-lg font-bold">Now Playing</Text>
-              <View className="bg-indigo-100 px-3 py-1 rounded-full">
-                <Text className="text-indigo-600 text-xs font-semibold">
-                  {safeActiveVideoIndex + 1} of {chapterData.videos?.length || 0}
+        {/* Tab Navigation */}
+        <View className="bg-white border-b border-slate-200 px-4 pt-2">
+          <View className="flex-row space-x-2">
+            <TouchableOpacity
+              onPress={() => setActiveTab('video')}
+              className={`flex-1 py-4 px-4 rounded-t-2xl border-b-2 flex-row items-center justify-center ${
+                activeTab === 'video'
+                  ? 'border-indigo-500 bg-indigo-50'
+                  : 'border-transparent bg-slate-50'
+              }`}
+            >
+              <Play size={18} color={activeTab === 'video' ? '#6366F1' : '#94A3B8'} />
+              <Text className={`ml-2 font-semibold ${
+                activeTab === 'video' ? 'text-indigo-600' : 'text-slate-500'
+              }`}>
+                Video
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setActiveTab('notes')}
+              className={`flex-1 py-4 px-4 rounded-t-2xl border-b-2 flex-row items-center justify-center ${
+                activeTab === 'notes'
+                  ? 'border-indigo-500 bg-indigo-50'
+                  : 'border-transparent bg-slate-50'
+              }`}
+            >
+              <FileText size={18} color={activeTab === 'notes' ? '#6366F1' : '#94A3B8'} />
+              <Text className={`ml-2 font-semibold ${
+                activeTab === 'notes' ? 'text-indigo-600' : 'text-slate-500'
+              }`}>
+                Notes
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Tab Content */}
+        {activeTab === 'video' && (
+          <>
+            {/* Video Player Section or No Videos Message */}
+            {hasVideos && currentVideo ? (
+              <Animated.View 
+                className="bg-white mx-4 rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100"
+                style={{
+                  opacity: fadeAnim,
+                  transform: [{ translateY: Animated.add(slideAnim, new Animated.Value(10)) }],
+                }}
+              >
+              <View className="p-4 pb-2">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-slate-900 text-lg font-bold">Now Playing</Text>
+                  <View className="bg-indigo-100 px-3 py-1 rounded-full">
+                    <Text className="text-indigo-600 text-xs font-semibold">
+                      {safeActiveVideoIndex + 1} of {chapterData.videos?.length || 0}
+                    </Text>
+                  </View>
+                </View>
+                
+                <Text className="text-slate-900 text-base font-semibold mb-2">
+                  {currentVideo.title}
+                </Text>
+                <Text className="text-slate-500 text-sm mb-4">
+                  {currentVideo.description}
                 </Text>
               </View>
-            </View>
-            
-            <Text className="text-slate-900 text-base font-semibold mb-2">
-              {currentVideo.title}
-            </Text>
-            <Text className="text-slate-500 text-sm mb-4">
-              {currentVideo.description}
-            </Text>
-          </View>
 
-          {/* Video Player */}
-          <View 
-            className="bg-black rounded-2xl mx-4 mb-4 overflow-hidden"
-            style={{ height: (screenWidth - 32) * 0.56 }} // 16:9 aspect ratio
-          >
-            {!isVideoLoaded && (
-              <View className="flex-1 justify-center items-center bg-slate-900">
-                <View className="bg-white/20 rounded-full p-4 mb-4">
-                  <Play size={32} color="white" />
+              {/* Video Player */}
+              <View 
+                className="bg-black rounded-2xl mx-4 mb-4 overflow-hidden"
+                style={{ height: (screenWidth - 32) * 0.56 }} // 16:9 aspect ratio
+              >
+                {!isVideoLoaded && (
+                  <View className="flex-1 justify-center items-center bg-slate-900">
+                    <View className="bg-white/20 rounded-full p-4 mb-4">
+                      <Play size={32} color="white" />
+                    </View>
+                    <Text className="text-white text-sm">Loading video...</Text>
+                  </View>
+                )}
+                <YoutubePlayer
+                  height={200}
+                  videoId={getVideoId(currentVideo.youtubeUrl)}
+                  play={false}
+                  onError={(e: { error: string }) => {
+                    console.error('YoutubePlayer Error:', e);
+                  }}
+                  onReady={() => {
+                    setIsVideoLoaded(true);
+                  }}
+                />
+              </View>
+              </Animated.View>
+            ) : (
+              <Animated.View 
+                className="bg-white mx-4 -mt-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100"
+                style={{
+                  opacity: fadeAnim,
+                  transform: [{ translateY: Animated.add(slideAnim, new Animated.Value(10)) }],
+                }}
+              >
+                <View className="p-6 items-center">
+                  <View className="bg-slate-100 rounded-full p-6 mb-4">
+                    <Play size={32} color="#64748B" />
+                  </View>
+                  <Text className="text-slate-900 text-lg font-bold mb-2">No Videos Available</Text>
+                  <Text className="text-slate-500 text-sm text-center leading-5">
+                    This chapter doesn't have any video content yet. Check back later for updates or explore other learning materials.
+                  </Text>
                 </View>
-                <Text className="text-white text-sm">Loading video...</Text>
-              </View>
+              </Animated.View>
             )}
-            <WebView
-              source={{ uri: getYouTubeEmbedUrl(currentVideo.id) }}
-              className="flex-1"
-              javaScriptEnabled={true}
-              domStorageEnabled={true}
-              startInLoadingState={true}
-              onLoadEnd={() => setIsVideoLoaded(true)}
-              allowsInlineMediaPlayback={true}
-              mediaPlaybackRequiresUserAction={false}
-            />
-          </View>
-          </Animated.View>
-        ) : (
-          <Animated.View 
-            className="bg-white mx-4 -mt-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100"
-            style={{
-              opacity: fadeAnim,
-              transform: [{ translateY: Animated.add(slideAnim, new Animated.Value(10)) }],
-            }}
-          >
-            <View className="p-6 items-center">
-              <View className="bg-slate-100 rounded-full p-6 mb-4">
-                <Play size={32} color="#64748B" />
-              </View>
-              <Text className="text-slate-900 text-lg font-bold mb-2">No Videos Available</Text>
-              <Text className="text-slate-500 text-sm text-center leading-5">
-                This chapter doesn't have any video content yet. Check back later for updates or explore other learning materials.
-              </Text>
-            </View>
-          </Animated.View>
+          </>
         )}
 
-        {/* Notes Section */}
-        {currentVideo && currentVideo.notes && (
+        {activeTab === 'notes' && (
           <Animated.View 
             className="mx-4 mt-3"
             style={{
@@ -256,37 +301,48 @@ export default function ChapterScreen() {
               transform: [{ translateY: Animated.add(slideAnim, new Animated.Value(15)) }],
             }}
           >
-            <TouchableOpacity
-              className="bg-amber-50 border border-amber-200 rounded-xl p-3 active:bg-amber-100 shadow-sm"
-              activeOpacity={0.8}
-              onPress={() => {
-                if (currentVideo.notes) {
-                  handlePDFOpen(currentVideo.notes);
-                }
-              }}
-            >
-              <View className="flex-row items-center">
-                <View className="bg-amber-500 rounded-lg p-2 mr-3">
-                  <FileText size={16} color="white" />
+            {chapterData.notes && chapterData.notes.length > 0 ? (
+              chapterData.notes.map((noteUrl, index) => (
+                <TouchableOpacity
+                  key={index}
+                  className="bg-amber-50 border border-amber-200 rounded-xl p-3 active:bg-amber-100 shadow-sm mb-2"
+                  activeOpacity={0.8}
+                  onPress={() => handlePDFOpen(noteUrl)}
+                >
+                  <View className="flex-row items-center">
+                    <View className="bg-amber-500 rounded-lg p-2 mr-3">
+                      <FileText size={16} color="white" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-amber-900 text-sm font-semibold mb-0.5">
+                        Note {String(index + 1).padStart(2, '0')}
+                      </Text>
+                      <Text className="text-amber-600 text-xs">
+                        Tap to view PDF notes
+                      </Text>
+                    </View>
+                    <View className="bg-amber-200 rounded-full px-2.5 py-1">
+                      <Text className="text-amber-800 text-xs font-semibold">PDF</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <View className="p-6 items-center">
+                <View className="bg-slate-100 rounded-full p-6 mb-4">
+                  <FileText size={32} color="#64748B" />
                 </View>
-                <View className="flex-1">
-                  <Text className="text-amber-900 text-sm font-semibold mb-0.5">
-                    Study Notes Available
-                  </Text>
-                  <Text className="text-amber-600 text-xs">
-                    Tap to view PDF notes for this video
-                  </Text>
-                </View>
-                <View className="bg-amber-200 rounded-full px-2.5 py-1">
-                  <Text className="text-amber-800 text-xs font-semibold">PDF</Text>
-                </View>
+                <Text className="text-slate-900 text-lg font-bold mb-2">No Notes Available</Text>
+                <Text className="text-slate-500 text-sm text-center leading-5">
+                  This chapter doesn't have any study notes yet. Check back later for updates or explore other learning materials.
+                </Text>
               </View>
-            </TouchableOpacity>
+            )}
           </Animated.View>
         )}
 
         {/* Video List */}
-        {hasVideos && (
+        {hasVideos && activeTab === 'video' && (
           <View className="px-4 mt-6">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-slate-900 text-xl font-bold">Chapter Videos</Text>
@@ -329,33 +385,18 @@ export default function ChapterScreen() {
                     </View>
                     
                     <View className="flex-1">
-                      <Text className={`text-base font-semibold mb-1 ${
+                      <Text className={`text-base font-semibold ${
+                        video.description ? 'mb-1' : ''
+                      } ${
                         activeVideoIndex === index ? 'text-indigo-900' : 'text-slate-900'
                       }`}>
                         {video.title}
                       </Text>
-                      <Text className="text-slate-500 text-sm mb-2">
-                        {video.description}
-                      </Text>
-                      <View className="flex-row items-center">
-                        <Clock size={14} color="#94A3B8" />
-                        <Text className="text-slate-400 text-xs ml-1">
-                          {video.duration}
+                      {video.description && (
+                        <Text className="text-slate-500 text-sm mb-2">
+                          {video.description}
                         </Text>
-                        {video.notes && (
-                          <View className="bg-amber-100 border border-amber-200 rounded-full px-2 py-1 ml-2">
-                            <View className="flex-row items-center">
-                              <FileText size={10} color="#92400e" />
-                              <Text className="text-amber-700 text-xs font-semibold ml-1">Notes</Text>
-                            </View>
-                          </View>
-                        )}
-                        {activeVideoIndex === index && (
-                          <View className="bg-indigo-500 rounded-full px-2 py-1 ml-2">
-                            <Text className="text-white text-xs font-semibold">Playing</Text>
-                          </View>
-                        )}
-                      </View>
+                      )}
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -364,34 +405,6 @@ export default function ChapterScreen() {
             </View>
           </View>
         )}
-
-        {/* Chapter Summary */}
-        <View className="mx-4 mt-8">
-          <View className="bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-3xl p-6 border border-indigo-200">
-            <View className="flex-row items-center mb-4">
-              <View className="bg-indigo-500 rounded-2xl p-3 mr-4">
-                <BookOpen size={24} color="white" />
-              </View>
-              <View>
-                <Text className="text-indigo-900 text-lg font-bold">Chapter Summary</Text>
-                <Text className="text-indigo-600 text-sm">Key learning outcomes</Text>
-              </View>
-            </View>
-            
-            <Text className="text-indigo-800 text-sm leading-6 mb-4">
-              {chapterData.description}
-            </Text>
-            
-            <View className="flex-row justify-between items-center pt-4 border-t border-indigo-200">
-              <View className="flex-row items-center">
-                <Users size={16} color="#6366F1" />
-                <Text className="text-indigo-600 text-sm ml-2 font-medium">
-                  Complete all videos to master this chapter
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
       </ScrollView>
     </View>
   );
