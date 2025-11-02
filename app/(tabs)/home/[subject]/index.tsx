@@ -6,10 +6,10 @@ import { ArrowLeft, BookOpen, ChevronDown, GraduationCap } from "lucide-react-na
 import React from "react";
 import { ActivityIndicator, Animated, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-type ClassKey = "class9" | "class10" | "class11" | "class12";
+type ClassKey = "9" | "10" | "11" | "12";
 type SubjectKey = "physics" | "biology";
 
-const classes: ClassKey[] = ["class9", "class10", "class11", "class12"];
+const classes: ClassKey[] = ["9", "10", "11", "12"];
 
 const getSubjectGradient = (subject: string): [string, string, string] => {
   switch (subject?.toLowerCase()) {
@@ -232,12 +232,12 @@ export default function SubjectScreen() {
                         <View className="flex-row items-center flex-1">
                           <View className="bg-indigo-600 rounded-2xl p-4 mr-5 shadow-lg shadow-indigo-600/25">
                             <Text className="text-white font-bold text-lg min-w-[24px] text-center">
-                              {classKey.replace("class", "")}
+                              {classKey}
                             </Text>
                           </View>
                           <View className="flex-1">
                             <Text className="text-xl font-bold text-slate-800 mb-1">
-                              {classKey.replace("class", "Class ")}
+                              {classKey} Class
                             </Text>
                             <Text className="text-slate-500 text-sm font-medium">
                               {chapters.length} chapter{chapters.length !== 1 ? 's' : ''} available

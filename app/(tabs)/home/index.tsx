@@ -1,3 +1,5 @@
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { BookOpen, Search, TrendingUp, Users } from "lucide-react-native";
@@ -7,14 +9,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width: screenWidth } = Dimensions.get('window');
 
-const subjects = [
+const subjectConfig = [
   {
     name: "Physics",
     image:
       "https://res.cloudinary.com/diyxwdtjd/image/upload/v1750884469/projects/blue-molecular-sphere-reveals-futuristic-genetic-research-data-generated-by-ai_patqst.jpg",
     icon: "⚡",
     description: "Mechanics, Waves & Energy",
-    chapters: 38,
     gradient: ['#6366F1', '#4F46E5']
   },
   {
@@ -23,7 +24,6 @@ const subjects = [
       "https://res.cloudinary.com/diyxwdtjd/image/upload/v1750884633/projects/14_agexsk.jpg",
     icon: "🧬",
     description: "Life Sciences & Genetics",
-    chapters: 26,
     gradient: ['#6366F1', '#4F46E5']
   },
 ];
@@ -44,6 +44,9 @@ export default function HomeScreen() {
   const isTablet = screenWidth > 768;
   const horizontalPadding = isTablet ? 32 : 24;
 
+  // Fetch all chapters from database
+  const allChapters = useQuery(api.chapter.getAllChapters);
+
   React.useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -58,6 +61,27 @@ export default function HomeScreen() {
       }),
     ]).start();
   }, []);
+
+  // Calculate chapter counts dynamically
+  const getChapterCount = (subjectName: string) => {
+    if (!allChapters) return 0;
+    const subjectKey = subjectName.toLowerCase();
+    const chapters = allChapters[subjectKey];
+    if (!chapters) return 0;
+    // Sum chapters across all classes for this subject
+    return Object.values(chapters).reduce((total, classChapters: any) => {
+      return total + (Array.isArray(classChapters) ? classChapters.length : 0);
+    }, 0);
+  };
+
+  // Enrich subjects with dynamic chapter counts
+  const subjects = subjectConfig.map(subject => ({
+    ...subject,
+    chapters: getChapterCount(subject.name)
+  }));
+
+  // Calculate total chapters
+  const totalChapters = subjects.reduce((sum, subject) => sum + subject.chapters, 0);
 
   return (
     <View className="flex-1">
@@ -109,7 +133,9 @@ export default function HomeScreen() {
                 <View className="bg-white/20 rounded-full p-2 w-10 h-10 items-center justify-center mb-2">
                   <stat.icon size={20} color="white" />
                 </View>
-                <Text className="text-white font-bold text-lg">{stat.value}</Text>
+                <Text className="text-white font-bold text-lg">
+                  {stat.label === "Total Chapters" ? totalChapters : stat.value}
+                </Text>
                 <Text className="text-indigo-200 text-xs font-medium">{stat.label}</Text>
               </Animated.View>
             ))}

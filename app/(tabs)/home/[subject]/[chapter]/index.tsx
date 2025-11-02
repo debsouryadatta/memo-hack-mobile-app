@@ -148,7 +148,7 @@ export default function ChapterScreen() {
             
             <View className="mb-4">
               <Text className="text-white/80 text-sm font-medium capitalize mb-1">
-                {chapterData.subject} • {chapterData.class.replace('class', 'Class ')}
+                {chapterData.subject} • Class {chapterData.class}
               </Text>
               <Text className="text-white text-2xl font-bold mb-2">
                 {chapterData.title}
@@ -302,12 +302,12 @@ export default function ChapterScreen() {
             }}
           >
             {chapterData.notes && chapterData.notes.length > 0 ? (
-              chapterData.notes.map((noteUrl, index) => (
+              chapterData.notes.map((note: any, index: number) => (
                 <TouchableOpacity
                   key={index}
                   className="bg-amber-50 border border-amber-200 rounded-xl p-3 active:bg-amber-100 shadow-sm mb-2"
                   activeOpacity={0.8}
-                  onPress={() => handlePDFOpen(noteUrl)}
+                  onPress={() => handlePDFOpen(note.url)}
                 >
                   <View className="flex-row items-center">
                     <View className="bg-amber-500 rounded-lg p-2 mr-3">
@@ -315,10 +315,10 @@ export default function ChapterScreen() {
                     </View>
                     <View className="flex-1">
                       <Text className="text-amber-900 text-sm font-semibold mb-0.5">
-                        Note {String(index + 1).padStart(2, '0')}
+                        {note.name}
                       </Text>
                       <Text className="text-amber-600 text-xs">
-                        Tap to view PDF notes
+                        Tap to view document
                       </Text>
                     </View>
                     <View className="bg-amber-200 rounded-full px-2.5 py-1">

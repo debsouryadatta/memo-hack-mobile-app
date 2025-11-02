@@ -3,29 +3,34 @@ import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
 import {
-    Edit3,
-    FileText,
-    Play,
-    Save,
-    Trash2,
-    X
+  Edit3,
+  FileText,
+  Play,
+  Save,
+  Trash2,
+  X
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Modal,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Modal,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 interface VideoForm {
   title: string;
   description?: string;
   youtubeUrl: string;
+}
+
+interface NoteForm {
+  name: string;
+  url: string;
 }
 
 interface ChapterForm {
@@ -35,7 +40,7 @@ interface ChapterForm {
   class: string;
   subject: string;
   videos: VideoForm[];
-  notes?: string[];
+  notes?: NoteForm[];
 }
 
 const CLASSES = ['9', '10', '11', '12'];
@@ -160,7 +165,7 @@ export default function ManageChapters() {
           title: chapterForm.title,
           description: chapterForm.description,
           difficulty: chapterForm.difficulty,
-          class: `class${chapterForm.class}`,
+          class: chapterForm.class,
           subject: chapterForm.subject,
           videos: chapterForm.videos.filter(v => v.title && v.youtubeUrl),
           notes: chapterForm.notes
@@ -203,7 +208,7 @@ export default function ManageChapters() {
 
   const getFilteredChapters = () => {
     if (!allChapters) return [];
-    return allChapters[selectedSubject]?.[`class${selectedClass}`] || [];
+    return allChapters[selectedSubject]?.[selectedClass] || [];
   };
 
   // Show loading spinner while chapters are loading
@@ -518,7 +523,7 @@ export default function ManageChapters() {
                 <TouchableOpacity
                   onPress={() => setChapterForm(prev => ({
                     ...prev,
-                    notes: [...(prev.notes || []), '']
+                    notes: [...(prev.notes || []), { name: '', url: '' }]
                   }))}
                   className="bg-indigo-500 px-3 py-1 rounded-lg"
                 >
@@ -529,10 +534,19 @@ export default function ManageChapters() {
               {chapterForm.notes?.map((note, index) => (
                 <View key={index} className="flex-row items-center mb-2">
                   <TextInput
-                    value={note}
+                    value={note.name}
                     onChangeText={(text) => setChapterForm(prev => ({
                       ...prev,
-                      notes: prev.notes?.map((n, i) => i === index ? text : n) || []
+                      notes: prev.notes?.map((n, i) => i === index ? { ...n, name: text } : n) || []
+                    }))}
+                    placeholder="Note Name"
+                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-900"
+                  />
+                  <TextInput
+                    value={note.url}
+                    onChangeText={(text) => setChapterForm(prev => ({
+                      ...prev,
+                      notes: prev.notes?.map((n, i) => i === index ? { ...n, url: text } : n) || []
                     }))}
                     placeholder="PDF/Document URL"
                     className="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-900"

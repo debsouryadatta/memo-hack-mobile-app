@@ -102,7 +102,10 @@ export const createChapter = mutation({
       description: v.optional(v.string()),
       youtubeUrl: v.string(),
     }))),
-    notes: v.optional(v.array(v.string())),
+    notes: v.optional(v.array(v.object({
+      name: v.string(),
+      url: v.string(),
+    }))),
   },
   handler: async (ctx, args) => {
     await requireAdminAuth(ctx, args.token);
@@ -133,7 +136,10 @@ export const updateChapter = mutation({
       description: v.optional(v.string()),
       youtubeUrl: v.string(),
     }))),
-    notes: v.optional(v.array(v.string())),
+    notes: v.optional(v.array(v.object({
+      name: v.string(),
+      url: v.string(),
+    }))),
   },
   handler: async (ctx, args) => {
     await requireAdminAuth(ctx, args.token);

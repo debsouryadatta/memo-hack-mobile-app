@@ -22,7 +22,10 @@ export default defineSchema({
     difficulty: v.string(),
     class: v.string(),
     subject: v.string(),
-    notes: v.optional(v.array(v.string())),
+    notes: v.optional(v.array(v.object({
+      name: v.string(),
+      url: v.string(),
+    }))),
     videos: v.optional(v.array(v.object({
       title: v.string(),
       description: v.optional(v.string()),
