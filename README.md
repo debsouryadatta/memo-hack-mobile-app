@@ -74,3 +74,4 @@ scripts/            # Project utility scripts (reset-project)
 - When you are ready for store builds, submit through [EAS Submit](https://expo.dev/eas-submit) using the profiles defined in `eas.json`.
 
 Happy hacking and best of luck with your studies! 📚✨
+
