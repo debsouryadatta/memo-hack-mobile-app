@@ -1,0 +1,167 @@
+section,program,class,field,value
+# ==========================================
+# PHYSICS MASTERY - Study Materials & Demo Lectures
+# ==========================================
+physics_mastery,physics,8,chapter_notes_pdf,https://drive.google.com/your-link-here
+physics_mastery,physics,8,daily_dpp_pdf,https://drive.google.com/your-link-here
+physics_mastery,physics,8,demo_lecture_youtube,https://youtube.com/your-video-link-here
+physics_mastery,physics,8,demo_lecture_title,Introduction to Mechanics - Class 8
+physics_mastery,physics,8,demo_lecture_duration,45:00
+physics_mastery,physics,9,chapter_notes_pdf,https://drive.google.com/your-link-here
+physics_mastery,physics,9,daily_dpp_pdf,https://drive.google.com/your-link-here
+physics_mastery,physics,9,demo_lecture_youtube,https://youtube.com/your-video-link-here
+physics_mastery,physics,9,demo_lecture_title,Introduction to Mechanics - Class 9
+physics_mastery,physics,9,demo_lecture_duration,45:00
+physics_mastery,physics,10,chapter_notes_pdf,https://drive.google.com/your-link-here
+physics_mastery,physics,10,daily_dpp_pdf,https://drive.google.com/your-link-here
+physics_mastery,physics,10,demo_lecture_youtube,https://youtube.com/your-video-link-here
+physics_mastery,physics,10,demo_lecture_title,Introduction to Mechanics - Class 10
+physics_mastery,physics,10,demo_lecture_duration,45:00
+physics_mastery,physics,11,chapter_notes_pdf,https://drive.google.com/your-link-here
+physics_mastery,physics,11,daily_dpp_pdf,https://drive.google.com/your-link-here
+physics_mastery,physics,11,demo_lecture_youtube,https://youtube.com/your-video-link-here
+physics_mastery,physics,11,demo_lecture_title,Introduction to Mechanics - Class 11
+physics_mastery,physics,11,demo_lecture_duration,45:00
+physics_mastery,physics,12,chapter_notes_pdf,https://drive.google.com/your-link-here
+physics_mastery,physics,12,daily_dpp_pdf,https://drive.google.com/your-link-here
+physics_mastery,physics,12,demo_lecture_youtube,https://youtube.com/your-video-link-here
+physics_mastery,physics,12,demo_lecture_title,Introduction to Mechanics - Class 12
+physics_mastery,physics,12,demo_lecture_duration,45:00
+# ==========================================
+# BIOLOGY SYSTEM - Study Materials & Demo Lectures
+# ==========================================
+biology_system,biology,8,chapter_notes_pdf,https://drive.google.com/your-link-here
+biology_system,biology,8,daily_dpp_pdf,https://drive.google.com/your-link-here
+biology_system,biology,8,demo_lecture_youtube,https://youtube.com/your-video-link-here
+biology_system,biology,8,demo_lecture_title,Fundamental Unit of Life - Class 8
+biology_system,biology,8,demo_lecture_duration,45:00
+biology_system,biology,9,chapter_notes_pdf,https://drive.google.com/your-link-here
+biology_system,biology,9,daily_dpp_pdf,https://drive.google.com/your-link-here
+biology_system,biology,9,demo_lecture_youtube,https://youtube.com/your-video-link-here
+biology_system,biology,9,demo_lecture_title,Fundamental Unit of Life - Class 9
+biology_system,biology,9,demo_lecture_duration,45:00
+biology_system,biology,10,chapter_notes_pdf,https://drive.google.com/your-link-here
+biology_system,biology,10,daily_dpp_pdf,https://drive.google.com/your-link-here
+biology_system,biology,10,demo_lecture_youtube,https://youtube.com/your-video-link-here
+biology_system,biology,10,demo_lecture_title,Fundamental Unit of Life - Class 10
+biology_system,biology,10,demo_lecture_duration,45:00
+biology_system,biology,11,chapter_notes_pdf,https://drive.google.com/your-link-here
+biology_system,biology,11,daily_dpp_pdf,https://drive.google.com/your-link-here
+biology_system,biology,11,demo_lecture_youtube,https://youtube.com/your-video-link-here
+biology_system,biology,11,demo_lecture_title,Fundamental Unit of Life - Class 11
+biology_system,biology,11,demo_lecture_duration,45:00
+biology_system,biology,12,chapter_notes_pdf,https://drive.google.com/your-link-here
+biology_system,biology,12,daily_dpp_pdf,https://drive.google.com/your-link-here
+biology_system,biology,12,demo_lecture_youtube,https://youtube.com/your-video-link-here
+biology_system,biology,12,demo_lecture_title,Fundamental Unit of Life - Class 12
+biology_system,biology,12,demo_lecture_duration,45:00
+# ==========================================
+# NRTS - NEET Raftaar Test Series
+# ==========================================
+test_series,nrts,all,schedule_syllabus_pdf,https://drive.google.com/your-link-here
+test_series,nrts,all,schedule_syllabus_title,Phase 1 - 2024-25
+test_series,nrts,all,mock_test_pdf,https://drive.google.com/your-link-here
+test_series,nrts,all,mock_test_title,Full Length Paper - 01
+# ==========================================
+# JRTS - JEE Raftaar Test Series
+# ==========================================
+test_series,jrts,all,schedule_syllabus_pdf,https://drive.google.com/your-link-here
+test_series,jrts,all,schedule_syllabus_title,Mains + Advanced Protocol
+test_series,jrts,all,mock_test_pdf,https://drive.google.com/your-link-here
+test_series,jrts,all,mock_test_title,Integer & MCQs Pattern
+# ==========================================
+# ADMISSIONS - Physics Batch Details
+# ==========================================
+admission,physics,8,batch_days,Mon Wed Fri
+admission,physics,8,batch_time,4:00 PM - 5:30 PM
+admission,physics,8,batch_duration,1.5 Hours
+admission,physics,8,batch_start_date,April 2026
+admission,physics,8,fee_monthly,1500
+admission,physics,8,fee_quarterly,4000
+admission,physics,8,fee_yearly,15000
+admission,physics,8,scholarship,Up to 20% for toppers
+admission,physics,8,available_seats,25
+admission,physics,9,batch_days,Mon Wed Fri
+admission,physics,9,batch_time,4:30 PM - 6:00 PM
+admission,physics,9,batch_duration,1.5 Hours
+admission,physics,9,batch_start_date,April 2026
+admission,physics,9,fee_monthly,1800
+admission,physics,9,fee_quarterly,4800
+admission,physics,9,fee_yearly,18000
+admission,physics,9,scholarship,Up to 25% for toppers
+admission,physics,9,available_seats,25
+admission,physics,10,batch_days,Tue Thu Sat
+admission,physics,10,batch_time,4:30 PM - 6:30 PM
+admission,physics,10,batch_duration,2 Hours
+admission,physics,10,batch_start_date,April 2026
+admission,physics,10,fee_monthly,2000
+admission,physics,10,fee_quarterly,5500
+admission,physics,10,fee_yearly,20000
+admission,physics,10,scholarship,Up to 30% for toppers
+admission,physics,10,available_seats,30
+admission,physics,11,batch_days,Mon Wed Fri Sat
+admission,physics,11,batch_time,5:00 PM - 7:30 PM
+admission,physics,11,batch_duration,2.5 Hours
+admission,physics,11,batch_start_date,April 2026
+admission,physics,11,fee_monthly,2500
+admission,physics,11,fee_quarterly,7000
+admission,physics,11,fee_yearly,25000
+admission,physics,11,scholarship,Up to 40% for JEE qualifiers
+admission,physics,11,available_seats,35
+admission,physics,12,batch_days,Mon Tue Wed Thu Fri
+admission,physics,12,batch_time,5:00 PM - 8:00 PM
+admission,physics,12,batch_duration,3 Hours
+admission,physics,12,batch_start_date,April 2026
+admission,physics,12,fee_monthly,3000
+admission,physics,12,fee_quarterly,8500
+admission,physics,12,fee_yearly,30000
+admission,physics,12,scholarship,Up to 50% for Olympiad medalists
+admission,physics,12,available_seats,40
+# ==========================================
+# ADMISSIONS - Biology Batch Details
+# ==========================================
+admission,biology,8,batch_days,Tue Thu Sat
+admission,biology,8,batch_time,4:00 PM - 5:30 PM
+admission,biology,8,batch_duration,1.5 Hours
+admission,biology,8,batch_start_date,April 2026
+admission,biology,8,fee_monthly,1500
+admission,biology,8,fee_quarterly,4000
+admission,biology,8,fee_yearly,15000
+admission,biology,8,scholarship,Up to 20% for toppers
+admission,biology,8,available_seats,25
+admission,biology,9,batch_days,Tue Thu Sat
+admission,biology,9,batch_time,4:30 PM - 6:00 PM
+admission,biology,9,batch_duration,1.5 Hours
+admission,biology,9,batch_start_date,April 2026
+admission,biology,9,fee_monthly,1800
+admission,biology,9,fee_quarterly,4800
+admission,biology,9,fee_yearly,18000
+admission,biology,9,scholarship,Up to 25% for toppers
+admission,biology,9,available_seats,25
+admission,biology,10,batch_days,Mon Wed Fri
+admission,biology,10,batch_time,4:30 PM - 6:30 PM
+admission,biology,10,batch_duration,2 Hours
+admission,biology,10,batch_start_date,April 2026
+admission,biology,10,fee_monthly,2000
+admission,biology,10,fee_quarterly,5500
+admission,biology,10,fee_yearly,20000
+admission,biology,10,scholarship,Up to 30% for toppers
+admission,biology,10,available_seats,30
+admission,biology,11,batch_days,Tue Thu Sat Sun
+admission,biology,11,batch_time,5:00 PM - 7:30 PM
+admission,biology,11,batch_duration,2.5 Hours
+admission,biology,11,batch_start_date,April 2026
+admission,biology,11,fee_monthly,2500
+admission,biology,11,fee_quarterly,7000
+admission,biology,11,fee_yearly,25000
+admission,biology,11,scholarship,Up to 40% for NEET qualifiers
+admission,biology,11,available_seats,35
+admission,biology,12,batch_days,Mon Tue Wed Thu Sat
+admission,biology,12,batch_time,5:00 PM - 8:00 PM
+admission,biology,12,batch_duration,3 Hours
+admission,biology,12,batch_start_date,April 2026
+admission,biology,12,fee_monthly,3000
+admission,biology,12,fee_quarterly,8500
+admission,biology,12,fee_yearly,30000
+admission,biology,12,scholarship,Up to 50% for Olympiad medalists
+admission,biology,12,available_seats,40

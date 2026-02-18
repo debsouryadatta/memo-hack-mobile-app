@@ -1,7 +1,7 @@
 {
   "name": "@memo-hack/landing",
-  "version": "1.0.0",
   "private": true,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,22 +11,27 @@
     "clean": "rm -rf node_modules dist"
   },
   "dependencies": {
+    "@google/genai": "^1.34.0",
     "@memo-hack/convex": "workspace:*",
     "convex": "^1.25.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "lucide-react": "^0.561.0",
+    "papaparse": "^5.5.3",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@types/node": "^22.14.0",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
     "eslint": "^9.17.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.0"
+    "vite": "^6.2.0"
   }
 }

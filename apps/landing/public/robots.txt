@@ -1,0 +1,11 @@
+# Robots.txt for MemoHack Institute
+# https://memohack.in
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://memohack.in/sitemap.xml
+
+# Crawl-delay (optional, helps prevent server overload)
+Crawl-delay: 1
