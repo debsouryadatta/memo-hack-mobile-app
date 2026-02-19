@@ -1,5 +1,6 @@
 import { useApp } from '@/components/ContextProvider';
 import { api } from '@/convex/_generated/api';
+import { handleError } from '@/lib/errors';
 import { useMutation, useQuery } from 'convex/react';
 import {
   Award,
@@ -80,8 +81,8 @@ export default function ManageUsers() {
                 admin: !currentAdmin,
               });
               Alert.alert('Success', 'Admin status updated');
-            } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to update admin status');
+            } catch (error) {
+              handleError(error);
             }
           }
         }
@@ -106,8 +107,8 @@ export default function ManageUsers() {
                 targetUserId: userId,
               });
               Alert.alert('Success', 'User deleted successfully');
-            } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to delete user');
+            } catch (error) {
+              handleError(error);
             }
           }
         }
@@ -165,8 +166,8 @@ export default function ManageUsers() {
       });
       Alert.alert('Success', 'User details updated successfully');
       closeEditModal();
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update user details');
+    } catch (error) {
+      handleError(error);
     } finally {
       setEditLoading(false);
     }

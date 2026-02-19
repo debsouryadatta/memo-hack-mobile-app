@@ -1,6 +1,7 @@
 import { useApp } from '@/components/ContextProvider';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
+import { handleError } from '@/lib/errors';
 import { useMutation, useQuery } from 'convex/react';
 import {
   Edit3,
@@ -173,8 +174,8 @@ export default function ManageChapters() {
         Alert.alert('Success', 'Chapter created successfully');
       }
       closeModal();
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to save chapter');
+    } catch (error) {
+      handleError(error);
     } finally {
       setLoading(false);
     }
@@ -197,8 +198,8 @@ export default function ManageChapters() {
                 chapterId: chapter._id
               });
               Alert.alert('Success', 'Chapter deleted successfully');
-            } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to delete chapter');
+            } catch (error) {
+              handleError(error);
             }
           }
         }

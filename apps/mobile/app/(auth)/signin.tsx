@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@/lib/errors";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react-native";
@@ -34,8 +35,8 @@ export default function SignInScreen() {
         try {
             await signin(email.trim().toLowerCase(), password);
             router.replace('/(tabs)/home');
-        } catch (error: any) {
-            Alert.alert('Sign In Failed', error.message || 'An error occurred during sign in');
+        } catch (error) {
+            Alert.alert('Sign In Failed', getErrorMessage(error));
         }
     }
 

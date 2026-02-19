@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { jwtVerify } from "jose";
 import { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
+import { throwAppError } from "./errors";
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "your-secret-key");
 
@@ -10,13 +11,13 @@ async function verifyToken(token: string): Promise<{ userId: string }> {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     return { userId: payload.userId as string };
   } catch (error) {
-    throw new Error("Invalid or expired token");
+    throwAppError("AUTH_REQUIRED", "Invalid or expired token");
   }
 }
 
 async function requireAuth(token: string) {
   if (!token) {
-    throw new Error("Authentication required");
+    throwAppError("AUTH_REQUIRED", "Authentication required");
   }
   
   const decoded = await verifyToken(token);
@@ -28,7 +29,7 @@ async function requireAdminAuth(ctx: any, token: string) {
   
   const user = await ctx.db.get(userId as Id<"users">);
   if (!user?.admin) {
-    throw new Error("Admin access required");
+    throwAppError("ADMIN_REQUIRED", "Admin access required");
   }
   return user;
 }
@@ -147,7 +148,7 @@ export const updateChapter = mutation({
     const chapter = await ctx.db.get(args.chapterId);
     
     if (!chapter) {
-      throw new Error("Chapter not found");
+      throwAppError("NOT_FOUND", "Chapter not found");
     }
     
     const updates = Object.fromEntries(
@@ -173,7 +174,7 @@ export const deleteChapter = mutation({
     const chapter = await ctx.db.get(args.chapterId);
     
     if (!chapter) {
-      throw new Error("Chapter not found");
+      throwAppError("NOT_FOUND", "Chapter not found");
     }
     
     await ctx.db.delete(args.chapterId);
