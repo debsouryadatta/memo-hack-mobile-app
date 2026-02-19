@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@/lib/errors";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import { ChevronDown, Eye, EyeOff, GraduationCap, ImageIcon, Lock, Mail, Phone, User } from "lucide-react-native";
@@ -78,8 +79,8 @@ export default function SignUpScreen() {
                 memohackStudent
             );
             router.replace('/(tabs)/home');
-        } catch (error: any) {
-            Alert.alert('Sign Up Failed', error.message || 'An error occurred during sign up');
+        } catch (error) {
+            Alert.alert('Sign Up Failed', getErrorMessage(error));
         }
     };
 

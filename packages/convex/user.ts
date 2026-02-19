@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { SignJWT, jwtVerify } from "jose";
 import { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
+import { throwAppError } from "./errors";
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
@@ -18,13 +19,13 @@ async function verifyToken(token: string): Promise<{ userId: string }> {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     return { userId: payload.userId as string };
   } catch (error) {
-    throw new Error("Invalid or expired token");
+    throwAppError("AUTH_REQUIRED", "Invalid or expired token");
   }
 }
 
 async function requireAuth(token: string) {
   if (!token) {
-    throw new Error("Authentication required");
+    throwAppError("AUTH_REQUIRED", "Authentication required");
   }
   
   const decoded = await verifyToken(token);
@@ -36,7 +37,7 @@ async function requireAdminAuth(ctx: any, token: string) {
   
   const user = await ctx.db.get(userId as Id<"users">);
   if (!user?.admin) {
-    throw new Error("Admin access required");
+    throwAppError("ADMIN_REQUIRED", "Admin access required");
   }
   return user;
 }
@@ -87,7 +88,7 @@ export const signup = mutation({
       .first();
 
     if (existingUser) {
-      throw new Error("User with this email already exists");
+      throwAppError("DUPLICATE", "User with this email already exists");
     }
 
     const hashedPassword = await hashPassword(args.password);
@@ -128,12 +129,12 @@ export const signin = mutation({
       .first();
 
     if (!user) {
-      throw new Error("User not found");
+      throwAppError("INVALID_CREDENTIALS", "Invalid email or password");
     }
 
     const isValidPassword = await verifyPassword(args.password, user.password);
     if (!isValidPassword) {
-      throw new Error("Invalid password");
+      throwAppError("INVALID_CREDENTIALS", "Invalid email or password");
     }
 
     const token = await generateToken(user._id);
@@ -172,7 +173,7 @@ export const updateUser = mutation({
     const user = await ctx.db.get(userId as Id<"users">);
 
     if (!user) {
-      throw new Error("User not found");
+      throwAppError("NOT_FOUND", "User not found");
     }
 
     const filteredUpdates = Object.fromEntries(
@@ -198,7 +199,7 @@ export const deleteUser = mutation({
     const user = await ctx.db.get(userId as Id<"users">);
 
     if (!user) {
-      throw new Error("User not found");
+      throwAppError("NOT_FOUND", "User not found");
     }
 
     await ctx.db.delete(userId as Id<"users">);
@@ -218,12 +219,12 @@ export const changePassword = mutation({
     const user = await ctx.db.get(userId as Id<"users">);
 
     if (!user) {
-      throw new Error("User not found");
+      throwAppError("NOT_FOUND", "User not found");
     }
 
     const isValidOldPassword = await verifyPassword(args.oldPassword, user.password);
     if (!isValidOldPassword) {
-      throw new Error("Invalid old password");
+      throwAppError("INVALID_CREDENTIALS", "Invalid old password");
     }
 
     const hashedNewPassword = await hashPassword(args.newPassword);
@@ -308,12 +309,12 @@ export const toggleUserAdminStatus = mutation({
 
     const targetUser = await ctx.db.get(args.targetUserId as Id<"users">);
     if (!targetUser) {
-      throw new Error("User not found");
+      throwAppError("NOT_FOUND", "User not found");
     }
 
     // Prevent users from removing their own admin status
     if (adminUser._id === args.targetUserId && !args.admin) {
-      throw new Error("Cannot remove your own admin status");
+      throwAppError("FORBIDDEN", "Cannot remove your own admin status");
     }
 
     await ctx.db.patch(args.targetUserId as Id<"users">, {
@@ -335,12 +336,12 @@ export const deleteUserAsAdmin = mutation({
 
     const targetUser = await ctx.db.get(args.targetUserId as Id<"users">);
     if (!targetUser) {
-      throw new Error("User not found");
+      throwAppError("NOT_FOUND", "User not found");
     }
 
     // Prevent admins from deleting themselves
     if (adminUser._id === args.targetUserId) {
-      throw new Error("Cannot delete your own account");
+      throwAppError("FORBIDDEN", "Cannot delete your own account");
     }
 
     await ctx.db.delete(args.targetUserId as Id<"users">);
@@ -389,12 +390,12 @@ export const updateUserAsAdmin = mutation({
 
     const targetUser = await ctx.db.get(args.targetUserId as Id<"users">);
     if (!targetUser) {
-      throw new Error("User not found");
+      throwAppError("NOT_FOUND", "User not found");
     }
 
     // Prevent admins from editing their own details via this function
     if (adminUser._id === args.targetUserId) {
-      throw new Error("Cannot edit your own details as admin. Use the regular update function.");
+      throwAppError("FORBIDDEN", "Cannot edit your own details as admin. Use the regular update function.");
     }
 
     // If changing email, check if it's unique
@@ -404,7 +405,7 @@ export const updateUserAsAdmin = mutation({
         .withIndex("by_email", (q) => q.eq("email", args.email!))
         .first();
       if (existingUser) {
-        throw new Error("Email already in use");
+        throwAppError("DUPLICATE", "Email already in use");
       }
     }
 
