@@ -1,3 +1,14 @@
 {
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- apps/landing/"
+  "ignoreCommand": "git diff $VERCEL_GIT_PREVIOUS_SHA HEAD --quiet -- apps/landing/",
+  "headers": [
+    {
+      "source": "/favicon.ico",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, must-revalidate"
+        }
+      ]
+    }
+  ]
 }
