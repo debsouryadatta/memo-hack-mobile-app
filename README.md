@@ -2,6 +2,10 @@
 
 A Turborepo monorepo containing the MemoHack mobile app, landing page, admin dashboard, and shared Convex backend.
 
+<p align="center">
+  <img src="./packages/assets/mobile-screens.png" alt="MemoHack App Preview" width="100%" />
+</p>
+
 ## Structure
 
 ```
