@@ -1,25 +1,35 @@
-function App() {
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { AuthProvider } from "@/context/AuthContext";
+import DashboardLayout from "@/layouts/DashboardLayout";
+import LoginPage from "@/pages/LoginPage";
+import ManageChaptersPage from "@/pages/ManageChaptersPage";
+import ManageUsersPage from "@/pages/ManageUsersPage";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
+
+export default function App() {
   return (
-    <div className="app">
-      <header className="header">
-        <h1>MemoHack Admin Dashboard</h1>
-      </header>
-      <main className="dashboard">
-        <nav className="sidebar">
-          <ul>
-            <li>Dashboard</li>
-            <li>Users</li>
-            <li>Chapters</li>
-            <li>Settings</li>
-          </ul>
-        </nav>
-        <section className="content">
-          <h2>Dashboard</h2>
-          <p>Admin dashboard content goes here...</p>
-        </section>
-      </main>
-    </div>
+    <AuthProvider>
+      <Toaster richColors position="top-right" />
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="chapters" replace />} />
+          <Route path="chapters" element={<ManageChaptersPage />} />
+          <Route path="users" element={<ManageUsersPage />} />
+        </Route>
+
+        {/* Catch-all redirect */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }
-
-export default App;
