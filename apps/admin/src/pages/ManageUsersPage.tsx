@@ -9,7 +9,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useAuth } from "@/context/AuthContext";
 import { handleError } from "@/lib/errors";
 import { api } from "@memo-hack/convex";
 import { useMutation, useQuery } from "convex/react";
@@ -33,8 +32,6 @@ import { toast } from "sonner";
 const CLASSES = ["9", "10", "11", "12", "Repeater"];
 
 export default function ManageUsersPage() {
-  const { token } = useAuth();
-
   const [searchQuery, setSearchQuery] = useState("");
   const [filterClass, setFilterClass] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<any>(null);
@@ -48,11 +45,11 @@ export default function ManageUsersPage() {
     memohackStudent: false,
   });
 
-  const allUsers = useQuery(api.user.getAllUsers, token ? { token } : "skip");
-  const userStats = useQuery(api.user.getUserStats, token ? { token } : "skip");
+  const allUsers = useQuery(api.user.getAllUsers, {});
+  const userStats = useQuery(api.user.getUserStats, {});
   const searchedUsers = useQuery(
     api.user.searchUsers,
-    token && searchQuery ? { token, searchTerm: searchQuery } : "skip",
+    searchQuery ? { searchTerm: searchQuery } : "skip",
   );
 
   const toggleAdminStatus = useMutation(api.user.toggleUserAdminStatus);
@@ -68,7 +65,6 @@ export default function ManageUsersPage() {
     : rawList;
 
   const handleToggleAdmin = async (userId: string, currentAdmin: boolean) => {
-    if (!token) return;
     const action = currentAdmin
       ? "remove admin status from"
       : "grant admin status to";
@@ -76,7 +72,6 @@ export default function ManageUsersPage() {
       return;
     try {
       await toggleAdminStatus({
-        token,
         targetUserId: userId,
         admin: !currentAdmin,
       });
@@ -87,10 +82,9 @@ export default function ManageUsersPage() {
   };
 
   const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!token) return;
     if (!window.confirm(`Delete ${userName}? This cannot be undone.`)) return;
     try {
-      await deleteUserAdmin({ token, targetUserId: userId });
+      await deleteUserAdmin({ targetUserId: userId });
       toast.success("User deleted successfully");
     } catch (err) {
       handleError(err);
@@ -122,7 +116,7 @@ export default function ManageUsersPage() {
   };
 
   const handleSaveEdit = async () => {
-    if (!token || !editingUser) return;
+    if (!editingUser) return;
     if (!editForm.name.trim()) {
       toast.error("Name is required");
       return;
@@ -135,7 +129,6 @@ export default function ManageUsersPage() {
     setEditLoading(true);
     try {
       await updateUserAdmin({
-        token,
         targetUserId: editingUser._id,
         name: editForm.name,
         email: editForm.email,

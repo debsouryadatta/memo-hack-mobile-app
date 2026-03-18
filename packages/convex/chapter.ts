@@ -1,32 +1,19 @@
 import { v } from "convex/values";
-import { jwtVerify } from "jose";
 import { Id } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, MutationCtx, QueryCtx } from "./_generated/server";
 import { throwAppError } from "./errors";
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "your-secret-key");
-
-async function verifyToken(token: string): Promise<{ userId: string }> {
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return { userId: payload.userId as string };
-  } catch (error) {
-    throwAppError("AUTH_REQUIRED", "Invalid or expired token");
-  }
-}
-
-async function requireAuth(token: string) {
-  if (!token) {
+async function requireAuth(ctx: QueryCtx | MutationCtx): Promise<string> {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) {
     throwAppError("AUTH_REQUIRED", "Authentication required");
   }
-  
-  const decoded = await verifyToken(token);
-  return decoded.userId;
+  return identity.subject;
 }
 
-async function requireAdminAuth(ctx: any, token: string) {
-  const userId = await requireAuth(token);
-  
+async function requireAdminAuth(ctx: QueryCtx | MutationCtx) {
+  const userId = await requireAuth(ctx);
+
   const user = await ctx.db.get(userId as Id<"users">);
   if (!user?.admin) {
     throwAppError("ADMIN_REQUIRED", "Admin access required");
@@ -92,7 +79,6 @@ export const getAllChapters = query({
 
 export const createChapter = mutation({
   args: {
-    token: v.string(),
     title: v.string(),
     description: v.string(),
     difficulty: v.string(),
@@ -109,7 +95,7 @@ export const createChapter = mutation({
     }))),
   },
   handler: async (ctx, args) => {
-    await requireAdminAuth(ctx, args.token);
+    await requireAdminAuth(ctx);
     
     const chapterId = await ctx.db.insert("chapters", {
       title: args.title,
@@ -127,7 +113,6 @@ export const createChapter = mutation({
 
 export const updateChapter = mutation({
   args: {
-    token: v.string(),
     chapterId: v.id("chapters"),
     title: v.optional(v.string()),
     description: v.optional(v.string()),
@@ -143,7 +128,7 @@ export const updateChapter = mutation({
     }))),
   },
   handler: async (ctx, args) => {
-    await requireAdminAuth(ctx, args.token);
+    await requireAdminAuth(ctx);
     
     const chapter = await ctx.db.get(args.chapterId);
     
@@ -153,7 +138,7 @@ export const updateChapter = mutation({
     
     const updates = Object.fromEntries(
       Object.entries(args).filter(([key, value]) => 
-        key !== 'token' && key !== 'chapterId' && value !== undefined
+        key !== 'chapterId' && value !== undefined
       )
     );
     
@@ -165,11 +150,10 @@ export const updateChapter = mutation({
 
 export const deleteChapter = mutation({
   args: {
-    token: v.string(),
     chapterId: v.id("chapters"),
   },
   handler: async (ctx, args) => {
-    await requireAdminAuth(ctx, args.token);
+    await requireAdminAuth(ctx);
     
     const chapter = await ctx.db.get(args.chapterId);
     

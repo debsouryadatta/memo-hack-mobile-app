@@ -1,11 +1,13 @@
 import { api } from "@/convex/_generated/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import React, {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -21,6 +23,105 @@ interface User {
   createdAt: number;
   updatedAt: number;
 }
+
+// ---------------------------------------------------------------------------
+// TokenContext — lightweight, lives OUTSIDE ConvexProviderWithAuth so it can
+// supply the JWT to fetchAccessToken without a circular dependency.
+// Also persists user data so sessions survive app restarts without needing
+// Convex JWKS verification.
+// ---------------------------------------------------------------------------
+
+interface TokenContextType {
+  rawToken: string | null;
+  setRawToken: (token: string | null) => Promise<void>;
+  hasCheckedStorage: boolean;
+  persistedUser: User | null;
+  setPersistedUser: (user: User | null) => Promise<void>;
+}
+
+const TokenContext = createContext<TokenContextType | undefined>(undefined);
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [rawToken, setRawTokenState] = useState<string | null>(null);
+  const [persistedUser, setPersistedUserState] = useState<User | null>(null);
+  const [hasCheckedStorage, setHasCheckedStorage] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      AsyncStorage.getItem("auth_token"),
+      AsyncStorage.getItem("auth_user"),
+    ])
+      .then(([storedToken, storedUser]) => {
+        if (storedToken) setRawTokenState(storedToken);
+        if (storedUser) {
+          try {
+            setPersistedUserState(JSON.parse(storedUser));
+          } catch {
+            // ignore malformed cache
+          }
+        }
+      })
+      .catch(console.error)
+      .finally(() => setHasCheckedStorage(true));
+  }, []);
+
+  const setRawToken = async (token: string | null) => {
+    setRawTokenState(token);
+    if (token) {
+      await AsyncStorage.setItem("auth_token", token);
+    } else {
+      await AsyncStorage.removeItem("auth_token");
+      await AsyncStorage.removeItem("auth_user");
+      setPersistedUserState(null);
+    }
+  };
+
+  const setPersistedUser = async (user: User | null) => {
+    setPersistedUserState(user);
+    if (user) {
+      await AsyncStorage.setItem("auth_user", JSON.stringify(user));
+    } else {
+      await AsyncStorage.removeItem("auth_user");
+    }
+  };
+
+  return (
+    <TokenContext.Provider value={{ rawToken, setRawToken, hasCheckedStorage, persistedUser, setPersistedUser }}>
+      {children}
+    </TokenContext.Provider>
+  );
+}
+
+function useToken() {
+  const ctx = useContext(TokenContext);
+  if (!ctx) throw new Error("useToken must be used within AppProvider");
+  return ctx;
+}
+
+/**
+ * Used by ConvexProviderWithAuth to inject the JWT into the Convex auth header.
+ * The token is read from TokenContext — it is NEVER passed as a function arg,
+ * so it will not appear in Convex dashboard logs (fixes C-2).
+ */
+export function useAuthForConvex() {
+  const { rawToken, hasCheckedStorage } = useToken();
+  const tokenRef = useRef(rawToken);
+  tokenRef.current = rawToken;
+
+  const fetchAccessToken = useCallback(async () => {
+    return tokenRef.current;
+  }, []);
+
+  return {
+    isLoading: !hasCheckedStorage,
+    isAuthenticated: rawToken !== null,
+    fetchAccessToken,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// AppContext — lives INSIDE ConvexProviderWithAuth, uses Convex hooks.
+// ---------------------------------------------------------------------------
 
 interface AppContextType {
   user: User | null;
@@ -44,71 +145,35 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-interface AppProviderProps {
-  children: ReactNode;
-}
-
-export function AppProvider({ children }: AppProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
+export function UserProvider({ children }: { children: ReactNode }) {
+  const { rawToken, setRawToken, hasCheckedStorage, persistedUser, setPersistedUser } = useToken();
+  const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [token, setToken] = useState<string | null>(null);
-  const [hasCheckedStorage, setHasCheckedStorage] = useState(false);
+
+  // Initialise from AsyncStorage cache so profile is visible immediately
+  useEffect(() => {
+    if (hasCheckedStorage) {
+      if (persistedUser && rawToken) {
+        setUserState(persistedUser);
+      }
+      setIsLoading(false);
+    }
+  }, [hasCheckedStorage]);
+
+  const setUser = (u: User | null) => {
+    setUserState(u);
+    setPersistedUser(u);
+  };
 
   const signinMutation = useMutation(api.user.signin);
   const signupMutation = useMutation(api.user.signup);
-  const getCurrentUserQuery = useQuery(
-    api.user.getCurrentUser,
-    token ? { token } : "skip",
-  );
-
-  useEffect(() => {
-    loadStoredAuth();
-  }, []);
-
-  useEffect(() => {
-    // Only process loading state after we've checked AsyncStorage
-    if (!hasCheckedStorage) return;
-
-    if (token) {
-      if (getCurrentUserQuery !== undefined) {
-        if (getCurrentUserQuery) {
-          setUser(getCurrentUserQuery);
-          setIsLoading(false);
-        } else {
-          signout();
-          setIsLoading(false);
-        }
-      }
-      // If getCurrentUserQuery is undefined, keep loading
-    } else {
-      // No token and we've checked storage, stop loading
-      setIsLoading(false);
-    }
-  }, [getCurrentUserQuery, token, hasCheckedStorage]);
-
-  const loadStoredAuth = async () => {
-    try {
-      const storedToken = await AsyncStorage.getItem("auth_token");
-      setHasCheckedStorage(true);
-      if (storedToken) {
-        setToken(storedToken);
-        // Keep isLoading true - it will be set to false when the query resolves
-      }
-      // If no token, the useEffect will handle setting isLoading to false
-    } catch (error) {
-      console.error("Error loading stored auth:", error);
-      setHasCheckedStorage(true);
-      setIsLoading(false);
-    }
-  };
 
   const signin = async (email: string, password: string) => {
     try {
       setIsLoading(true);
       const result = await signinMutation({ email, password });
-      setToken(result.token);
-      setUser(result.user);
-      await AsyncStorage.setItem("auth_token", result.token);
+      await setRawToken(result.token);
+      setUser(result.user as User);
     } catch (error) {
       console.error("Signin error:", error);
       throw error;
@@ -137,9 +202,8 @@ export function AppProvider({ children }: AppProviderProps) {
         image,
         memohackStudent: memohackStudent ?? false,
       });
-      setToken(result.token);
-      setUser(result.user);
-      await AsyncStorage.setItem("auth_token", result.token);
+      await setRawToken(result.token);
+      setUser(result.user as User);
     } catch (error) {
       console.error("Signup error:", error);
       throw error;
@@ -150,27 +214,23 @@ export function AppProvider({ children }: AppProviderProps) {
 
   const signout = async () => {
     try {
-      setToken(null);
-      setUser(null);
-      await AsyncStorage.removeItem("auth_token");
+      await setRawToken(null);
+      setUserState(null);
     } catch (error) {
       console.error("Signout error:", error);
     }
   };
 
   const getCurrentUser = async () => {
-    if (!token) return;
-    // The query will automatically refetch when token changes
+    // User data is restored from AsyncStorage on app start
   };
-
-  const isAuthenticated = user !== null;
 
   const value: AppContextType = {
     user,
     setUser,
     isLoading,
-    isAuthenticated,
-    token,
+    isAuthenticated: user !== null,
+    token: rawToken,
     signin,
     signup,
     signout,
@@ -179,6 +239,11 @@ export function AppProvider({ children }: AppProviderProps) {
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
+
+// Keep the old AppProvider name as an alias for backward compatibility
+// (used in auth screens and tab components via useApp)
+// Note: components that call useApp() must be inside UserProvider.
+
 
 export function useApp() {
   const context = useContext(AppContext);

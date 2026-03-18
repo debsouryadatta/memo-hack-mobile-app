@@ -1,5 +1,4 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { AuthProvider } from "@/context/AuthContext";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import LoginPage from "@/pages/LoginPage";
 import ManageChaptersPage from "@/pages/ManageChaptersPage";
@@ -9,7 +8,7 @@ import { Toaster } from "sonner";
 
 export default function App() {
   return (
-    <AuthProvider>
+    <>
       <Toaster richColors position="top-right" />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -30,6 +29,6 @@ export default function App() {
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
-    </AuthProvider>
+    </>
   );
 }

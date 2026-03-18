@@ -1,7 +1,7 @@
 import { v } from "convex/values";
-import { SignJWT, jwtVerify } from "jose";
+import { SignJWT } from "jose";
 import { Id } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
+import { mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 import { throwAppError } from "./errors";
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
@@ -9,32 +9,25 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 async function generateToken(userId: string): Promise<string> {
   return await new SignJWT({ userId })
     .setProtectedHeader({ alg: 'HS256' })
+    .setIssuer("https://memohack.in")
+    .setSubject(userId)
     .setExpirationTime('1095d')
     .setIssuedAt()
     .sign(JWT_SECRET);
 }
 
-async function verifyToken(token: string): Promise<{ userId: string }> {
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return { userId: payload.userId as string };
-  } catch (error) {
-    throwAppError("AUTH_REQUIRED", "Invalid or expired token");
-  }
-}
-
-async function requireAuth(token: string) {
-  if (!token) {
+async function requireAuth(ctx: QueryCtx | MutationCtx): Promise<string> {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) {
     throwAppError("AUTH_REQUIRED", "Authentication required");
   }
-  
-  const decoded = await verifyToken(token);
-  return decoded.userId;
+  // subject is set to userId in generateToken
+  return identity.subject;
 }
 
-async function requireAdminAuth(ctx: any, token: string) {
-  const userId = await requireAuth(token);
-  
+async function requireAdminAuth(ctx: QueryCtx | MutationCtx) {
+  const userId = await requireAuth(ctx);
+
   const user = await ctx.db.get(userId as Id<"users">);
   if (!user?.admin) {
     throwAppError("ADMIN_REQUIRED", "Admin access required");
@@ -146,21 +139,19 @@ export const signin = mutation({
 });
 
 export const getCurrentUser = query({
-  args: {
-    token: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const userId = await requireAuth(args.token);
-    
-    const user = await ctx.db.get(userId as Id<"users">);
-    return user;
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+
+    const user = await ctx.db.get(identity.subject as Id<"users">);
+    return user ?? null;
   },
 });
 
 export const updateUser = mutation({
   args: {
     email: v.string(),
-    token: v.string(),
     name: v.optional(v.string()),
     phone: v.optional(v.string()),
     image: v.optional(v.string()),
@@ -168,7 +159,7 @@ export const updateUser = mutation({
     memohackStudent: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const userId = await requireAuth(args.token);
+    const userId = await requireAuth(ctx);
     
     const user = await ctx.db.get(userId as Id<"users">);
 
@@ -177,7 +168,7 @@ export const updateUser = mutation({
     }
 
     const filteredUpdates = Object.fromEntries(
-      Object.entries(args).filter(([key, value]) => key !== 'token' && value !== undefined)
+      Object.entries(args).filter(([, value]) => value !== undefined)
     );
 
     await ctx.db.patch(userId as Id<"users">, {
@@ -190,11 +181,9 @@ export const updateUser = mutation({
 });
 
 export const deleteUser = mutation({
-  args: {
-    token: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const userId = await requireAuth(args.token);
+  args: {},
+  handler: async (ctx) => {
+    const userId = await requireAuth(ctx);
     
     const user = await ctx.db.get(userId as Id<"users">);
 
@@ -209,12 +198,11 @@ export const deleteUser = mutation({
 
 export const changePassword = mutation({
   args: {
-    token: v.string(),
     oldPassword: v.string(),
     newPassword: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await requireAuth(args.token);
+    const userId = await requireAuth(ctx);
     
     const user = await ctx.db.get(userId as Id<"users">);
 
@@ -239,11 +227,9 @@ export const changePassword = mutation({
 
 // Admin functions for managing users
 export const getAllUsers = query({
-  args: {
-    token: v.string(),
-  },
-  handler: async (ctx, args) => {
-    await requireAdminAuth(ctx, args.token);
+  args: {},
+  handler: async (ctx) => {
+    await requireAdminAuth(ctx);
 
     const users = await ctx.db.query("users").collect();
     
@@ -257,11 +243,10 @@ export const getAllUsers = query({
 
 export const getUsersByClass = query({
   args: {
-    token: v.string(),
     class: v.string(),
   },
   handler: async (ctx, args) => {
-    await requireAdminAuth(ctx, args.token);
+    await requireAdminAuth(ctx);
 
     const users = await ctx.db
       .query("users")
@@ -277,11 +262,10 @@ export const getUsersByClass = query({
 
 export const searchUsers = query({
   args: {
-    token: v.string(),
     searchTerm: v.string(),
   },
   handler: async (ctx, args) => {
-    await requireAdminAuth(ctx, args.token);
+    await requireAdminAuth(ctx);
 
     const users = await ctx.db.query("users").collect();
     
@@ -300,12 +284,11 @@ export const searchUsers = query({
 
 export const toggleUserAdminStatus = mutation({
   args: {
-    token: v.string(),
     targetUserId: v.string(),
     admin: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const adminUser = await requireAdminAuth(ctx, args.token);
+    const adminUser = await requireAdminAuth(ctx);
 
     const targetUser = await ctx.db.get(args.targetUserId as Id<"users">);
     if (!targetUser) {
@@ -328,11 +311,10 @@ export const toggleUserAdminStatus = mutation({
 
 export const deleteUserAsAdmin = mutation({
   args: {
-    token: v.string(),
     targetUserId: v.string(),
   },
   handler: async (ctx, args) => {
-    const adminUser = await requireAdminAuth(ctx, args.token);
+    const adminUser = await requireAdminAuth(ctx);
 
     const targetUser = await ctx.db.get(args.targetUserId as Id<"users">);
     if (!targetUser) {
@@ -350,11 +332,9 @@ export const deleteUserAsAdmin = mutation({
 });
 
 export const getUserStats = query({
-  args: {
-    token: v.string(),
-  },
-  handler: async (ctx, args) => {
-    await requireAdminAuth(ctx, args.token);
+  args: {},
+  handler: async (ctx) => {
+    await requireAdminAuth(ctx);
 
     const allUsers = await ctx.db.query("users").collect();
     const adminCount = allUsers.filter(u => u.admin).length;
@@ -376,7 +356,6 @@ export const getUserStats = query({
 
 export const updateUserAsAdmin = mutation({
   args: {
-    token: v.string(),
     targetUserId: v.string(),
     name: v.optional(v.string()),
     email: v.optional(v.string()),
@@ -386,7 +365,7 @@ export const updateUserAsAdmin = mutation({
     memohackStudent: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const adminUser = await requireAdminAuth(ctx, args.token);
+    const adminUser = await requireAdminAuth(ctx);
 
     const targetUser = await ctx.db.get(args.targetUserId as Id<"users">);
     if (!targetUser) {

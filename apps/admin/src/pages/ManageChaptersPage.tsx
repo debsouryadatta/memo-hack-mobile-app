@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/context/AuthContext";
 import { handleError } from "@/lib/errors";
 import { api } from "@memo-hack/convex";
 import { useMutation, useQuery } from "convex/react";
@@ -61,7 +60,6 @@ const difficultyColors: Record<string, string> = {
 };
 
 export default function ManageChaptersPage() {
-  const { token } = useAuth();
 
   const [selectedSubject, setSelectedSubject] = useState("physics");
   const [selectedClass, setSelectedClass] = useState("9");
@@ -165,7 +163,6 @@ export default function ManageChaptersPage() {
     }));
 
   const handleSave = async () => {
-    if (!token) return;
     if (!form.title.trim()) {
       toast.error("Chapter title is required");
       return;
@@ -175,7 +172,6 @@ export default function ManageChaptersPage() {
       const validVideos = form.videos.filter((v) => v.title && v.youtubeUrl);
       if (editingChapter) {
         await updateChapter({
-          token,
           chapterId: editingChapter._id as GenericId<"chapters">,
           title: form.title,
           description: form.description,
@@ -186,7 +182,6 @@ export default function ManageChaptersPage() {
         toast.success("Chapter updated successfully");
       } else {
         await createChapter({
-          token,
           title: form.title,
           description: form.description,
           difficulty: form.difficulty,
@@ -206,11 +201,10 @@ export default function ManageChaptersPage() {
   };
 
   const handleDelete = async (chapter: any) => {
-    if (!token) return;
     if (!window.confirm(`Delete "${chapter.title}"? This cannot be undone.`))
       return;
     try {
-      await deleteChapter({ token, chapterId: chapter._id });
+      await deleteChapter({ chapterId: chapter._id });
       toast.success("Chapter deleted");
     } catch (err) {
       handleError(err);
