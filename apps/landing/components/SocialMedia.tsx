@@ -1,6 +1,6 @@
+import { ExternalLink } from 'lucide-react';
 import React from 'react';
 import { Reveal } from './ui/Reveal';
-import { ExternalLink } from 'lucide-react';
 
 interface SocialLink {
   name: string;
@@ -56,7 +56,7 @@ const socialLinks: SocialLink[] = [
 
 export const SocialMedia: React.FC = () => {
   return (
-    <section className="py-8 md:py-24 px-4 md:px-4 relative overflow-hidden bg-[#020420]">
+    <section className="py-8 md:py-24 px-4 md:px-4 relative overflow-hidden bg-slate-50 dark:bg-[#020420]">
       {/* Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Subtle gradient orbs */}
@@ -78,9 +78,9 @@ export const SocialMedia: React.FC = () => {
         {/* Header */}
         <Reveal width="100%" className="text-center mb-6 md:mb-16">
           <h2 className="text-xl md:text-5xl font-display font-extrabold mb-2 md:mb-6 tracking-tight">
-            Connect With <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Us</span>
+            Connect With <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-400 dark:to-purple-400">Us</span>
           </h2>
-          <p className="text-gray-400 text-xs md:text-lg max-w-xl mx-auto">
+          <p className="text-slate-500 dark:text-gray-400 text-xs md:text-lg max-w-xl mx-auto">
             Follow us on social media for study tips, updates, and exclusive content
           </p>
         </Reveal>
@@ -95,7 +95,7 @@ export const SocialMedia: React.FC = () => {
                 rel="noopener noreferrer"
                 className="block group"
               >
-                <div className="relative overflow-hidden rounded-lg md:rounded-3xl bg-[#0a0b1e]/80 border border-white/5 p-2 md:p-8 hover:border-white/10 transition-all duration-300 hover:transform hover:scale-[1.02]">
+                <div className="relative overflow-hidden rounded-lg md:rounded-3xl bg-white dark:bg-[#0a0b1e]/80 border border-slate-200 dark:border-white/5 p-2 md:p-8 hover:border-slate-300 dark:hover:border-white/10 transition-all duration-300 hover:transform hover:scale-[1.02]">
                   {/* Background Glow on Hover */}
                   <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
                     social.name === 'YouTube' ? 'bg-red-500/5' :
@@ -122,7 +122,7 @@ export const SocialMedia: React.FC = () => {
                     </div>
 
                     {/* Platform Name */}
-                    <h3 className="text-[10px] md:text-xl font-display font-bold text-white mb-0 md:mb-1 group-hover:text-white/90 transition-colors leading-tight">
+                    <h3 className="text-[10px] md:text-xl font-display font-bold text-slate-900 dark:text-white mb-0 md:mb-1 group-hover:text-slate-700 dark:group-hover:text-white/90 transition-colors leading-tight">
                       {social.name}
                     </h3>
 
@@ -132,7 +132,7 @@ export const SocialMedia: React.FC = () => {
                     </p>
 
                     {/* Follow Link - Hidden on mobile */}
-                    <div className="hidden md:flex mt-6 items-center gap-2 text-gray-500 group-hover:text-white/70 transition-colors">
+                    <div className="hidden md:flex mt-6 items-center gap-2 text-slate-400 dark:text-gray-500 group-hover:text-slate-600 dark:group-hover:text-white/70 transition-colors">
                       <span className="text-sm font-medium">Follow</span>
                       <ExternalLink size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                     </div>
@@ -153,13 +153,13 @@ export const SocialMedia: React.FC = () => {
         {/* Bottom Decorative Element */}
         <Reveal delay={0.4} width="100%">
           <div className="mt-10 md:mt-16 flex items-center justify-center gap-4">
-            <div className="h-px flex-1 max-w-[100px] bg-gradient-to-r from-transparent to-white/10"></div>
+            <div className="h-px flex-1 max-w-[100px] bg-gradient-to-r from-transparent to-slate-300 dark:to-white/10"></div>
             <div className="flex gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/50"></div>
               <div className="w-1.5 h-1.5 rounded-full bg-purple-500/50"></div>
               <div className="w-1.5 h-1.5 rounded-full bg-pink-500/50"></div>
             </div>
-            <div className="h-px flex-1 max-w-[100px] bg-gradient-to-l from-transparent to-white/10"></div>
+            <div className="h-px flex-1 max-w-[100px] bg-gradient-to-l from-transparent to-slate-300 dark:to-white/10"></div>
           </div>
         </Reveal>
       </div>

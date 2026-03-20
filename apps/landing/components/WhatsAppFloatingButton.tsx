@@ -36,9 +36,9 @@ export const WhatsAppFloatingButton: React.FC<WhatsAppFloatingButtonProps> = ({
 
         {/* Hover Tooltip */}
         <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap">
-          <div className="bg-gray-900/95 backdrop-blur-sm text-white text-xs md:text-sm font-medium px-3 py-2 rounded-lg shadow-xl border border-white/10">
+          <div className="bg-white dark:bg-gray-900/95 backdrop-blur-sm text-slate-800 dark:text-white text-xs md:text-sm font-medium px-3 py-2 rounded-lg shadow-xl border border-slate-200 dark:border-white/10">
             Chat on WhatsApp
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full w-0 h-0 border-l-[6px] border-l-gray-900/95 border-y-[6px] border-y-transparent"></div>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full w-0 h-0 border-l-[6px] border-l-white dark:border-l-gray-900/95 border-y-[6px] border-y-transparent"></div>
           </div>
         </div>
       </div>

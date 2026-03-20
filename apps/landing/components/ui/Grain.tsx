@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Grain: React.FC = () => {
   return (
-    <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] mix-blend-overlay">
+    <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.02] dark:opacity-[0.03] mix-blend-overlay">
       <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
         <filter id="noiseFilter">
           <feTurbulence 

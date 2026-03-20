@@ -104,8 +104,8 @@ export default function SignUpScreen() {
                     {/* Image Container */}
                     <View className="w-full items-center mb-6">
                         <Image
-                            source={{ uri: 'https://res.cloudinary.com/diyxwdtjd/image/upload/v1750880675/projects/8848692-removebg-preview_c63mem.png' }}
-                            className='w-[200px] h-[200px]'
+                            source={require('../../assets/illustrations/hero-auth.png')}
+                            style={{ width: 150, height: 150 }}
                             resizeMode='contain'
                         />
                     </View>

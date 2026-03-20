@@ -155,7 +155,7 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
             <Image
-              source={{ uri: "https://res.cloudinary.com/diyxwdtjd/image/upload/v1750885008/projects/20944363-Photoroom_exvbcp.png" }}
+              source={require('../../../assets/illustrations/hero-home.png')}
               style={{ width: 110, height: 110 }}
               resizeMode="contain"
             />

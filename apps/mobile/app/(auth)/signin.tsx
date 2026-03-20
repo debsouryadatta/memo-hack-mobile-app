@@ -6,6 +6,8 @@ import React, { useEffect, useState } from "react";
 import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useApp } from "../../components/ContextProvider";
 
+const heroAuth = require('../../assets/illustrations/hero-auth.png');
+
 export default function SignInScreen() {
     const router = useRouter();
     const { signin, isLoading, isAuthenticated } = useApp();
@@ -60,8 +62,8 @@ export default function SignInScreen() {
             {/* Image Container */}
           <View className="w-full items-center mb-8">
             <Image
-              source={{ uri: 'https://res.cloudinary.com/diyxwdtjd/image/upload/v1750880675/projects/8848692-removebg-preview_c63mem.png' }}
-              className='w-[250px] h-[250px]'
+              source={heroAuth}
+              style={{ width: 180, height: 180 }}
               resizeMode='contain'
             />
           </View>

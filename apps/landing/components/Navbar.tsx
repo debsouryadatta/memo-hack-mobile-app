@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ThemeToggle } from './ui/ThemeToggle';
 
 interface NavbarProps {
   onNavigate?: (view: 'home' | 'admission', sectionId?: string) => void;
@@ -34,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
         transition-all duration-300 mx-auto
         ${
           scrolled
-            ? "w-[95%] md:w-[60%] bg-indigo-950/80 backdrop-blur-xl border border-white/10 shadow-2xl shadow-indigo-500/10 rounded-full mt-2"
+            ? "w-[95%] md:w-[60%] bg-white/80 dark:bg-indigo-950/80 backdrop-blur-xl border border-slate-200 dark:border-white/10 shadow-2xl shadow-slate-200/50 dark:shadow-indigo-500/10 rounded-full mt-2"
             : "w-full max-w-7xl bg-transparent border-transparent"
         }
       `}
@@ -49,35 +50,36 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
         </a>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300 ml-auto mr-8">
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-gray-300 ml-auto mr-8">
           <a
             href="#courses"
             onClick={(e) => handleNavClick(e, 'courses')}
-            className="hover:text-green-400 transition-colors cursor-pointer"
+            className="hover:text-green-600 dark:hover:text-green-400 transition-colors cursor-pointer"
           >
             Programs
           </a>
           <a
             href="#faculty"
             onClick={(e) => handleNavClick(e, 'faculty')}
-            className="hover:text-green-400 transition-colors cursor-pointer"
+            className="hover:text-green-600 dark:hover:text-green-400 transition-colors cursor-pointer"
           >
             Mentors
           </a>
           <a
             href="#contact"
             onClick={(e) => handleNavClick(e, 'contact')}
-            className="hover:text-green-400 transition-colors cursor-pointer"
+            className="hover:text-green-600 dark:hover:text-green-400 transition-colors cursor-pointer"
           >
             Contact
           </a>
         </div>
 
-        {/* CTA */}
-        <div className="hidden md:block">
+        {/* Theme Toggle + CTA */}
+        <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle />
           <button
             onClick={() => onNavigate?.('admission')}
-            className="bg-green-500 text-indigo-950 px-5 py-2 rounded-full text-sm font-bold hover:bg-green-400 transition-colors flex items-center gap-2 group shadow-lg shadow-green-500/20"
+            className="bg-green-500 text-white dark:text-indigo-950 px-5 py-2 rounded-full text-sm font-bold hover:bg-green-400 transition-colors flex items-center gap-2 group shadow-lg shadow-green-500/20"
           >
             Admission
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -85,35 +87,38 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
         </div>
 
         {/* Mobile Toggle */}
-        <button
-          className="md:hidden text-white p-1 ml-auto"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="md:hidden flex items-center gap-2 ml-auto">
+          <ThemeToggle />
+          <button
+            className="text-slate-700 dark:text-white p-1"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-16 md:top-20 left-3 right-3 bg-indigo-950/95 backdrop-blur-xl rounded-3xl p-6 flex flex-col gap-4 border border-white/10 md:hidden animate-fade-in-up shadow-2xl">
+        <div className="absolute top-16 md:top-20 left-3 right-3 bg-white/95 dark:bg-indigo-950/95 backdrop-blur-xl rounded-3xl p-6 flex flex-col gap-4 border border-slate-200 dark:border-white/10 md:hidden animate-fade-in-up shadow-2xl">
           <a
             href="#courses"
             onClick={(e) => handleNavClick(e, 'courses')}
-            className="text-lg font-medium py-2 border-b border-white/5 cursor-pointer"
+            className="text-lg font-medium py-2 border-b border-slate-100 dark:border-white/5 text-slate-700 dark:text-white cursor-pointer"
           >
             Programs
           </a>
           <a
             href="#faculty"
             onClick={(e) => handleNavClick(e, 'faculty')}
-            className="text-lg font-medium py-2 border-b border-white/5 cursor-pointer"
+            className="text-lg font-medium py-2 border-b border-slate-100 dark:border-white/5 text-slate-700 dark:text-white cursor-pointer"
           >
             Mentors
           </a>
           <a
             href="#contact"
             onClick={(e) => handleNavClick(e, 'contact')}
-            className="text-lg font-medium py-2 border-b border-white/5 cursor-pointer"
+            className="text-lg font-medium py-2 border-b border-slate-100 dark:border-white/5 text-slate-700 dark:text-white cursor-pointer"
           >
             Contact
           </a>
@@ -122,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
               setMobileMenuOpen(false);
               onNavigate?.('admission');
             }}
-            className="bg-green-500 text-indigo-950 w-full py-3.5 rounded-xl font-bold mt-2 flex items-center justify-center gap-2"
+            className="bg-green-500 text-white dark:text-indigo-950 w-full py-3.5 rounded-xl font-bold mt-2 flex items-center justify-center gap-2"
           >
             Admission <ArrowRight size={18} />
           </button>

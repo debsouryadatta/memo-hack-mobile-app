@@ -2,27 +2,27 @@ import { useApp } from "@/components/ContextProvider";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
-    Calendar,
-    ChevronRight,
-    Edit2,
-    GraduationCap,
-    LogOut,
-    Mail,
-    Phone,
-    Settings,
-    User,
+  Calendar,
+  ChevronRight,
+  Edit2,
+  GraduationCap,
+  LogOut,
+  Mail,
+  Phone,
+  Settings,
+  User,
 } from "lucide-react-native";
 import React from "react";
 import {
-    Alert,
-    Dimensions,
-    Image,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Dimensions,
+  Image,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -85,10 +85,8 @@ export default function ProfileScreen() {
           {/* Illustration Image */}
           <View className="items-center mb-8">
             <Image
-              source={{
-                uri: "https://res.cloudinary.com/diyxwdtjd/image/upload/v1750880675/projects/8848692-removebg-preview_c63mem.png",
-              }}
-              className="w-[250px] h-[250px]"
+              source={require('../../../assets/illustrations/hero-auth.png')}
+              style={{ width: 180, height: 180 }}
               resizeMode="contain"
             />
           </View>

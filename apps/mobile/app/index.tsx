@@ -1,8 +1,10 @@
+import { useApp } from "@/components/ContextProvider";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { Image, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
-import { useApp } from "@/components/ContextProvider";
+import { ActivityIndicator, Image, Text, TouchableOpacity, View } from "react-native";
+
+const heroLanding = require('../assets/illustrations/hero-landing.png');
 
 export default function LandingScreen() {
   const router = useRouter();
@@ -24,8 +26,8 @@ export default function LandingScreen() {
         />
         <View className="flex-1 justify-center items-center">
           <Image
-            source={{ uri: 'https://res.cloudinary.com/diyxwdtjd/image/upload/v1750876111/projects/8848682-removebg-preview_y6w1fz.png' }}
-            className='w-32 h-32 mb-8'
+            source={heroLanding}
+            style={{ width: 120, height: 120, marginBottom: 32 }}
             resizeMode='contain'
           />
           <ActivityIndicator size="large" color="white" />
@@ -45,8 +47,8 @@ export default function LandingScreen() {
         {/* Image Container */}
         <View className="absolute top-0 w-full h-3/5 justify-center items-center">
           <Image
-            source={{ uri: 'https://res.cloudinary.com/diyxwdtjd/image/upload/v1750876111/projects/8848682-removebg-preview_y6w1fz.png' }}
-            className='w-[400px] h-[400px]'
+            source={heroLanding}
+            style={{ width: 280, height: 280 }}
             resizeMode='contain'
           />
         </View>

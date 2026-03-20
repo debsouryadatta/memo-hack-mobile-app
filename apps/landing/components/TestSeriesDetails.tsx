@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from "react";
 import {
-  ArrowLeft,
-  FileText,
-  Download,
-  Activity,
-  Target,
-  Zap,
-  Trophy,
-  Timer,
-  BarChart,
-  Loader2,
+    Activity,
+    ArrowLeft,
+    BarChart,
+    Download,
+    FileText,
+    Loader2,
+    Target,
+    Trophy,
+    Zap
 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { fetchSheetData, TestSeriesData } from "../services/googleSheetsService";
 import { GlassCard } from "./ui/GlassCard";
 import { Reveal } from "./ui/Reveal";
-import { fetchSheetData, TestSeriesData } from "../services/googleSheetsService";
 
 interface TestSeriesDetailsProps {
   onBack: () => void;
@@ -98,17 +97,17 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#020420] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#020420] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
-          <p className="text-gray-400 text-sm">Loading test series data...</p>
+          <p className="text-slate-500 dark:text-gray-400 text-sm">Loading test series data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#020420] pb-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#020420] pb-20">
       {/* --- HEADER SECTION --- */}
       <div className="relative pt-24 pb-12 md:pt-32 md:pb-20 px-4 overflow-hidden">
         {/* Abstract Background */}
@@ -118,9 +117,9 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
         <div className="max-w-7xl mx-auto relative z-10">
           <button
             onClick={onBack}
-            className="group flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 md:mb-12"
+            className="group flex items-center gap-2 text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors mb-8 md:mb-12"
           >
-            <div className="p-2 rounded-full bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors">
+              <div className="p-2 rounded-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 group-hover:bg-slate-300 dark:group-hover:bg-white/10 transition-colors">
               <ArrowLeft size={16} />
             </div>
             <span className="text-sm font-mono tracking-widest uppercase">
@@ -134,7 +133,7 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
                 <Target size={32} />
               </div>
               <div>
-                <h1 className="text-3xl md:text-7xl font-display font-black tracking-tight text-white mb-1 md:mb-2">
+                <h1 className="text-3xl md:text-7xl font-display font-black tracking-tight text-slate-900 dark:text-white mb-1 md:mb-2">
                   Test Series
                 </h1>
                 <p className="text-purple-300/80 text-sm md:text-xl font-medium tracking-wide">
@@ -160,7 +159,7 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
 
               <div className="flex flex-col md:flex-row">
                 {/* Left: Visual Identity */}
-                <div className="w-full md:w-[35%] relative min-h-[200px] md:min-h-auto bg-[#000]/40 overflow-hidden border-b md:border-b-0 md:border-r border-white/5 p-8 flex flex-col justify-between">
+                <div className="w-full md:w-[35%] relative min-h-[200px] md:min-h-auto bg-slate-100 dark:bg-[#000]/40 overflow-hidden border-b md:border-b-0 md:border-r border-slate-200 dark:border-white/5 p-8 flex flex-col justify-between">
                   {/* Abstract SVG Pattern */}
                   <div className="absolute inset-0 opacity-20">
                     <svg
@@ -197,7 +196,7 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
                     >
                       {program.icon}
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-display font-black text-white tracking-tighter mb-2">
+                    <h2 className="text-4xl md:text-5xl font-display font-black text-slate-900 dark:text-white tracking-tighter mb-2">
                       {program.title}
                     </h2>
                     <h3
@@ -212,7 +211,7 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
                       {program.features.map((feature, i) => (
                         <span
                           key={i}
-                          className="text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-white/5 border border-white/10 text-gray-400"
+                          className="text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-gray-400"
                         >
                           {feature}
                         </span>
@@ -223,12 +222,12 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
 
                 {/* Right: Content & Poster */}
                 <div className="flex-1 p-6 md:p-10">
-                  <p className="text-gray-300 text-sm md:text-lg mb-6 leading-relaxed max-w-2xl">
+                  <p className="text-slate-600 dark:text-gray-300 text-sm md:text-lg mb-6 leading-relaxed max-w-2xl">
                     {program.description}
                   </p>
 
                   {/* Poster Image */}
-                  <div className="relative rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all group/poster mb-6">
+                  <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all group/poster mb-6">
                     <img
                       src={program.poster}
                       alt={`${program.title} Poster`}
@@ -245,7 +244,7 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
                         href={asset.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group/asset relative bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl p-4 transition-all cursor-pointer flex items-center justify-between"
+                        className="group/asset relative bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 rounded-xl p-4 transition-all cursor-pointer flex items-center justify-between"
                       >
                         <div className="flex items-center gap-4">
                           <div
@@ -258,16 +257,16 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
                             )}
                           </div>
                           <div>
-                            <h4 className="font-bold text-white text-sm md:text-base">
+                            <h4 className="font-bold text-slate-900 dark:text-white text-sm md:text-base">
                               {asset.label}
                             </h4>
-                            <p className="text-xs text-gray-500 mt-0.5">
+                            <p className="text-xs text-slate-500 dark:text-gray-500 mt-0.5">
                               {asset.sub}
                             </p>
                           </div>
                         </div>
                         <div
-                          className={`w-8 h-8 rounded-full bg-[#020420] flex items-center justify-center text-gray-400 group-hover/asset:text-${program.theme}-400 border border-white/10 group-hover/asset:border-${program.theme}-500/30 transition-all`}
+                          className={`w-8 h-8 rounded-full bg-white dark:bg-[#020420] flex items-center justify-center text-slate-400 dark:text-gray-400 group-hover/asset:text-${program.theme}-500 dark:group-hover/asset:text-${program.theme}-400 border border-slate-200 dark:border-white/10 group-hover/asset:border-${program.theme}-500/30 transition-all`}
                         >
                           <Download size={14} />
                         </div>
@@ -276,12 +275,12 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
                   </div>
 
                   {/* Additional Info / Stats */}
-                  <div className="mt-8 pt-8 border-t border-white/5 flex gap-8">
+                  <div className="mt-8 pt-8 border-t border-slate-200 dark:border-white/5 flex gap-8">
                     <div>
-                      <div className="flex items-center gap-2 text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">
+                      <div className="flex items-center gap-2 text-slate-500 dark:text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">
                         <Trophy size={12} /> Target
                       </div>
-                      <div className="text-white font-display font-bold text-lg">
+                      <div className="text-slate-900 dark:text-white font-display font-bold text-lg">
                         {program.id === "nrts" ? "720/720" : "300/300"}
                       </div>
                     </div>
@@ -294,7 +293,7 @@ export const TestSeriesDetails: React.FC<TestSeriesDetailsProps> = ({
       </div>
 
       <div className="text-center mt-20 md:mt-32">
-        <p className="text-gray-400 text-sm mb-4">
+        <p className="text-slate-500 dark:text-gray-400 text-sm mb-4">
           Want to analyze your performance?
         </p>
         <button

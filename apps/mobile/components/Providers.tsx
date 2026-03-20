@@ -1,11 +1,10 @@
+import { EXPO_PUBLIC_CONVEX_URL } from "@/constants";
 import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
 import { AppProvider, UserProvider, useAuthForConvex } from "./ContextProvider";
 import { ErrorBoundary } from "./ErrorBoundary";
 
-const EXPO_PUBLIC_CONVEX_URL = "https://quirky-husky-406.convex.cloud";
-
 const convex = new ConvexReactClient(EXPO_PUBLIC_CONVEX_URL, {
-    unsavedChangesWarning: false,
+  unsavedChangesWarning: false,
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -13,9 +12,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <AppProvider>
       <ConvexProviderWithAuth client={convex} useAuth={useAuthForConvex}>
         <UserProvider>
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          <ErrorBoundary>{children}</ErrorBoundary>
         </UserProvider>
       </ConvexProviderWithAuth>
     </AppProvider>

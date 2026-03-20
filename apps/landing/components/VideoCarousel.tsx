@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Play, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, Play } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface VideoSlide {
   id: string;
@@ -97,7 +97,7 @@ export const VideoCarousel: React.FC<VideoCarouselProps> = ({
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Main Carousel Container */}
-      <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-xl md:rounded-[2rem] overflow-hidden border border-white/10 bg-[#000]/60 shadow-[0_0_100px_-20px_rgba(79,70,229,0.2)] group">
+      <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-xl md:rounded-[2rem] overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-[#000]/60 shadow-[0_0_100px_-20px_rgba(79,70,229,0.1)] dark:shadow-[0_0_100px_-20px_rgba(79,70,229,0.2)] group">
         
         {/* Background Gradient */}
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/40 via-gray-900/50 to-emerald-950/40"></div>
@@ -190,7 +190,7 @@ export const VideoCarousel: React.FC<VideoCarouselProps> = ({
             e.stopPropagation();
             goToPrev();
           }}
-          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-8 h-8 md:w-12 md:h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/60 hover:border-white/20 transition-all opacity-0 group-hover:opacity-100 z-20"
+          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-8 h-8 md:w-12 md:h-12 rounded-full bg-black/40 backdrop-blur-sm border border-slate-300 dark:border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/60 hover:border-slate-400 dark:hover:border-white/20 transition-all opacity-0 group-hover:opacity-100 z-20"
           aria-label="Previous slide"
         >
           <ChevronLeft size={20} className="md:w-6 md:h-6" />
@@ -201,7 +201,7 @@ export const VideoCarousel: React.FC<VideoCarouselProps> = ({
             e.stopPropagation();
             goToNext();
           }}
-          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-8 h-8 md:w-12 md:h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/60 hover:border-white/20 transition-all opacity-0 group-hover:opacity-100 z-20"
+          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-8 h-8 md:w-12 md:h-12 rounded-full bg-black/40 backdrop-blur-sm border border-slate-300 dark:border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/60 hover:border-slate-400 dark:hover:border-white/20 transition-all opacity-0 group-hover:opacity-100 z-20"
           aria-label="Next slide"
         >
           <ChevronRight size={20} className="md:w-6 md:h-6" />
@@ -253,18 +253,18 @@ export const VideoCarousel: React.FC<VideoCarouselProps> = ({
 
       {/* Bottom Status Bar */}
       <div className="flex items-center justify-center mt-4">
-        <div className="flex items-center gap-3 md:gap-6 px-4 py-1.5 md:py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
+          <div className="flex items-center gap-3 md:gap-6 px-4 py-1.5 md:py-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-full border border-slate-200 dark:border-white/10">
           <div className="flex items-center gap-1.5">
             <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-            <span className="text-[8px] md:text-[10px] text-indigo-300 font-mono">JEE Ready</span>
+            <span className="text-[8px] md:text-[10px] text-indigo-500 dark:text-indigo-300 font-mono">JEE Ready</span>
           </div>
           <div className="w-px h-3 bg-white/20"></div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[8px] md:text-[10px] text-white/60 font-display font-semibold">Demo Lectures</span>
+            <span className="text-[8px] md:text-[10px] text-slate-500 dark:text-white/60 font-display font-semibold">Demo Lectures</span>
           </div>
           <div className="w-px h-3 bg-white/20"></div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[8px] md:text-[10px] text-emerald-300 font-mono">NEET Ready</span>
+            <span className="text-[8px] md:text-[10px] text-emerald-500 dark:text-emerald-300 font-mono">NEET Ready</span>
             <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-emerald-500 rounded-full animate-pulse"></div>
           </div>
         </div>

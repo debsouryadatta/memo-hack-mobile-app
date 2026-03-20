@@ -11,7 +11,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({ children, className = "", 
     <div 
       className={`
         glass-card rounded-2xl md:rounded-3xl p-5 md:p-8 
-        ${hoverEffect ? 'hover:bg-white/5 hover:scale-[1.01] hover:border-indigo-500/30' : ''} 
+        ${hoverEffect ? 'hover:bg-slate-50 dark:hover:bg-white/5 hover:scale-[1.01] hover:border-indigo-400/40 dark:hover:border-indigo-500/30' : ''} 
         transition-all duration-500 ease-out
         ${className}
       `}

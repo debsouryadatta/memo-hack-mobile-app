@@ -1,7 +1,7 @@
+import { ArrowRight, Calendar, ChevronRight, GraduationCap, IndianRupee, Mail, MapPin, Phone } from "lucide-react";
 import React from "react";
 import { GlassCard } from "./ui/GlassCard";
 import { Reveal } from "./ui/Reveal";
-import { MapPin, Phone, Mail, ArrowRight, GraduationCap, Calendar, IndianRupee, ChevronRight, MessageCircle } from "lucide-react";
 
 interface ContactProps {
   onNavigate?: (view: 'admission') => void;
@@ -14,7 +14,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
       className="py-12 md:py-24 px-3 md:px-4 relative overflow-hidden"
     >
       {/* Abstract Background Asset: Topographic / Quantum Field Lines */}
-      <div className="absolute inset-0 pointer-events-none -z-10 bg-[#010212]">
+      <div className="absolute inset-0 pointer-events-none -z-10 bg-slate-50 dark:bg-[#010212]">
         <svg
           className="w-full h-full opacity-20"
           viewBox="0 0 100 100"
@@ -39,7 +39,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
           </defs>
         </svg>
         {/* Grid overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.05)_1px,transparent_1px)] bg-[size:30px_30px] md:bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,black_20%,transparent_100%)]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(99,102,241,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.05)_1px,transparent_1px)] bg-[size:30px_30px] md:bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,black_20%,transparent_100%)]"></div>
       </div>
 
       <div className="max-w-7xl mx-auto">
@@ -49,63 +49,63 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
             <div className="relative pt-4">
               <h2 className="text-3xl md:text-7xl font-display font-extrabold mb-3 md:mb-8 tracking-tight leading-[0.9]">
                 BEGIN YOUR <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-white">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-slate-800 dark:from-indigo-400 dark:to-white">
                   LEGACY
                 </span>
               </h2>
-              <p className="text-xs md:text-xl text-gray-300 font-medium max-w-lg leading-relaxed mb-6 md:mb-12">
+              <p className="text-xs md:text-xl text-slate-500 dark:text-gray-300 font-medium max-w-lg leading-relaxed mb-6 md:mb-12">
                 Join the elite cohort of students at Agartala's premier
                 institute. Limited seats available for the 2025 Foundation and
                 Target batches.
               </p>
 
               <div className="space-y-3 md:space-y-8">
-                <div className="flex items-center gap-3 md:gap-6 group bg-white/5 p-3 rounded-lg md:bg-transparent md:p-0 border border-white/5 md:border-none">
+                <div className="flex items-center gap-3 md:gap-6 group bg-slate-100 dark:bg-white/5 p-3 rounded-lg md:bg-transparent md:p-0 border border-slate-200 dark:border-white/5 md:border-none">
                   <div className="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors flex-shrink-0">
                     <MapPin
-                      className="text-indigo-400 w-4 h-4 md:w-6 md:h-6"
+                      className="text-indigo-500 dark:text-indigo-400 w-4 h-4 md:w-6 md:h-6"
                       strokeWidth={2.5}
                     />
                   </div>
                   <div>
-                    <h4 className="text-xs md:text-lg font-bold text-white mb-0 md:mb-1">
+                    <h4 className="text-xs md:text-lg font-bold text-slate-900 dark:text-white mb-0 md:mb-1">
                       Offline Centre
                     </h4>
-                    <p className="text-gray-400 font-medium text-[10px] md:text-base">
+                    <p className="text-slate-500 dark:text-gray-400 font-medium text-[10px] md:text-base">
                       Skylark Club, Ker Chowmuhani, Agartala
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 md:gap-6 group bg-white/5 p-3 rounded-lg md:bg-transparent md:p-0 border border-white/5 md:border-none">
+                <div className="flex items-center gap-3 md:gap-6 group bg-slate-100 dark:bg-white/5 p-3 rounded-lg md:bg-transparent md:p-0 border border-slate-200 dark:border-white/5 md:border-none">
                   <div className="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors flex-shrink-0">
                     <Phone
-                      className="text-indigo-400 w-4 h-4 md:w-6 md:h-6"
+                      className="text-indigo-500 dark:text-indigo-400 w-4 h-4 md:w-6 md:h-6"
                       strokeWidth={2.5}
                     />
                   </div>
                   <div>
-                    <h4 className="text-xs md:text-lg font-bold text-white mb-0 md:mb-1">
+                    <h4 className="text-xs md:text-lg font-bold text-slate-900 dark:text-white mb-0 md:mb-1">
                       Contact number
                     </h4>
-                    <p className="text-gray-400 font-medium text-[10px] md:text-base">
+                    <p className="text-slate-500 dark:text-gray-400 font-medium text-[10px] md:text-base">
                       8787456991 / 9366635140
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 md:gap-6 group bg-white/5 p-3 rounded-lg md:bg-transparent md:p-0 border border-white/5 md:border-none">
+                <div className="flex items-center gap-3 md:gap-6 group bg-slate-100 dark:bg-white/5 p-3 rounded-lg md:bg-transparent md:p-0 border border-slate-200 dark:border-white/5 md:border-none">
                   <div className="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors flex-shrink-0">
                     <Mail
-                      className="text-indigo-400 w-4 h-4 md:w-6 md:h-6"
+                      className="text-indigo-500 dark:text-indigo-400 w-4 h-4 md:w-6 md:h-6"
                       strokeWidth={2.5}
                     />
                   </div>
                   <div>
-                    <h4 className="text-xs md:text-lg font-bold text-white mb-0 md:mb-1">
+                    <h4 className="text-xs md:text-lg font-bold text-slate-900 dark:text-white mb-0 md:mb-1">
                       Mail us on
                     </h4>
-                    <p className="text-gray-400 font-medium text-[10px] md:text-base">
+                    <p className="text-slate-500 dark:text-gray-400 font-medium text-[10px] md:text-base">
                       memohack9@gmail.com
                     </p>
                   </div>
@@ -124,10 +124,10 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-xs md:text-lg font-bold text-white mb-0 md:mb-1">
+                      <h4 className="text-xs md:text-lg font-bold text-slate-900 dark:text-white mb-0 md:mb-1">
                         WhatsApp Us
                       </h4>
-                      <p className="text-gray-400 font-medium text-[10px] md:text-base">
+                      <p className="text-slate-500 dark:text-gray-400 font-medium text-[10px] md:text-base">
                         +91 70856 90513
                       </p>
                     </div>
@@ -152,10 +152,10 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                       <GraduationCap className="w-4 h-4 md:w-7 md:h-7 text-indigo-400" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-xs md:text-lg font-bold text-white mb-0 md:mb-1">
+                      <h4 className="text-xs md:text-lg font-bold text-slate-900 dark:text-white mb-0 md:mb-1">
                         Ready to Join?
                       </h4>
-                      <p className="text-gray-400 font-medium text-[10px] md:text-base">
+                      <p className="text-slate-500 dark:text-gray-400 font-medium text-[10px] md:text-base">
                         Fill out our admission form
                       </p>
                     </div>
@@ -177,7 +177,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
               onClick={() => onNavigate?.('admission')}
               className="cursor-pointer group"
             >
-              <GlassCard className="!p-0 !bg-[#0a0c28]/80 !backdrop-blur-2xl !border-indigo-500/20 shadow-2xl shadow-indigo-900/20 relative overflow-hidden hover:!border-indigo-500/40 active:scale-[0.99] transition-all duration-300">
+              <GlassCard className="!p-0 !bg-white dark:!bg-[#0a0c28]/80 !backdrop-blur-2xl !border-indigo-200 dark:!border-indigo-500/20 shadow-2xl shadow-indigo-200/30 dark:shadow-indigo-900/20 relative overflow-hidden hover:!border-indigo-400 dark:hover:!border-indigo-500/40 active:scale-[0.99] transition-all duration-300">
                 {/* Background Decorative Elements */}
                 <div className="absolute -top-20 -right-20 w-40 h-40 md:w-72 md:h-72 bg-gradient-to-br from-indigo-600/20 to-purple-600/10 rounded-full blur-[60px] md:blur-[100px] pointer-events-none group-hover:from-indigo-500/30 group-hover:to-purple-500/20 transition-all duration-700"></div>
                 <div className="absolute -bottom-10 -left-10 w-32 h-32 md:w-48 md:h-48 bg-gradient-to-tr from-purple-600/15 to-transparent rounded-full blur-[40px] md:blur-[60px] pointer-events-none"></div>
@@ -207,12 +207,12 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                         <GraduationCap size={24} className="md:w-8 md:h-8" />
                       </div>
                       <div>
-                        <h3 className="text-xl md:text-3xl font-display font-extrabold text-white group-hover:text-indigo-50 transition-colors">
+                        <h3 className="text-xl md:text-3xl font-display font-extrabold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-50 transition-colors">
                           Admissions
                         </h3>
                         <div className="flex items-center gap-2 mt-1">
                           <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></div>
-                          <span className="text-indigo-300/80 text-xs md:text-sm font-mono uppercase tracking-wider">Open Now</span>
+                          <span className="text-indigo-500 dark:text-indigo-300/80 text-xs md:text-sm font-mono uppercase tracking-wider">Open Now</span>
                         </div>
                       </div>
                     </div>
@@ -224,17 +224,17 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                   </div>
 
                   {/* Description */}
-                  <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-6 md:mb-8 max-w-md">
+                  <p className="text-slate-500 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-6 md:mb-8 max-w-md">
                     Explore batch schedules, fee structures, and scholarship options for Physics & Biology classes (8-12).
                   </p>
 
                   {/* Feature Pills */}
                   <div className="flex flex-wrap gap-2 md:gap-3 mb-6 md:mb-8">
-                    <div className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-xl bg-indigo-950/50 border border-indigo-500/20 text-indigo-300">
+                    <div className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-500/20 text-indigo-500 dark:text-indigo-300">
                       <Calendar size={14} className="md:w-4 md:h-4" />
                       <span className="text-xs md:text-sm font-medium">Batch Schedule</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-xl bg-green-950/50 border border-green-500/20 text-green-300">
+                    <div className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-xl bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-500/20 text-green-500 dark:text-green-300">
                       <IndianRupee size={14} className="md:w-4 md:h-4" />
                       <span className="text-xs md:text-sm font-medium">Fee Structure</span>
                     </div>
@@ -242,7 +242,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
 
                   {/* Subject Icons */}
                   <div className="flex gap-3 md:gap-4 mb-6 md:mb-8">
-                    <div className="flex-1 p-3 md:p-4 rounded-xl bg-indigo-950/30 border border-indigo-500/10 hover:border-indigo-500/30 transition-colors">
+                    <div className="flex-1 p-3 md:p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-500/10 hover:border-indigo-400 dark:hover:border-indigo-500/30 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
                           <svg viewBox="0 0 24 24" className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -253,12 +253,12 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                           </svg>
                         </div>
                         <div>
-                          <p className="text-white font-bold text-sm md:text-base">Physics</p>
-                          <p className="text-gray-500 text-[10px] md:text-xs">JEE + Board</p>
+                          <p className="text-slate-900 dark:text-white font-bold text-sm md:text-base">Physics</p>
+                          <p className="text-slate-500 dark:text-gray-500 text-[10px] md:text-xs">JEE + Board</p>
                         </div>
                       </div>
                     </div>
-                    <div className="flex-1 p-3 md:p-4 rounded-xl bg-green-950/30 border border-green-500/10 hover:border-green-500/30 transition-colors">
+                    <div className="flex-1 p-3 md:p-4 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-500/10 hover:border-green-400 dark:hover:border-green-500/30 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400 border border-green-500/20">
                           <svg viewBox="0 0 24 24" className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -267,8 +267,8 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                           </svg>
                         </div>
                         <div>
-                          <p className="text-white font-bold text-sm md:text-base">Biology</p>
-                          <p className="text-gray-500 text-[10px] md:text-xs">NEET Focus</p>
+                          <p className="text-slate-900 dark:text-white font-bold text-sm md:text-base">Biology</p>
+                          <p className="text-slate-500 dark:text-gray-500 text-[10px] md:text-xs">NEET Focus</p>
                         </div>
                       </div>
                     </div>
@@ -280,7 +280,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                     <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </button>
 
-                  <p className="text-center text-[10px] md:text-xs text-gray-500 font-medium mt-4">
+                  <p className="text-center text-[10px] md:text-xs text-slate-500 dark:text-gray-500 font-medium mt-4">
                     Class 8 - 12 • Physics & Biology • Limited Seats
                   </p>
                 </div>
