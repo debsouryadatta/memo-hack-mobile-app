@@ -31,5 +31,22 @@ export default defineSchema({
       description: v.optional(v.string()),
       youtubeUrl: v.string(),
     }))),
+    createdAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
   }),
+  aiChatSessions: defineTable({
+    _id: v.id("aiChatSessions"),
+    userId: v.id("users"),
+    title: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+  aiChatMessages: defineTable({
+    _id: v.id("aiChatMessages"),
+    sessionId: v.id("aiChatSessions"),
+    role: v.union(v.literal("user"), v.literal("assistant")),
+    content: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_session", ["sessionId"]),
 });

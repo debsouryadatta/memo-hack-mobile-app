@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
-import { mutation, query, MutationCtx, QueryCtx } from "./_generated/server";
+import { mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 import { throwAppError } from "./errors";
 
 async function requireAuth(ctx: QueryCtx | MutationCtx): Promise<string> {
@@ -97,6 +97,7 @@ export const createChapter = mutation({
   handler: async (ctx, args) => {
     await requireAdminAuth(ctx);
     
+    const now = Date.now();
     const chapterId = await ctx.db.insert("chapters", {
       title: args.title,
       description: args.description,
@@ -105,6 +106,8 @@ export const createChapter = mutation({
       subject: args.subject,
       videos: args.videos,
       notes: args.notes,
+      createdAt: now,
+      updatedAt: now,
     });
     
     return await ctx.db.get(chapterId);
@@ -142,7 +145,7 @@ export const updateChapter = mutation({
       )
     );
     
-    await ctx.db.patch(args.chapterId, updates);
+    await ctx.db.patch(args.chapterId, { ...updates, updatedAt: Date.now() });
     
     return await ctx.db.get(args.chapterId);
   },
