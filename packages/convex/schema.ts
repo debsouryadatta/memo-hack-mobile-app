@@ -22,15 +22,23 @@ export default defineSchema({
     difficulty: v.string(),
     class: v.string(),
     subject: v.string(),
-    notes: v.optional(v.array(v.object({
-      name: v.string(),
-      url: v.string(),
-    }))),
-    videos: v.optional(v.array(v.object({
-      title: v.string(),
-      description: v.optional(v.string()),
-      youtubeUrl: v.string(),
-    }))),
+    notes: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          url: v.string(),
+        }),
+      ),
+    ),
+    videos: v.optional(
+      v.array(
+        v.object({
+          title: v.string(),
+          description: v.optional(v.string()),
+          youtubeUrl: v.string(),
+        }),
+      ),
+    ),
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
   }),
@@ -49,4 +57,17 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_session", ["sessionId"]),
+  aiUserUsageDaily: defineTable({
+    _id: v.id("aiUserUsageDaily"),
+    userId: v.id("users"),
+    dayKey: v.string(),
+    requestsUsed: v.number(),
+    tokensUsed: v.number(),
+    minuteWindowStart: v.number(),
+    minuteRequestsUsed: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user_day", ["userId", "dayKey"])
+    .index("by_day", ["dayKey"]),
 });

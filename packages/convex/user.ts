@@ -1,28 +1,43 @@
 import { v } from "convex/values";
-import { SignJWT } from "jose";
+import { importPKCS8, SignJWT } from "jose";
 import { Id } from "./_generated/dataModel";
-import { mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
+import {
+    ActionCtx,
+    mutation,
+    MutationCtx,
+    query,
+    QueryCtx,
+} from "./_generated/server";
 import { throwAppError } from "./errors";
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
-
-async function generateToken(userId: string): Promise<string> {
-  return await new SignJWT({ userId })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuer("https://memohack.in")
-    .setSubject(userId)
-    .setExpirationTime('1095d')
-    .setIssuedAt()
-    .sign(JWT_SECRET);
+async function getPrivateKey() {
+  const b64 = process.env.JWT_PRIVATE_KEY_B64!;
+  // Convex runtime doesn't provide Node's Buffer; use web-compatible base64 decode.
+  const pem = atob(b64);
+  return importPKCS8(pem, "RS256");
 }
 
-async function requireAuth(ctx: QueryCtx | MutationCtx): Promise<string> {
+async function generateToken(userId: string): Promise<string> {
+  const privateKey = await getPrivateKey();
+  return await new SignJWT({})
+    .setProtectedHeader({ alg: "RS256", kid: "memohack-1" })
+    .setIssuer(process.env.CONVEX_SITE_URL!)
+    .setAudience("memohack")
+    .setSubject(userId)
+    .setExpirationTime("1095d")
+    .setIssuedAt()
+    .sign(privateKey);
+}
+
+export async function requireAuth(
+  ctx: QueryCtx | MutationCtx | ActionCtx,
+): Promise<string> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
     throwAppError("AUTH_REQUIRED", "Authentication required");
   }
   // subject is set to userId in generateToken
-  return identity.subject;
+  return identity!.subject;
 }
 
 async function requireAdminAuth(ctx: QueryCtx | MutationCtx) {
@@ -38,29 +53,38 @@ async function requireAdminAuth(ctx: QueryCtx | MutationCtx) {
 async function generateSalt(): Promise<string> {
   const array = new Uint8Array(16);
   crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
 }
 
 async function hashPassword(password: string): Promise<string> {
   const salt = await generateSalt();
   const encoder = new TextEncoder();
   const data = encoder.encode(password + salt);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
   return `${salt}:${hashHex}`;
 }
 
-async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  const [salt, hash] = hashedPassword.split(':');
+async function verifyPassword(
+  password: string,
+  hashedPassword: string,
+): Promise<boolean> {
+  const [salt, hash] = hashedPassword.split(":");
   if (!salt || !hash) return false;
-  
+
   const encoder = new TextEncoder();
   const data = encoder.encode(password + salt);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
   return hashHex === hash;
 }
 
@@ -86,13 +110,15 @@ export const signup = mutation({
 
     const hashedPassword = await hashPassword(args.password);
     const now = Date.now();
-    
+
     const userId = await ctx.db.insert("users", {
       email: args.email,
       password: hashedPassword,
       name: args.name,
       phone: args.phone,
-      image: args.image || `https://eu.ui-avatars.com/api/?name=${args.name.replace(/\s+/g, '+')}&size=250`,
+      image:
+        args.image ||
+        `https://eu.ui-avatars.com/api/?name=${args.name.replace(/\s+/g, "+")}&size=250`,
       class: args.class,
       memohackStudent: args.memohackStudent,
       admin: false,
@@ -160,7 +186,7 @@ export const updateUser = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
-    
+
     const user = await ctx.db.get(userId as Id<"users">);
 
     if (!user) {
@@ -168,7 +194,7 @@ export const updateUser = mutation({
     }
 
     const filteredUpdates = Object.fromEntries(
-      Object.entries(args).filter(([, value]) => value !== undefined)
+      Object.entries(args).filter(([, value]) => value !== undefined),
     );
 
     await ctx.db.patch(userId as Id<"users">, {
@@ -184,7 +210,7 @@ export const deleteUser = mutation({
   args: {},
   handler: async (ctx) => {
     const userId = await requireAuth(ctx);
-    
+
     const user = await ctx.db.get(userId as Id<"users">);
 
     if (!user) {
@@ -203,14 +229,17 @@ export const changePassword = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
-    
+
     const user = await ctx.db.get(userId as Id<"users">);
 
     if (!user) {
       throwAppError("NOT_FOUND", "User not found");
     }
 
-    const isValidOldPassword = await verifyPassword(args.oldPassword, user.password);
+    const isValidOldPassword = await verifyPassword(
+      args.oldPassword,
+      user.password,
+    );
     if (!isValidOldPassword) {
       throwAppError("INVALID_CREDENTIALS", "Invalid old password");
     }
@@ -232,9 +261,9 @@ export const getAllUsers = query({
     await requireAdminAuth(ctx);
 
     const users = await ctx.db.query("users").collect();
-    
+
     // Remove passwords from response
-    return users.map(u => ({
+    return users.map((u) => ({
       ...u,
       password: undefined,
     }));
@@ -252,8 +281,8 @@ export const getUsersByClass = query({
       .query("users")
       .filter((q) => q.eq(q.field("class"), args.class))
       .collect();
-    
-    return users.map(u => ({
+
+    return users.map((u) => ({
       ...u,
       password: undefined,
     }));
@@ -268,14 +297,15 @@ export const searchUsers = query({
     await requireAdminAuth(ctx);
 
     const users = await ctx.db.query("users").collect();
-    
+
     const searchLower = args.searchTerm.toLowerCase();
-    const filtered = users.filter(u => 
-      u.name.toLowerCase().includes(searchLower) || 
-      u.email.toLowerCase().includes(searchLower)
+    const filtered = users.filter(
+      (u) =>
+        u.name.toLowerCase().includes(searchLower) ||
+        u.email.toLowerCase().includes(searchLower),
     );
-    
-    return filtered.map(u => ({
+
+    return filtered.map((u) => ({
       ...u,
       password: undefined,
     }));
@@ -337,11 +367,11 @@ export const getUserStats = query({
     await requireAdminAuth(ctx);
 
     const allUsers = await ctx.db.query("users").collect();
-    const adminCount = allUsers.filter(u => u.admin).length;
-    const memohackStudents = allUsers.filter(u => u.memohackStudent).length;
-    
+    const adminCount = allUsers.filter((u) => u.admin).length;
+    const memohackStudents = allUsers.filter((u) => u.memohackStudent).length;
+
     const usersByClass: Record<string, number> = {};
-    allUsers.forEach(u => {
+    allUsers.forEach((u) => {
       usersByClass[u.class] = (usersByClass[u.class] || 0) + 1;
     });
 
@@ -374,7 +404,10 @@ export const updateUserAsAdmin = mutation({
 
     // Prevent admins from editing their own details via this function
     if (adminUser._id === args.targetUserId) {
-      throwAppError("FORBIDDEN", "Cannot edit your own details as admin. Use the regular update function.");
+      throwAppError(
+        "FORBIDDEN",
+        "Cannot edit your own details as admin. Use the regular update function.",
+      );
     }
 
     // If changing email, check if it's unique
@@ -394,7 +427,8 @@ export const updateUserAsAdmin = mutation({
     if (args.phone !== undefined) updates.phone = args.phone;
     if (args.image !== undefined) updates.image = args.image;
     if (args.class !== undefined) updates.class = args.class;
-    if (args.memohackStudent !== undefined) updates.memohackStudent = args.memohackStudent;
+    if (args.memohackStudent !== undefined)
+      updates.memohackStudent = args.memohackStudent;
 
     updates.updatedAt = Date.now();
 

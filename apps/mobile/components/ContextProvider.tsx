@@ -1,14 +1,14 @@
 import { api } from "@/convex/_generated/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import React, {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
+    createContext,
+    ReactNode,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
 } from "react";
 
 interface User {
@@ -86,7 +86,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <TokenContext.Provider value={{ rawToken, setRawToken, hasCheckedStorage, persistedUser, setPersistedUser }}>
+    <TokenContext.Provider
+      value={{
+        rawToken,
+        setRawToken,
+        hasCheckedStorage,
+        persistedUser,
+        setPersistedUser,
+      }}
+    >
       {children}
     </TokenContext.Provider>
   );
@@ -146,11 +154,22 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const { rawToken, setRawToken, hasCheckedStorage, persistedUser, setPersistedUser } = useToken();
+  const {
+    rawToken,
+    setRawToken,
+    hasCheckedStorage,
+    persistedUser,
+    setPersistedUser,
+  } = useToken();
   const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const currentUser = useQuery(api.user.getCurrentUser, {});
+  const invalidTokenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
-  // Initialise from AsyncStorage cache so profile is visible immediately
+  // Initialise from AsyncStorage cache so profile is visible immediately.
+  // This is provisional until Convex confirms the JWT is valid.
   useEffect(() => {
     if (hasCheckedStorage) {
       if (persistedUser && rawToken) {
@@ -158,7 +177,58 @@ export function UserProvider({ children }: { children: ReactNode }) {
       }
       setIsLoading(false);
     }
-  }, [hasCheckedStorage]);
+  }, [hasCheckedStorage, persistedUser, rawToken]);
+
+  // Reconcile local auth state with backend identity.
+  // Do not clear token immediately on null to avoid race conditions on web/mobile
+  // while Convex auth headers are being refreshed after signin/signup.
+  useEffect(() => {
+    if (!hasCheckedStorage) return;
+
+    if (!rawToken) {
+      if (invalidTokenTimerRef.current) {
+        clearTimeout(invalidTokenTimerRef.current);
+        invalidTokenTimerRef.current = null;
+      }
+      setUserState(null);
+      setIsLoading(false);
+      return;
+    }
+
+    if (currentUser === undefined) {
+      setIsLoading(true);
+      return;
+    }
+
+    if (currentUser === null) {
+      if (!invalidTokenTimerRef.current) {
+        invalidTokenTimerRef.current = setTimeout(() => {
+          void setRawToken(null);
+          invalidTokenTimerRef.current = null;
+        }, 1500);
+      }
+      setUserState(null);
+      setIsLoading(false);
+      return;
+    }
+
+    if (invalidTokenTimerRef.current) {
+      clearTimeout(invalidTokenTimerRef.current);
+      invalidTokenTimerRef.current = null;
+    }
+
+    setUserState(currentUser as User);
+    setIsLoading(false);
+  }, [hasCheckedStorage, rawToken, currentUser, setRawToken]);
+
+  useEffect(() => {
+    return () => {
+      if (invalidTokenTimerRef.current) {
+        clearTimeout(invalidTokenTimerRef.current);
+        invalidTokenTimerRef.current = null;
+      }
+    };
+  }, []);
 
   const setUser = (u: User | null) => {
     setUserState(u);
@@ -229,7 +299,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     user,
     setUser,
     isLoading,
-    isAuthenticated: user !== null,
+    isAuthenticated: rawToken !== null,
     token: rawToken,
     signin,
     signup,
@@ -243,7 +313,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
 // Keep the old AppProvider name as an alias for backward compatibility
 // (used in auth screens and tab components via useApp)
 // Note: components that call useApp() must be inside UserProvider.
-
 
 export function useApp() {
   const context = useContext(AppContext);

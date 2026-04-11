@@ -6,7 +6,9 @@ export type ErrorCode =
   | "ADMIN_REQUIRED"
   | "INVALID_CREDENTIALS"
   | "DUPLICATE"
-  | "FORBIDDEN";
+  | "FORBIDDEN"
+  | "LIMIT_REACHED"
+  | "RATE_LIMITED";
 
 export type AppErrorData = {
   code: ErrorCode;

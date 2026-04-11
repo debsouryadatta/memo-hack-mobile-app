@@ -1,9 +1,10 @@
 export default {
   providers: [
     {
-      // Custom JWT provider — MemoHack signs its own JWTs with JWT_SECRET.
-      // The `domain` field is used as the `iss` claim to identify the provider.
-      domain: "https://memohack.in",
+      // Convex site URL is used as the OIDC issuer.
+      // The /.well-known/openid-configuration and /.well-known/jwks.json
+      // endpoints are served from http.ts using the RS256 public key.
+      domain: process.env.CONVEX_SITE_URL,
       applicationID: "memohack",
     },
   ],

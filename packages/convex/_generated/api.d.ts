@@ -13,6 +13,7 @@ import type * as chapter from "../chapter.js";
 import type * as errors from "../errors.js";
 import type * as http from "../http.js";
 import type * as index from "../index.js";
+import type * as usageLimits from "../usageLimits.js";
 import type * as user from "../user.js";
 
 import type {
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   errors: typeof errors;
   http: typeof http;
   index: typeof index;
+  usageLimits: typeof usageLimits;
   user: typeof user;
 }>;
 
