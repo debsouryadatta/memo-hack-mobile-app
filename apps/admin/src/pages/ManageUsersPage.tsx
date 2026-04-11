@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { handleError } from "@/lib/errors";
-import { api } from "@memo-hack/convex";
+import { api, type Id } from "@memo-hack/convex";
 import { useMutation, useQuery } from "convex/react";
 import {
     Award,
@@ -64,7 +64,10 @@ export default function ManageUsersPage() {
     ? rawList.filter((u: any) => u.class === filterClass)
     : rawList;
 
-  const handleToggleAdmin = async (userId: string, currentAdmin: boolean) => {
+  const handleToggleAdmin = async (
+    userId: Id<"users">,
+    currentAdmin: boolean,
+  ) => {
     const action = currentAdmin
       ? "remove admin status from"
       : "grant admin status to";
@@ -81,7 +84,7 @@ export default function ManageUsersPage() {
     }
   };
 
-  const handleDeleteUser = async (userId: string, userName: string) => {
+  const handleDeleteUser = async (userId: Id<"users">, userName: string) => {
     if (!window.confirm(`Delete ${userName}? This cannot be undone.`)) return;
     try {
       await deleteUserAdmin({ targetUserId: userId });

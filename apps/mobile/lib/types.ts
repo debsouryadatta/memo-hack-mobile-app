@@ -1,4 +1,4 @@
-import { Id } from "@/convex/_generated/dataModel";
+import type { Id } from "@memo-hack/convex";
 
 export interface VideoData {
   title: string;

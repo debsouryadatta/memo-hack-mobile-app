@@ -1,4 +1,6 @@
 import { useApp } from "@/components/ContextProvider";
+import { alertInfo, confirmAsync } from "@/lib/confirm";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
@@ -10,13 +12,12 @@ import {
   Mail,
   Phone,
   Settings,
-  User,
+  User as UserIcon,
 } from "lucide-react-native";
 import React from "react";
 import {
-  Alert,
+  ActivityIndicator,
   Dimensions,
-  Image,
   Platform,
   SafeAreaView,
   ScrollView,
@@ -27,51 +28,51 @@ import {
 
 const { width: screenWidth } = Dimensions.get("window");
 
+function avatarInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export default function ProfileScreen() {
   const router = useRouter();
+  const { user, signout, isLoading, deferAuthRedirect, token } = useApp();
 
-  // Add safety check for context
-  let user, signout, isLoading;
-  try {
-    const appContext = useApp();
-    user = appContext.user;
-    signout = appContext.signout;
-    isLoading = appContext.isLoading;
-  } catch (error) {
-    console.warn("App context not available:", error);
-    // Fallback values
-    user = null;
-    isLoading = false;
-    signout = async () => {
-      console.warn("Signout not available");
-      router.replace("/");
-    };
-  }
+  /** Explicit sizes: RN ignores %/className sizing on remote expo-image in many layouts (works on Web). */
+  const avatarOuter = Math.min(screenWidth * 0.35, 140);
+  const ringPadding = 4;
+  const avatarInner = Math.max(0, avatarOuter - ringPadding * 2);
 
   const handleSignOut = async () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Sign Out",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await signout();
-            router.replace("/");
-          } catch (error) {
-            Alert.alert("Error", "Failed to sign out. Please try again.");
-          }
-        },
-      },
-    ]);
+    const ok = await confirmAsync({
+      title: "Sign Out",
+      message: "Are you sure you want to sign out?",
+      confirmLabel: "Sign Out",
+      cancelLabel: "Cancel",
+    });
+    if (!ok) return;
+    try {
+      await signout();
+      router.replace("/");
+    } catch {
+      alertInfo("Error", "Failed to sign out. Please try again.");
+    }
   };
 
-  const handleEditProfile = () => {
-    Alert.alert(
-      "Coming Soon",
-      "Profile editing will be available in the next update.",
+  if (token && deferAuthRedirect) {
+    return (
+      <SafeAreaView className="flex-1">
+        <LinearGradient
+          colors={["#6366F1", "#4F46E5", "#4338CA"]}
+          className="absolute top-0 left-0 right-0 bottom-0"
+        />
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="white" />
+        </View>
+      </SafeAreaView>
     );
-  };
+  }
 
   if (!user) {
     return (
@@ -87,7 +88,8 @@ export default function ProfileScreen() {
             <Image
               source={require('../../../assets/illustrations/hero-auth.png')}
               style={{ width: 180, height: 180 }}
-              resizeMode="contain"
+              contentFit="contain"
+              cachePolicy="memory-disk"
             />
           </View>
 
@@ -96,7 +98,7 @@ export default function ProfileScreen() {
             <View className="bg-white/15 rounded-3xl p-8 backdrop-blur-md border border-white/20">
               <View className="items-center">
                 <View className="bg-white/20 rounded-full p-4 mb-4">
-                  <User size={32} color="rgba(255,255,255,0.8)" />
+                  <UserIcon size={32} color="rgba(255,255,255,0.8)" />
                 </View>
 
                 <Text className="text-2xl font-bold text-white text-center mb-3">
@@ -167,6 +169,7 @@ export default function ProfileScreen() {
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
+        removeClippedSubviews={Platform.OS === "android"}
         contentContainerStyle={{
           paddingBottom: Platform.OS === "ios" ? 100 : 80,
           minHeight: "100%",
@@ -180,13 +183,12 @@ export default function ProfileScreen() {
           <View className="items-center">
             {/* Profile Image with enhanced shadow and border */}
             <View className="relative mb-4">
+              {/* Outer: same circular bounds as inner so Android elevation is not a square plate */}
               <View
-                className="rounded-full bg-white/30 p-1"
                 style={{
-                  width: screenWidth * 0.35,
-                  height: screenWidth * 0.35,
-                  maxWidth: 140,
-                  maxHeight: 140,
+                  width: avatarOuter,
+                  height: avatarOuter,
+                  borderRadius: avatarOuter / 2,
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 8 },
                   shadowOpacity: 0.3,
@@ -194,15 +196,55 @@ export default function ProfileScreen() {
                   elevation: 12,
                 }}
               >
-                <Image
-                  source={{ uri: user.image }}
-                  className="w-full h-full rounded-full"
-                  resizeMode="cover"
-                />
+                <View
+                  style={{
+                    width: avatarOuter,
+                    height: avatarOuter,
+                    borderRadius: avatarOuter / 2,
+                    overflow: "hidden",
+                    backgroundColor: "rgba(255, 255, 255, 0.3)",
+                    padding: ringPadding,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {user.image ? (
+                    <Image
+                      source={{ uri: user.image }}
+                      style={{
+                        width: avatarInner,
+                        height: avatarInner,
+                        borderRadius: avatarInner / 2,
+                      }}
+                      contentFit="cover"
+                      cachePolicy="memory-disk"
+                      recyclingKey={user.image}
+                      transition={200}
+                    />
+                  ) : (
+                    <View
+                      className="items-center justify-center bg-white/50"
+                      style={{
+                        width: avatarInner,
+                        height: avatarInner,
+                        borderRadius: avatarInner / 2,
+                      }}
+                    >
+                      <Text
+                        className="font-bold text-slate-600"
+                        style={{
+                          fontSize: Math.min(screenWidth * 0.09, 36),
+                        }}
+                      >
+                        {avatarInitials(user.name)}
+                      </Text>
+                    </View>
+                  )}
+                </View>
               </View>
               <TouchableOpacity
                 className="absolute -bottom-2 -right-2 bg-white rounded-full p-3"
-                onPress={handleEditProfile}
+                onPress={() => router.push("/(tabs)/profile/edit")}
                 style={{
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 4 },
@@ -344,13 +386,13 @@ export default function ProfileScreen() {
             {/* Action Menu */}
             <View className="mb-6">
               <Text className="text-slate-900 text-xl font-bold mb-4">
-                Account Settings
+                Account
               </Text>
 
               <View className="space-y-3">
                 <TouchableOpacity
                   className="bg-white rounded-2xl p-4 shadow-lg shadow-slate-200/50 border border-slate-100"
-                  onPress={handleEditProfile}
+                  onPress={() => router.push("/(tabs)/profile/edit")}
                 >
                   <View className="flex-row items-center">
                     <View className="bg-indigo-100 rounded-full p-3 mr-4">
@@ -358,35 +400,10 @@ export default function ProfileScreen() {
                     </View>
                     <View className="flex-1">
                       <Text className="text-slate-900 text-base font-semibold">
-                        Edit Profile
+                        Edit profile settings
                       </Text>
                       <Text className="text-slate-500 text-sm">
-                        Update your personal information
-                      </Text>
-                    </View>
-                    <ChevronRight size={20} color="#94A3B8" />
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  className="bg-white rounded-2xl p-4 shadow-lg shadow-slate-200/50 border border-slate-100"
-                  onPress={() =>
-                    Alert.alert(
-                      "Coming Soon",
-                      "Account settings will be available soon",
-                    )
-                  }
-                >
-                  <View className="flex-row items-center">
-                    <View className="bg-indigo-100 rounded-full p-3 mr-4">
-                      <User size={22} color="#4F46E5" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-slate-900 text-base font-semibold">
-                        Account Settings
-                      </Text>
-                      <Text className="text-slate-500 text-sm">
-                        Manage your account preferences
+                        Photo, name, phone, class, MemoHack student
                       </Text>
                     </View>
                     <ChevronRight size={20} color="#94A3B8" />

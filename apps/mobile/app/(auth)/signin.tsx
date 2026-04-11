@@ -1,9 +1,11 @@
 import { getErrorMessage } from "@/lib/errors";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { authTextInputStyle } from "./authInputStyles";
 import { useApp } from "../../components/ContextProvider";
 
 const heroAuth = require('../../assets/illustrations/hero-auth.png');
@@ -45,7 +47,7 @@ export default function SignInScreen() {
   return (
     <KeyboardAvoidingView 
       className='flex-1' 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+      behavior={Platform.OS === 'web' ? undefined : 'padding'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
     >
       <LinearGradient
@@ -64,7 +66,8 @@ export default function SignInScreen() {
             <Image
               source={heroAuth}
               style={{ width: 180, height: 180 }}
-              resizeMode='contain'
+              contentFit="contain"
+              cachePolicy="memory-disk"
             />
           </View>
 
@@ -78,10 +81,14 @@ export default function SignInScreen() {
               <View className='mb-6'>
                 <Text className='text-white/90 text-sm font-semibold mb-3 ml-1'>EMAIL ADDRESS</Text>
                 <View className={`flex-row items-center bg-white/15 rounded-2xl border-2 ${emailFocused ? 'border-white/60' : 'border-white/25'} px-4`}>
-                  <Mail size={20} color="rgba(255,255,255,0.7)" />
+                  <View className="shrink-0">
+                    <Mail size={20} color="rgba(255,255,255,0.7)" />
+                  </View>
                   <TextInput
-                    className='flex-1 text-white py-4 px-3 text-base'
-                    placeholder="Enter your email"
+                    className="text-white py-4 px-3 text-base"
+                    multiline={false}
+                    scrollEnabled={false}
+                    placeholder="Your email"
                     placeholderTextColor="rgba(255,255,255,0.5)"
                     keyboardType="email-address"
                     autoCapitalize="none"
@@ -91,6 +98,7 @@ export default function SignInScreen() {
                     onBlur={() => setEmailFocused(false)}
                     editable={!isLoading}
                     selectionColor="white"
+                    style={authTextInputStyle}
                   />
                 </View>
               </View>
@@ -99,10 +107,14 @@ export default function SignInScreen() {
               <View className='mb-8'>
                 <Text className='text-white/90 text-sm font-semibold mb-3 ml-1'>PASSWORD</Text>
                 <View className={`flex-row items-center bg-white/15 rounded-2xl border-2 ${passwordFocused ? 'border-white/60' : 'border-white/25'} px-4`}>
-                  <Lock size={20} color="rgba(255,255,255,0.7)" />
+                  <View className="shrink-0">
+                    <Lock size={20} color="rgba(255,255,255,0.7)" />
+                  </View>
                   <TextInput
-                    className='flex-1 text-white py-4 px-3 text-base'
-                    placeholder="Enter your password"
+                    className="text-white py-4 px-3 text-base"
+                    multiline={false}
+                    scrollEnabled={false}
+                    placeholder="Your password"
                     placeholderTextColor="rgba(255,255,255,0.5)"
                     secureTextEntry={!showPassword}
                     value={password}
@@ -111,8 +123,9 @@ export default function SignInScreen() {
                     onBlur={() => setPasswordFocused(false)}
                     editable={!isLoading}
                     selectionColor="white"
+                    style={authTextInputStyle}
                   />
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className='p-2'>
+                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className='shrink-0 p-2'>
                     {showPassword ? 
                       <EyeOff size={20} color="rgba(255,255,255,0.7)" /> : 
                       <Eye size={20} color="rgba(255,255,255,0.7)" />

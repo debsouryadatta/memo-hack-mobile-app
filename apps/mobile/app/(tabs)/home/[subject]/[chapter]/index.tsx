@@ -1,5 +1,4 @@
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { api, type Id } from "@memo-hack/convex";
 import { VideoData } from "@/lib/types";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";

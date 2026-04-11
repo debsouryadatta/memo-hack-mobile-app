@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-export default function ProfileLayout() {
+export default function AILayout() {
   return (
     <Stack
       screenOptions={{
@@ -9,6 +9,8 @@ export default function ProfileLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="[sessionId]" options={{ headerShown: false }} />
     </Stack>
   );
 }
+

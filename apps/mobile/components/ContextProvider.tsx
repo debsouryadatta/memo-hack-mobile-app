@@ -1,6 +1,6 @@
-import { api } from "@/convex/_generated/api";
+import { api, type Id } from "@memo-hack/convex";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import React, {
     createContext,
     ReactNode,
@@ -11,7 +11,7 @@ import React, {
     useState,
 } from "react";
 
-interface User {
+export interface User {
   _id: string;
   email: string;
   name: string;
@@ -116,9 +116,12 @@ export function useAuthForConvex() {
   const tokenRef = useRef(rawToken);
   tokenRef.current = rawToken;
 
-  const fetchAccessToken = useCallback(async () => {
-    return tokenRef.current;
-  }, []);
+  const fetchAccessToken = useCallback(
+    async (_args: { forceRefreshToken: boolean }) => {
+      return tokenRef.current;
+    },
+    [],
+  );
 
   return {
     isLoading: !hasCheckedStorage,
@@ -131,11 +134,19 @@ export function useAuthForConvex() {
 // AppContext — lives INSIDE ConvexProviderWithAuth, uses Convex hooks.
 // ---------------------------------------------------------------------------
 
+/** How long to wait after a token appears before treating getCurrentUser === null as logged out (Android / slow WS). */
+const CONVEX_AUTH_HANDSHAKE_MS = 15_000;
+
 interface AppContextType {
   user: User | null;
   setUser: (user: User | null) => void;
   isLoading: boolean;
   isAuthenticated: boolean;
+  /**
+   * True while we have a token but Convex auth or getCurrentUser may not have caught up yet.
+   * Tabs should show a loading state instead of "Sign in" when this is true.
+   */
+  deferAuthRedirect: boolean;
   token: string | null;
   signin: (email: string, password: string) => Promise<void>;
   signup: (
@@ -144,8 +155,8 @@ interface AppContextType {
     name: string,
     phone: string,
     className: string,
-    image?: string,
-    memohackStudent?: boolean,
+    memohackStudent: boolean,
+    profileImageStorageId?: Id<"_storage">,
   ) => Promise<void>;
   signout: () => Promise<void>;
   getCurrentUser: () => Promise<void>;
@@ -161,12 +172,35 @@ export function UserProvider({ children }: { children: ReactNode }) {
     persistedUser,
     setPersistedUser,
   } = useToken();
+  const convexAuth = useConvexAuth();
   const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authHandshakeUntil, setAuthHandshakeUntil] = useState<number | null>(
+    null,
+  );
+  /** Re-run reconciliation when the handshake window expires (Date.now() is not reactive). */
+  const [handshakeTick, setHandshakeTick] = useState(0);
   const currentUser = useQuery(api.user.getCurrentUser, {});
   const invalidTokenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+
+  useEffect(() => {
+    if (rawToken) {
+      setAuthHandshakeUntil(Date.now() + CONVEX_AUTH_HANDSHAKE_MS);
+    } else {
+      setAuthHandshakeUntil(null);
+    }
+  }, [rawToken]);
+
+  useEffect(() => {
+    if (!rawToken) return;
+    if (currentUser !== null && currentUser !== undefined) return;
+    const id = setInterval(() => {
+      setHandshakeTick((t) => t + 1);
+    }, 400);
+    return () => clearInterval(id);
+  }, [rawToken, currentUser]);
 
   // Initialise from AsyncStorage cache so profile is visible immediately.
   // This is provisional until Convex confirms the JWT is valid.
@@ -190,6 +224,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         clearTimeout(invalidTokenTimerRef.current);
         invalidTokenTimerRef.current = null;
       }
+      setAuthHandshakeUntil(null);
       setUserState(null);
       setIsLoading(false);
       return;
@@ -200,26 +235,57 @@ export function UserProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (currentUser === null) {
-      if (!invalidTokenTimerRef.current) {
-        invalidTokenTimerRef.current = setTimeout(() => {
-          void setRawToken(null);
-          invalidTokenTimerRef.current = null;
-        }, 1500);
+    if (currentUser !== null) {
+      if (invalidTokenTimerRef.current) {
+        clearTimeout(invalidTokenTimerRef.current);
+        invalidTokenTimerRef.current = null;
       }
-      setUserState(null);
+      setAuthHandshakeUntil(null);
+      setUserState(currentUser as User);
       setIsLoading(false);
       return;
     }
 
-    if (invalidTokenTimerRef.current) {
-      clearTimeout(invalidTokenTimerRef.current);
-      invalidTokenTimerRef.current = null;
+    // currentUser === null: either session invalid or Convex still attaching JWT (common on Android).
+    const withinHandshakeWindow =
+      authHandshakeUntil !== null && Date.now() < authHandshakeUntil;
+    // Convex can report isAuthenticated before getCurrentUser replays; never treat that as logged out.
+    const inAuthHandshake =
+      convexAuth.isLoading ||
+      withinHandshakeWindow ||
+      convexAuth.isAuthenticated === true;
+
+    if (inAuthHandshake) {
+      if (invalidTokenTimerRef.current) {
+        clearTimeout(invalidTokenTimerRef.current);
+        invalidTokenTimerRef.current = null;
+      }
+      setIsLoading(true);
+      if (persistedUser) {
+        setUserState(persistedUser);
+      }
+      return;
     }
 
-    setUserState(currentUser as User);
+    if (!invalidTokenTimerRef.current) {
+      invalidTokenTimerRef.current = setTimeout(() => {
+        void setRawToken(null);
+        invalidTokenTimerRef.current = null;
+      }, 1500);
+    }
+    setUserState(null);
     setIsLoading(false);
-  }, [hasCheckedStorage, rawToken, currentUser, setRawToken]);
+  }, [
+    hasCheckedStorage,
+    rawToken,
+    currentUser,
+    setRawToken,
+    convexAuth.isLoading,
+    convexAuth.isAuthenticated,
+    persistedUser,
+    authHandshakeUntil,
+    handshakeTick,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -258,8 +324,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
     name: string,
     phone: string,
     className: string,
-    image?: string,
-    memohackStudent?: boolean,
+    memohackStudent: boolean,
+    profileImageStorageId?: Id<"_storage">,
   ) => {
     try {
       setIsLoading(true);
@@ -269,8 +335,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         name,
         phone,
         class: className,
-        image,
-        memohackStudent: memohackStudent ?? false,
+        memohackStudent,
+        ...(profileImageStorageId
+          ? { profileImageStorageId }
+          : {}),
       });
       await setRawToken(result.token);
       setUser(result.user as User);
@@ -286,6 +354,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     try {
       await setRawToken(null);
       setUserState(null);
+      setAuthHandshakeUntil(null);
     } catch (error) {
       console.error("Signout error:", error);
     }
@@ -295,11 +364,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
     // User data is restored from AsyncStorage on app start
   };
 
+  const withinHandshakeWindow =
+    authHandshakeUntil !== null && Date.now() < authHandshakeUntil;
+  const deferAuthRedirect =
+    !!rawToken &&
+    (currentUser === undefined ||
+      convexAuth.isLoading ||
+      withinHandshakeWindow ||
+      (convexAuth.isAuthenticated === true && currentUser === null));
+
   const value: AppContextType = {
     user,
     setUser,
     isLoading,
     isAuthenticated: rawToken !== null,
+    deferAuthRedirect,
     token: rawToken,
     signin,
     signup,

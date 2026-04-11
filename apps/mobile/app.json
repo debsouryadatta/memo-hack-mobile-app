@@ -21,6 +21,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
+      "softwareKeyboardLayoutMode": "pan",
       "package": "com.debsouryadatta.memohack",
       "versionCode": 5
     },
@@ -31,6 +32,12 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Memo Hack uses your photo library to set your profile picture and to share diagrams or problems with the AI tutor."
+        }
+      ],
       [
         "expo-splash-screen",
         {

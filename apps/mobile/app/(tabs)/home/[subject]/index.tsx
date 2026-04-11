@@ -1,4 +1,4 @@
-import { api } from "@/convex/_generated/api";
+import { api } from "@memo-hack/convex";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";

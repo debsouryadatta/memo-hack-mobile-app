@@ -1,10 +1,11 @@
-import { api } from "@/convex/_generated/api";
+import { api } from "@memo-hack/convex";
 import { useQuery } from "convex/react";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { BookOpen, Search, TrendingUp, Users } from "lucide-react-native";
 import React from "react";
-import { Animated, Dimensions, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Animated, Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -71,6 +72,7 @@ export default function HomeScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
+        removeClippedSubviews={Platform.OS === "android"}
       >
         <Animated.View
           style={{
@@ -157,7 +159,8 @@ export default function HomeScreen() {
             <Image
               source={require('../../../assets/illustrations/hero-home.png')}
               style={{ width: 110, height: 110 }}
-              resizeMode="contain"
+              contentFit="contain"
+              cachePolicy="memory-disk"
             />
           </View>
         </Animated.View>
@@ -238,18 +241,20 @@ export default function HomeScreen() {
                     </View>
                   </View>
 
-                  {/* Image — self-stretch to fill full card height */}
-                  <View style={{ width: 120, alignSelf: 'stretch' }}>
+                  {/* Image strip: avoid height: '100%' on Image — unreliable on Android; use fill + minHeight */}
+                  <View style={styles.subjectImageStrip}>
                     <Image
                       source={{ uri: subject.image }}
-                      style={{ width: '100%', height: '100%' }}
-                      resizeMode="cover"
+                      style={StyleSheet.absoluteFillObject}
+                      contentFit="cover"
+                      cachePolicy="memory-disk"
+                      transition={150}
                     />
                     <LinearGradient
                       colors={['rgba(255,255,255,0.15)', 'transparent']}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 0 }}
-                      style={{ position: 'absolute', inset: 0 }}
+                      style={StyleSheet.absoluteFillObject}
                     />
                   </View>
                 </TouchableOpacity>
@@ -298,4 +303,14 @@ export default function HomeScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  subjectImageStrip: {
+    width: 120,
+    minHeight: 132,
+    alignSelf: "stretch",
+    backgroundColor: "#e2e8f0",
+    position: "relative",
+  },
+});
 

@@ -1,14 +1,26 @@
 import { getErrorMessage } from "@/lib/errors";
+import {
+    prepareProfileImage,
+    uploadToConvexStorage,
+    type PreparedImage,
+} from "@/lib/imageUpload";
+import { api, type Id } from "@memo-hack/convex";
+import { useMutation } from "convex/react";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import { ChevronDown, Eye, EyeOff, GraduationCap, ImageIcon, Lock, Mail, Phone, User } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { authTextInputStyle } from "./authInputStyles";
 import { useApp } from "../../components/ContextProvider";
 
 export default function SignUpScreen() {
     const router = useRouter();
     const { signup, isLoading, isAuthenticated } = useApp();
+    const generateSignupProfileUploadUrl = useMutation(
+        api.user.generateSignupProfileImageUploadUrl,
+    );
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -22,9 +34,14 @@ export default function SignUpScreen() {
         name: '',
         phone: '',
         className: '',
-        image: '',
         memohackStudent: null as boolean | null
     });
+    const [profileImage, setProfileImage] = useState<PreparedImage | null>(null);
+    const [pickingPhoto, setPickingPhoto] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [signUpPhase, setSignUpPhase] = useState<'upload' | 'signup' | null>(
+        null,
+    );
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -33,6 +50,31 @@ export default function SignUpScreen() {
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const busy = isLoading || submitting || pickingPhoto;
+
+    const handlePickProfilePhoto = async () => {
+        if (pickingPhoto || submitting || isLoading) return;
+        setPickingPhoto(true);
+        try {
+            const prepared = await prepareProfileImage();
+            if (!prepared) {
+                Alert.alert(
+                    'No photo',
+                    'No image was selected or permission was denied.',
+                );
+                return;
+            }
+            setProfileImage(prepared);
+        } catch (e) {
+            Alert.alert(
+                'Could not use photo',
+                e instanceof Error ? e.message : 'Please try another image.',
+            );
+        } finally {
+            setPickingPhoto(false);
+        }
     };
 
     const handleSignUp = async () => {
@@ -68,26 +110,41 @@ export default function SignUpScreen() {
             return;
         }
 
+        setSubmitting(true);
+        setSignUpPhase(profileImage ? 'upload' : 'signup');
         try {
+            let profileImageStorageId: Id<"_storage"> | undefined;
+            if (profileImage) {
+                const { uploadUrl } = await generateSignupProfileUploadUrl({});
+                profileImageStorageId = (await uploadToConvexStorage(
+                    uploadUrl,
+                    profileImage.uri,
+                    profileImage.mime,
+                )) as Id<"_storage">;
+                setSignUpPhase('signup');
+            }
             await signup(
-                email.trim().toLowerCase(), 
-                password, 
-                name.trim(), 
-                phone.trim(), 
+                email.trim().toLowerCase(),
+                password,
+                name.trim(),
+                phone.trim(),
                 className.trim(),
-                formData.image.trim() || undefined,
-                memohackStudent
+                memohackStudent,
+                profileImageStorageId,
             );
             router.replace('/(tabs)/home');
         } catch (error) {
             Alert.alert('Sign Up Failed', getErrorMessage(error));
+        } finally {
+            setSubmitting(false);
+            setSignUpPhase(null);
         }
     };
 
     return (
         <KeyboardAvoidingView 
             className='flex-1' 
-            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+            behavior={Platform.OS === 'web' ? undefined : 'padding'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
         >
             <LinearGradient
@@ -106,7 +163,8 @@ export default function SignUpScreen() {
                         <Image
                             source={require('../../assets/illustrations/hero-auth.png')}
                             style={{ width: 150, height: 150 }}
-                            resizeMode='contain'
+                            contentFit="contain"
+                            cachePolicy="memory-disk"
                         />
                     </View>
 
@@ -120,17 +178,22 @@ export default function SignUpScreen() {
                             <View className='mb-4'>
                                 <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>FULL NAME *</Text>
                                 <View className={`flex-row items-center bg-white/15 rounded-xl border-2 ${focusedField === 'name' ? 'border-white/60' : 'border-white/25'} px-3`}>
-                                    <User size={18} color="rgba(255,255,255,0.7)" />
+                                    <View className="shrink-0">
+                                        <User size={18} color="rgba(255,255,255,0.7)" />
+                                    </View>
                                     <TextInput
-                                        className='flex-1 text-white py-3 px-3 text-sm'
-                                        placeholder="Enter your full name"
+                                        className="text-white py-3 px-3 text-sm"
+                                        multiline={false}
+                                        scrollEnabled={false}
+                                        placeholder="Your full name"
                                         placeholderTextColor="rgba(255,255,255,0.5)"
                                         value={formData.name}
                                         onChangeText={(value) => handleInputChange('name', value)}
                                         onFocus={() => setFocusedField('name')}
                                         onBlur={() => setFocusedField(null)}
-                                        editable={!isLoading}
+                                        editable={!busy}
                                         selectionColor="white"
+                                        style={authTextInputStyle}
                                     />
                                 </View>
                             </View>
@@ -139,10 +202,14 @@ export default function SignUpScreen() {
                             <View className='mb-4'>
                                 <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>EMAIL ADDRESS *</Text>
                                 <View className={`flex-row items-center bg-white/15 rounded-xl border-2 ${focusedField === 'email' ? 'border-white/60' : 'border-white/25'} px-3`}>
-                                    <Mail size={18} color="rgba(255,255,255,0.7)" />
+                                    <View className="shrink-0">
+                                        <Mail size={18} color="rgba(255,255,255,0.7)" />
+                                    </View>
                                     <TextInput
-                                        className='flex-1 text-white py-3 px-3 text-sm'
-                                        placeholder="Enter your email"
+                                        className="text-white py-3 px-3 text-sm"
+                                        multiline={false}
+                                        scrollEnabled={false}
+                                        placeholder="Your email"
                                         placeholderTextColor="rgba(255,255,255,0.5)"
                                         keyboardType="email-address"
                                         autoCapitalize="none"
@@ -150,8 +217,9 @@ export default function SignUpScreen() {
                                         onChangeText={(value) => handleInputChange('email', value)}
                                         onFocus={() => setFocusedField('email')}
                                         onBlur={() => setFocusedField(null)}
-                                        editable={!isLoading}
+                                        editable={!busy}
                                         selectionColor="white"
+                                        style={authTextInputStyle}
                                     />
                                 </View>
                             </View>
@@ -160,18 +228,23 @@ export default function SignUpScreen() {
                             <View className='mb-4'>
                                 <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>PHONE NUMBER *</Text>
                                 <View className={`flex-row items-center bg-white/15 rounded-xl border-2 ${focusedField === 'phone' ? 'border-white/60' : 'border-white/25'} px-3`}>
-                                    <Phone size={18} color="rgba(255,255,255,0.7)" />
+                                    <View className="shrink-0">
+                                        <Phone size={18} color="rgba(255,255,255,0.7)" />
+                                    </View>
                                     <TextInput
-                                        className='flex-1 text-white py-3 px-3 text-sm'
-                                        placeholder="Enter your phone number"
+                                        className="text-white py-3 px-3 text-sm"
+                                        multiline={false}
+                                        scrollEnabled={false}
+                                        placeholder="Mobile number"
                                         placeholderTextColor="rgba(255,255,255,0.5)"
                                         keyboardType="phone-pad"
                                         value={formData.phone}
                                         onChangeText={(value) => handleInputChange('phone', value)}
                                         onFocus={() => setFocusedField('phone')}
                                         onBlur={() => setFocusedField(null)}
-                                        editable={!isLoading}
+                                        editable={!busy}
                                         selectionColor="white"
+                                        style={authTextInputStyle}
                                     />
                                 </View>
                             </View>
@@ -181,7 +254,7 @@ export default function SignUpScreen() {
                                 <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>CLASS *</Text>
                                 <TouchableOpacity
                                     onPress={() => setShowClassDropdown(!showClassDropdown)}
-                                    disabled={isLoading}
+                                    disabled={busy}
                                     className={`flex-row items-center justify-between bg-white/15 rounded-xl border-2 ${focusedField === 'className' ? 'border-white/60' : 'border-white/25'} px-3 py-3`}
                                 >
                                     <View className='flex-row items-center flex-1'>
@@ -223,20 +296,25 @@ export default function SignUpScreen() {
                             <View className='mb-4'>
                                 <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>PASSWORD *</Text>
                                 <View className={`flex-row items-center bg-white/15 rounded-xl border-2 ${focusedField === 'password' ? 'border-white/60' : 'border-white/25'} px-3`}>
-                                    <Lock size={18} color="rgba(255,255,255,0.7)" />
+                                    <View className="shrink-0">
+                                        <Lock size={18} color="rgba(255,255,255,0.7)" />
+                                    </View>
                                     <TextInput
-                                        className='flex-1 text-white py-3 px-3 text-sm'
-                                        placeholder="Create password (min. 6 chars)"
+                                        className="text-white py-3 px-3 text-sm"
+                                        multiline={false}
+                                        scrollEnabled={false}
+                                        placeholder="6+ characters"
                                         placeholderTextColor="rgba(255,255,255,0.5)"
                                         secureTextEntry={!showPassword}
                                         value={formData.password}
                                         onChangeText={(value) => handleInputChange('password', value)}
                                         onFocus={() => setFocusedField('password')}
                                         onBlur={() => setFocusedField(null)}
-                                        editable={!isLoading}
+                                        editable={!busy}
                                         selectionColor="white"
+                                        style={authTextInputStyle}
                                     />
-                                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className='p-1'>
+                                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className='shrink-0 p-1'>
                                         {showPassword ? 
                                             <EyeOff size={18} color="rgba(255,255,255,0.7)" /> : 
                                             <Eye size={18} color="rgba(255,255,255,0.7)" />
@@ -249,20 +327,25 @@ export default function SignUpScreen() {
                             <View className='mb-4'>
                                 <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>CONFIRM PASSWORD *</Text>
                                 <View className={`flex-row items-center bg-white/15 rounded-xl border-2 ${focusedField === 'confirmPassword' ? 'border-white/60' : 'border-white/25'} px-3`}>
-                                    <Lock size={18} color="rgba(255,255,255,0.7)" />
+                                    <View className="shrink-0">
+                                        <Lock size={18} color="rgba(255,255,255,0.7)" />
+                                    </View>
                                     <TextInput
-                                        className='flex-1 text-white py-3 px-3 text-sm'
-                                        placeholder="Confirm your password"
+                                        className="text-white py-3 px-3 text-sm"
+                                        multiline={false}
+                                        scrollEnabled={false}
+                                        placeholder="Repeat password"
                                         placeholderTextColor="rgba(255,255,255,0.5)"
                                         secureTextEntry={!showConfirmPassword}
                                         value={formData.confirmPassword}
                                         onChangeText={(value) => handleInputChange('confirmPassword', value)}
                                         onFocus={() => setFocusedField('confirmPassword')}
                                         onBlur={() => setFocusedField(null)}
-                                        editable={!isLoading}
+                                        editable={!busy}
                                         selectionColor="white"
+                                        style={authTextInputStyle}
                                     />
-                                    <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} className='p-1'>
+                                    <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} className='shrink-0 p-1'>
                                         {showConfirmPassword ? 
                                             <EyeOff size={18} color="rgba(255,255,255,0.7)" /> : 
                                             <Eye size={18} color="rgba(255,255,255,0.7)" />
@@ -274,19 +357,52 @@ export default function SignUpScreen() {
                             {/* Profile Image Field */}
                             <View className='mb-6'>
                                 <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>PROFILE IMAGE (OPTIONAL)</Text>
-                                <View className={`flex-row items-center bg-white/15 rounded-xl border-2 ${focusedField === 'image' ? 'border-white/60' : 'border-white/25'} px-3`}>
-                                    <ImageIcon size={18} color="rgba(255,255,255,0.7)" />
-                                    <TextInput
-                                        className='flex-1 text-white py-3 px-3 text-sm'
-                                        placeholder="Image URL (optional)"
-                                        placeholderTextColor="rgba(255,255,255,0.5)"
-                                        value={formData.image}
-                                        onChangeText={(value) => handleInputChange('image', value)}
-                                        onFocus={() => setFocusedField('image')}
-                                        onBlur={() => setFocusedField(null)}
-                                        editable={!isLoading}
-                                        selectionColor="white"
-                                    />
+                                <View className="flex-row items-center gap-3 bg-white/15 rounded-xl border-2 border-white/25 px-3 py-3">
+                                    <View className="shrink-0 rounded-full overflow-hidden bg-white/20" style={{ width: 56, height: 56 }}>
+                                        {profileImage ? (
+                                            <Image
+                                                source={{ uri: profileImage.uri }}
+                                                style={{ width: 56, height: 56 }}
+                                                contentFit="cover"
+                                                cachePolicy="memory-disk"
+                                            />
+                                        ) : (
+                                            <View className="h-full w-full items-center justify-center">
+                                                <ImageIcon size={22} color="rgba(255,255,255,0.6)" />
+                                            </View>
+                                        )}
+                                    </View>
+                                    <View className="flex-1 min-w-0">
+                                        <TouchableOpacity
+                                            onPress={handlePickProfilePhoto}
+                                            disabled={busy}
+                                            className="rounded-lg bg-white/20 py-2 px-3 mb-2"
+                                            style={{ opacity: busy ? 0.6 : 1 }}
+                                        >
+                                            <View className="flex-row items-center justify-center gap-2">
+                                                {pickingPhoto ? (
+                                                    <ActivityIndicator color="white" size="small" />
+                                                ) : null}
+                                                <Text className="text-white text-sm font-semibold text-center">
+                                                    {profileImage ? 'Change photo' : 'Choose photo'}
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                        {profileImage ? (
+                                            <TouchableOpacity
+                                                onPress={() => setProfileImage(null)}
+                                                disabled={busy}
+                                            >
+                                                <Text className="text-white/80 text-xs font-medium text-center">
+                                                    Remove
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ) : (
+                                            <Text className="text-white/50 text-xs">
+                                                JPEG/PNG from your library (max 10 MB)
+                                            </Text>
+                                        )}
+                                    </View>
                                 </View>
                             </View>
 
@@ -296,7 +412,7 @@ export default function SignUpScreen() {
                                 <View className='flex-row space-x-3'>
                                     <TouchableOpacity
                                         onPress={() => setFormData(prev => ({ ...prev, memohackStudent: true }))}
-                                        disabled={isLoading}
+                                        disabled={busy}
                                         className={`flex-1 rounded-xl py-3 px-4 border-2 ${
                                             formData.memohackStudent === true
                                                 ? 'bg-white/30 border-white/80'
@@ -311,7 +427,7 @@ export default function SignUpScreen() {
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         onPress={() => setFormData(prev => ({ ...prev, memohackStudent: false }))}
-                                        disabled={isLoading}
+                                        disabled={busy}
                                         className={`flex-1 rounded-xl py-3 px-4 border-2 ${
                                             formData.memohackStudent === false
                                                 ? 'bg-white/30 border-white/80'
@@ -331,7 +447,7 @@ export default function SignUpScreen() {
                             <TouchableOpacity 
                                 className='w-full rounded-xl overflow-hidden mb-4 shadow-lg' 
                                 onPress={handleSignUp}
-                                disabled={isLoading}
+                                disabled={busy}
                                 style={{ 
                                     shadowColor: '#000',
                                     shadowOffset: { width: 0, height: 4 },
@@ -341,13 +457,19 @@ export default function SignUpScreen() {
                                 }}
                             >
                                 <LinearGradient
-                                    colors={isLoading ? ['#9CA3AF', '#6B7280'] : ['#8B5CF6', '#6366F1']}
+                                    colors={busy ? ['#9CA3AF', '#6B7280'] : ['#8B5CF6', '#6366F1']}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 1 }}
                                     className='py-3 px-6'
                                 >
                                     <Text className='text-white text-center text-base font-bold tracking-wide'>
-                                        {isLoading ? 'Creating Account...' : 'Sign Up'}
+                                        {!busy
+                                            ? 'Sign Up'
+                                            : pickingPhoto
+                                              ? 'Opening library…'
+                                              : signUpPhase === 'upload'
+                                                ? 'Uploading photo…'
+                                                : 'Creating Account...'}
                                     </Text>
                                 </LinearGradient>
                             </TouchableOpacity>
@@ -356,7 +478,7 @@ export default function SignUpScreen() {
                             <View className='flex-row justify-center items-center'>
                                 <Text className='text-white/70 text-xs'>Already have an account? </Text>
                                 <Link href="/(auth)/signin" asChild>
-                                    <TouchableOpacity disabled={isLoading} className='px-2 py-1'>
+                                    <TouchableOpacity disabled={busy} className='px-2 py-1'>
                                         <Text className='text-white font-bold text-xs'>Sign In</Text>
                                     </TouchableOpacity>
                                 </Link>

@@ -3,8 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": ["./*"],
-      "@/convex/*": ["../../packages/convex/*"]
+      "@/*": ["./*"]
     }
   },
   "include": [
@@ -12,7 +11,6 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "nativewind-env.d.ts",
-    "../../packages/convex/**/*.ts"
+    "nativewind-env.d.ts"
   ]
 }

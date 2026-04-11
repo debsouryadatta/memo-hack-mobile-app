@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-export default function ProfileLayout() {
+export default function EditProfileLayout() {
   return (
     <Stack
       screenOptions={{
@@ -9,7 +9,6 @@ export default function ProfileLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="edit" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -1,8 +1,9 @@
 import { useApp } from "@/components/ContextProvider";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { ActivityIndicator, Image, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
 const heroLanding = require('../assets/illustrations/hero-landing.png');
 
@@ -28,7 +29,8 @@ export default function LandingScreen() {
           <Image
             source={heroLanding}
             style={{ width: 120, height: 120, marginBottom: 32 }}
-            resizeMode='contain'
+            contentFit="contain"
+            cachePolicy="memory-disk"
           />
           <ActivityIndicator size="large" color="white" />
           <Text className='text-white text-lg mt-4 font-medium'>Loading...</Text>
@@ -49,7 +51,8 @@ export default function LandingScreen() {
           <Image
             source={heroLanding}
             style={{ width: 280, height: 280 }}
-            resizeMode='contain'
+            contentFit="contain"
+            cachePolicy="memory-disk"
           />
         </View>
 
