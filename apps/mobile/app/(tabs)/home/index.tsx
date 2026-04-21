@@ -5,10 +5,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { BookOpen, Search, TrendingUp, Users } from "lucide-react-native";
 import React from "react";
-import { Animated, Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Animated, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-const { width: screenWidth } = Dimensions.get('window');
 
 const subjectConfig = [
   {
@@ -46,7 +44,7 @@ export default function HomeScreen() {
       Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 800, useNativeDriver: true }),
     ]).start();
-  }, []);
+  }, [fadeAnim, slideAnim]);
 
   const getChapterCount = (subjectName: string): number => {
     if (!allChapters) return 0;
@@ -313,4 +311,3 @@ const styles = StyleSheet.create({
     position: "relative",
   },
 });
-

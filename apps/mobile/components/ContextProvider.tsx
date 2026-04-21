@@ -156,6 +156,7 @@ interface AppContextType {
     phone: string,
     className: string,
     memohackStudent: boolean,
+    emailOtp: string,
     profileImageStorageId?: Id<"_storage">,
   ) => Promise<void>;
   signout: () => Promise<void>;
@@ -325,6 +326,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     phone: string,
     className: string,
     memohackStudent: boolean,
+    emailOtp: string,
     profileImageStorageId?: Id<"_storage">,
   ) => {
     try {
@@ -336,6 +338,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         phone,
         class: className,
         memohackStudent,
+        emailOtp,
         ...(profileImageStorageId
           ? { profileImageStorageId }
           : {}),

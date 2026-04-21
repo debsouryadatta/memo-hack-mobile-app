@@ -1,4 +1,4 @@
-import { api } from "@memo-hack/convex";
+import { api, type Doc } from "@memo-hack/convex";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -8,6 +8,8 @@ import { ActivityIndicator, Animated, SafeAreaView, ScrollView, Text, TouchableO
 
 type ClassKey = "9" | "10" | "11" | "12";
 type SubjectKey = "physics" | "biology";
+type Chapter = Doc<"chapters">;
+type ChaptersByClass = Partial<Record<ClassKey, Chapter[]>>;
 
 const classes: ClassKey[] = ["9", "10", "11", "12"];
 
@@ -44,15 +46,19 @@ export default function SubjectScreen() {
   const subjectName = subject as SubjectKey;
 
   // Fetch all chapters for this subject from Convex
-  const chaptersByClass = useQuery(api.chapter.getAllChaptersBySubject, { 
+  const chaptersByClassQuery = useQuery(api.chapter.getAllChaptersBySubject, { 
     subject: subjectName 
   });
+  const chaptersByClass = chaptersByClassQuery as ChaptersByClass | undefined;
 
   // Calculate stats on client side
   const stats = React.useMemo(() => {
     if (!chaptersByClass) return { totalChapters: 0, classesWithChapters: 0 };
     
-    const totalChapters = Object.values(chaptersByClass).reduce((sum, chapters) => sum + chapters.length, 0);
+    const totalChapters = Object.values(chaptersByClass).reduce(
+      (sum, chapters) => sum + chapters.length,
+      0,
+    );
     const classesWithChapters = Object.keys(chaptersByClass).length;
     
     return { totalChapters, classesWithChapters };
@@ -92,7 +98,7 @@ export default function SubjectScreen() {
     }
   };
 
-  const getChapters = (classKey: ClassKey) => {
+  const getChapters = (classKey: ClassKey): Chapter[] => {
     return chaptersByClass?.[classKey] || [];
   };
 

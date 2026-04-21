@@ -162,6 +162,8 @@ http.route({
         "You are a helpful AI tutor for JEE and NEET students. " +
         "You help with Physics, Chemistry, Mathematics, and Biology concepts. " +
         "Give clear, concise, and accurate explanations. " +
+        "Format answers in Markdown. For formulas, use inline math with $...$ and important display formulas with $$...$$ on their own lines. " +
+        "Avoid raw bracket math delimiters like \\[...\\]. " +
         "When the student shares an image (diagram, problem photo, notes), read it carefully and explain what you see.",
       messages: await convertToModelMessages(messages),
       onError({ error }) {

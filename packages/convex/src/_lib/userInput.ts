@@ -10,6 +10,7 @@ export const USER_FIELD_LIMITS = {
   classMax: 64,
   imageUrlMax: 2048,
   searchTermMax: 200,
+  otpLength: 6,
 } as const;
 
 function assertMaxLen(field: string, value: string, max: number): void {
@@ -58,12 +59,24 @@ export function validateSigninFields(args: {
   assertMaxLen("Password", args.password, USER_FIELD_LIMITS.passwordMax);
 }
 
-export function validatePasswordChange(
-  oldPassword: string,
-  newPassword: string,
-): void {
-  assertMaxLen("Current password", oldPassword, USER_FIELD_LIMITS.passwordMax);
-  assertMinLen("New password", newPassword, USER_FIELD_LIMITS.passwordMin);
+export function validateEmailForOtp(email: string): void {
+  assertMaxLen("Email", email, USER_FIELD_LIMITS.emailMax);
+  if (!email.includes("@")) {
+    throwAppError("INVALID_INPUT", "Please enter a valid email address");
+  }
+}
+
+export function validateEmailOtp(otp: string): void {
+  const trimmed = otp.trim();
+  if (!new RegExp(`^\\d{${USER_FIELD_LIMITS.otpLength}}$`).test(trimmed)) {
+    throwAppError(
+      "INVALID_INPUT",
+      `Enter the ${USER_FIELD_LIMITS.otpLength}-digit verification code`,
+    );
+  }
+}
+
+export function validatePasswordChange(newPassword: string): void {
   assertMaxLen("New password", newPassword, USER_FIELD_LIMITS.passwordMax);
 }
 

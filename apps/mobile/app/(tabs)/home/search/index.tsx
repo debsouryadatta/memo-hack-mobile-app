@@ -21,15 +21,15 @@ interface Chapter {
   difficulty: string;
   class: string;
   subject: string;
-  videos?: Array<{
+  videos?: {
     title: string;
     description?: string;
     youtubeUrl: string;
-  }>;
-  notes?: Array<{
+  }[];
+  notes?: {
     name: string;
     url: string;
-  }>;
+  }[];
 }
 
 export default function SearchScreen() {
@@ -75,7 +75,7 @@ export default function SearchScreen() {
       duration: 600,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [fadeAnim]);
 
   const renderChapterItem = ({ item }: { item: Chapter }) => (
     <TouchableOpacity

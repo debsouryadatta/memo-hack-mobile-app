@@ -14,6 +14,7 @@ import {
     uploadToConvexStorage,
     type PreparedImage,
 } from "@/lib/imageUpload";
+import { ReadableMarkdown } from "./ReadableMarkdown";
 import { useChat } from "@ai-sdk/react";
 import { api, type Id } from "@memo-hack/convex";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -54,7 +55,6 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import Markdown from "react-native-markdown-display";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function AIChatScreen({
@@ -603,7 +603,7 @@ export function AIChatScreen({
                   key={m._id}
                   style={{
                     marginBottom: 10,
-                    maxWidth: "82%",
+                    maxWidth: isUser ? "82%" : "92%",
                     alignSelf: isUser ? "flex-end" : "flex-start",
                   }}
                 >
@@ -667,11 +667,11 @@ export function AIChatScreen({
                       />
                     ) : null}
                     {hasText ? (
-                      <Markdown
+                      <ReadableMarkdown
                         style={isUser ? userMarkdownStyles : aiMarkdownStyles}
                       >
                         {m.content}
-                      </Markdown>
+                      </ReadableMarkdown>
                     ) : null}
                   </View>
                 </View>
@@ -682,7 +682,7 @@ export function AIChatScreen({
               <View
                 style={{
                   marginBottom: 10,
-                  maxWidth: "82%",
+                  maxWidth: "92%",
                   alignSelf: "flex-start",
                 }}
               >
@@ -727,16 +727,16 @@ export function AIChatScreen({
                     elevation: 2,
                   }}
                 >
-                  <Markdown style={aiMarkdownStyles}>
+                  <ReadableMarkdown style={aiMarkdownStyles}>
                     {streamingAssistantText}
-                  </Markdown>
+                  </ReadableMarkdown>
                 </View>
               </View>
             ) : isPersistingAssistant && pendingAssistantText ? (
               <View
                 style={{
                   marginBottom: 10,
-                  maxWidth: "82%",
+                  maxWidth: "92%",
                   alignSelf: "flex-start",
                 }}
               >
@@ -781,9 +781,9 @@ export function AIChatScreen({
                     elevation: 2,
                   }}
                 >
-                  <Markdown style={aiMarkdownStyles}>
+                  <ReadableMarkdown style={aiMarkdownStyles}>
                     {pendingAssistantText}
-                  </Markdown>
+                  </ReadableMarkdown>
                 </View>
               </View>
             ) : isSubmitting || (isStreaming && !streamingAssistantText) ? (

@@ -48,7 +48,7 @@ const getDifficultyColor = (difficulty: string) => {
 };
 
 export default function ChapterScreen() {
-  const { subject, chapter } = useLocalSearchParams<{
+  const { chapter } = useLocalSearchParams<{
     subject: string;
     chapter: string;
   }>();
@@ -72,7 +72,7 @@ export default function ChapterScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnim, slideAnim]);
 
   // Get chapter data using Convex
   const chapterData = useQuery(api.chapter.getChapterById, {
@@ -358,7 +358,7 @@ export default function ChapterScreen() {
                     No Videos Available
                   </Text>
                   <Text className="text-slate-500 text-sm text-center leading-5">
-                    This chapter doesn't have any video content yet. Check back
+                    This chapter does not have any video content yet. Check back
                     later for updates or explore other learning materials.
                   </Text>
                 </View>
@@ -414,7 +414,7 @@ export default function ChapterScreen() {
                   No Notes Available
                 </Text>
                 <Text className="text-slate-500 text-sm text-center leading-5">
-                  This chapter doesn't have any study notes yet. Check back
+                  This chapter does not have any study notes yet. Check back
                   later for updates or explore other learning materials.
                 </Text>
               </View>

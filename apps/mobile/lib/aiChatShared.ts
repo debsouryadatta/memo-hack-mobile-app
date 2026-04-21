@@ -56,6 +56,34 @@ export const aiMarkdownStyles = {
     marginTop: 4,
     marginBottom: 8,
   },
+  math_inline: {
+    backgroundColor: "#F1F5F9",
+    color: "#0F172A",
+    borderRadius: 6,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    fontWeight: "700",
+  },
+  math_block: {
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  math_block_scroll: {
+    backgroundColor: "#F8FAFC",
+    borderColor: "#E2E8F0",
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  math_block_content: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  math_block_text: {
+    color: "#0F172A",
+    fontSize: 16,
+    fontWeight: "700",
+    lineHeight: 24,
+  },
 } as const;
 
 export const userMarkdownStyles = {
@@ -107,6 +135,34 @@ export const userMarkdownStyles = {
     padding: 12,
     marginTop: 4,
     marginBottom: 8,
+  },
+  math_inline: {
+    backgroundColor: "rgba(255,255,255,0.18)",
+    color: "#FFFFFF",
+    borderRadius: 6,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    fontWeight: "700",
+  },
+  math_block: {
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  math_block_scroll: {
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderColor: "rgba(255,255,255,0.24)",
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  math_block_content: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  math_block_text: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+    lineHeight: 24,
   },
 } as const;
 

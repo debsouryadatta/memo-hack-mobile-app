@@ -5,11 +5,11 @@ import {
     type PreparedImage,
 } from "@/lib/imageUpload";
 import { api, type Id } from "@memo-hack/convex";
-import { useMutation } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
-import { ChevronDown, Eye, EyeOff, GraduationCap, ImageIcon, Lock, Mail, Phone, User } from "lucide-react-native";
+import { ChevronDown, Eye, EyeOff, GraduationCap, ImageIcon, KeyRound, Lock, Mail, Phone, User } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { authTextInputStyle } from "./authInputStyles";
@@ -21,6 +21,7 @@ export default function SignUpScreen() {
     const generateSignupProfileUploadUrl = useMutation(
         api.user.generateSignupProfileImageUploadUrl,
     );
+    const requestSignupEmailOtp = useAction(api.user.requestSignupEmailOtp);
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -38,6 +39,10 @@ export default function SignUpScreen() {
     });
     const [profileImage, setProfileImage] = useState<PreparedImage | null>(null);
     const [pickingPhoto, setPickingPhoto] = useState(false);
+    const [emailOtp, setEmailOtp] = useState('');
+    const [otpSentTo, setOtpSentTo] = useState<string | null>(null);
+    const [otpExpiresAt, setOtpExpiresAt] = useState<number | null>(null);
+    const [requestingOtp, setRequestingOtp] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [signUpPhase, setSignUpPhase] = useState<'upload' | 'signup' | null>(
         null,
@@ -49,10 +54,77 @@ export default function SignUpScreen() {
     const classOptions = ['9', '10', '11', '12', 'Repeater'];
 
     const handleInputChange = (field: string, value: string) => {
+        if (field === 'email') {
+            setOtpSentTo(null);
+            setOtpExpiresAt(null);
+            setEmailOtp('');
+        }
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const busy = isLoading || submitting || pickingPhoto;
+    const busy = isLoading || submitting || pickingPhoto || requestingOtp;
+    const normalizedEmail = formData.email.trim().toLowerCase();
+    const hasEmailOtpForCurrentEmail = otpSentTo === normalizedEmail;
+    const otpExpiryText = otpExpiresAt
+        ? new Date(otpExpiresAt).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+        })
+        : null;
+
+    const validateSignUpForm = () => {
+        const { email, password, confirmPassword, name, phone, className, memohackStudent } = formData;
+
+        if (!email.trim() || !password.trim() || !name.trim() || !phone.trim() || !className.trim()) {
+            Alert.alert('Error', 'Please fill in all required fields');
+            return false;
+        }
+
+        if (memohackStudent === null) {
+            Alert.alert('Error', 'Please select whether you study in MemoHack');
+            return false;
+        }
+
+        if (!email.includes('@')) {
+            Alert.alert('Error', 'Please enter a valid email address');
+            return false;
+        }
+
+        if (password.length < 8) {
+            Alert.alert('Error', 'Password must be at least 8 characters long');
+            return false;
+        }
+
+        if (password !== confirmPassword) {
+            Alert.alert('Error', 'Passwords do not match');
+            return false;
+        }
+
+        if (phone.length < 10 || phone.length > 10) {
+            Alert.alert('Error', 'Please enter a valid phone number');
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleRequestEmailOtp = async () => {
+        if (busy) return;
+        if (!validateSignUpForm()) return;
+
+        setRequestingOtp(true);
+        try {
+            const result = await requestSignupEmailOtp({ email: normalizedEmail });
+            setOtpSentTo(normalizedEmail);
+            setOtpExpiresAt(result.expiresAt);
+            setEmailOtp('');
+            Alert.alert('Verification code sent', `We sent a 6-digit code to ${normalizedEmail}.`);
+        } catch (error) {
+            Alert.alert('Could not send code', getErrorMessage(error));
+        } finally {
+            setRequestingOtp(false);
+        }
+    };
 
     const handlePickProfilePhoto = async () => {
         if (pickingPhoto || submitting || isLoading) return;
@@ -78,35 +150,23 @@ export default function SignUpScreen() {
     };
 
     const handleSignUp = async () => {
-        const { email, password, confirmPassword, name, phone, className, memohackStudent } = formData;
+        const { email, password, name, phone, className, memohackStudent } = formData;
 
-        if (!email.trim() || !password.trim() || !name.trim() || !phone.trim() || !className.trim()) {
-            Alert.alert('Error', 'Please fill in all required fields');
+        if (!validateSignUpForm()) {
             return;
         }
 
         if (memohackStudent === null) {
-            Alert.alert('Error', 'Please select whether you study in MemoHack');
             return;
         }
 
-        if (!email.includes('@')) {
-            Alert.alert('Error', 'Please enter a valid email address');
+        if (!hasEmailOtpForCurrentEmail) {
+            await handleRequestEmailOtp();
             return;
         }
 
-        if (password.length < 6) {
-            Alert.alert('Error', 'Password must be at least 6 characters long');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            Alert.alert('Error', 'Passwords do not match');
-            return;
-        }
-
-        if (phone.length < 10 || phone.length > 10) {
-            Alert.alert('Error', 'Please enter a valid phone number');
+        if (!emailOtp.trim()) {
+            Alert.alert('Error', 'Please enter the verification code sent to your email');
             return;
         }
 
@@ -130,6 +190,7 @@ export default function SignUpScreen() {
                 phone.trim(),
                 className.trim(),
                 memohackStudent,
+                emailOtp.trim(),
                 profileImageStorageId,
             );
             router.replace('/(tabs)/home');
@@ -224,6 +285,38 @@ export default function SignUpScreen() {
                                 </View>
                             </View>
 
+                            {hasEmailOtpForCurrentEmail && (
+                                <View className='mb-4'>
+                                    <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>EMAIL OTP *</Text>
+                                    <View className={`flex-row items-center bg-white/15 rounded-xl border-2 ${focusedField === 'emailOtp' ? 'border-white/60' : 'border-white/25'} px-3`}>
+                                        <View className="shrink-0">
+                                            <KeyRound size={18} color="rgba(255,255,255,0.7)" />
+                                        </View>
+                                        <TextInput
+                                            className="text-white py-3 px-3 text-sm"
+                                            multiline={false}
+                                            scrollEnabled={false}
+                                            placeholder="6-digit code"
+                                            placeholderTextColor="rgba(255,255,255,0.5)"
+                                            keyboardType="number-pad"
+                                            value={emailOtp}
+                                            maxLength={6}
+                                            onChangeText={(value) => setEmailOtp(value.replace(/\D/g, '').slice(0, 6))}
+                                            onFocus={() => setFocusedField('emailOtp')}
+                                            onBlur={() => setFocusedField(null)}
+                                            editable={!busy}
+                                            selectionColor="white"
+                                            style={authTextInputStyle}
+                                        />
+                                    </View>
+                                    {otpExpiryText ? (
+                                        <Text className="text-white/60 text-xs mt-2 ml-1">
+                                            Code expires at {otpExpiryText}
+                                        </Text>
+                                    ) : null}
+                                </View>
+                            )}
+
                             {/* Phone Field */}
                             <View className='mb-4'>
                                 <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>PHONE NUMBER *</Text>
@@ -303,7 +396,7 @@ export default function SignUpScreen() {
                                         className="text-white py-3 px-3 text-sm"
                                         multiline={false}
                                         scrollEnabled={false}
-                                        placeholder="6+ characters"
+                                        placeholder="8+ characters"
                                         placeholderTextColor="rgba(255,255,255,0.5)"
                                         secureTextEntry={!showPassword}
                                         value={formData.password}
@@ -464,8 +557,12 @@ export default function SignUpScreen() {
                                 >
                                     <Text className='text-white text-center text-base font-bold tracking-wide'>
                                         {!busy
-                                            ? 'Sign Up'
-                                            : pickingPhoto
+                                            ? hasEmailOtpForCurrentEmail
+                                                ? 'Create Account'
+                                                : 'Send email code'
+                                            : requestingOtp
+                                              ? 'Sending email code...'
+                                              : pickingPhoto
                                               ? 'Opening library…'
                                               : signUpPhase === 'upload'
                                                 ? 'Uploading photo…'

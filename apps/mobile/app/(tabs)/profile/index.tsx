@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Edit2,
   GraduationCap,
+  Lock,
   LogOut,
   Mail,
   Phone,
@@ -130,7 +131,7 @@ export default function ProfileScreen() {
                 {/* Sign Up Link */}
                 <View className="flex-row justify-center items-center">
                   <Text className="text-white/70 text-sm">
-                    Don't have an account?{" "}
+                    {"Don't have an account? "}
                   </Text>
                   <TouchableOpacity
                     onPress={() => router.push("/(auth)/signup")}
@@ -404,6 +405,26 @@ export default function ProfileScreen() {
                       </Text>
                       <Text className="text-slate-500 text-sm">
                         Photo, name, phone, class, MemoHack student
+                      </Text>
+                    </View>
+                    <ChevronRight size={20} color="#94A3B8" />
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className="bg-white rounded-2xl p-4 shadow-lg shadow-slate-200/50 border border-slate-100"
+                  onPress={() => router.push("/(tabs)/profile/change-password")}
+                >
+                  <View className="flex-row items-center">
+                    <View className="bg-indigo-100 rounded-full p-3 mr-4">
+                      <Lock size={22} color="#4F46E5" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-slate-900 text-base font-semibold">
+                        Change password
+                      </Text>
+                      <Text className="text-slate-500 text-sm">
+                        Verify by email OTP before updating
                       </Text>
                     </View>
                     <ChevronRight size={20} color="#94A3B8" />

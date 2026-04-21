@@ -1,4 +1,4 @@
-import type { PropsWithChildren, ReactElement } from "react";
+import type { ComponentRef, PropsWithChildren, ReactElement } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
   interpolate,
@@ -17,6 +17,7 @@ type Props = PropsWithChildren<{
   headerImage: ReactElement;
   headerBackgroundColor: { dark: string; light: string };
 }>;
+type AnimatedScrollViewRef = ComponentRef<typeof Animated.ScrollView>;
 
 export default function ParallaxScrollView({
   children,
@@ -24,9 +25,7 @@ export default function ParallaxScrollView({
   headerBackgroundColor,
 }: Props) {
   const colorScheme = useColorScheme() ?? "light";
-  // Using any to work around type incompatibility between reanimated and react-native types
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const scrollRef = useAnimatedRef<any>();
+  const scrollRef = useAnimatedRef<AnimatedScrollViewRef>();
   const scrollOffset = useScrollViewOffset(scrollRef);
   const bottom = useBottomTabOverflow();
   const headerAnimatedStyle = useAnimatedStyle(() => {
