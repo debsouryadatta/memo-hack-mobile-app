@@ -1,5 +1,7 @@
 import { useApp } from "@/components/ContextProvider";
 import { alertInfo, confirmAsync } from "@/lib/confirm";
+import { api } from "@memo-hack/convex";
+import { useQuery } from "convex/react";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -13,6 +15,7 @@ import {
   Mail,
   Phone,
   Settings,
+  Trophy,
   User as UserIcon,
 } from "lucide-react-native";
 import React from "react";
@@ -36,9 +39,21 @@ function avatarInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+function quizActivityColor(attemptedCount: number, score: number): string {
+  if (attemptedCount === 0) return "#E2E8F0";
+  if (score === 0) return "#FCA5A5";
+  if (score === 1) return "#BFDBFE";
+  if (score === 2) return "#86EFAC";
+  return "#22C55E";
+}
+
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, signout, isLoading, deferAuthRedirect, token } = useApp();
+  const quizStats = useQuery(
+    api.dailyQuiz.getMyDailyQuizStats,
+    user && !deferAuthRedirect ? { days: 35 } : "skip",
+  );
 
   /** Explicit sizes: RN ignores %/className sizing on remote expo-image in many layouts (works on Web). */
   const avatarOuter = Math.min(screenWidth * 0.35, 140);
@@ -382,6 +397,102 @@ export default function ProfileScreen() {
                     </>
                   )}
               </View>
+            </View>
+
+            {/* Daily Quiz Consistency */}
+            <View className="bg-white rounded-3xl p-6 shadow-lg shadow-slate-200/50 mb-6 border border-slate-100">
+              <View className="flex-row items-center mb-5">
+                <View className="bg-indigo-100 rounded-full p-3 mr-4">
+                  <Trophy size={22} color="#4F46E5" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-slate-900 text-xl font-bold">
+                    Daily Quiz Consistency
+                  </Text>
+                  <Text className="text-slate-500 text-sm mt-1">
+                    Last 35 days of quiz activity
+                  </Text>
+                </View>
+              </View>
+
+              {quizStats === undefined ? (
+                <View className="py-8 items-center">
+                  <ActivityIndicator size="small" color="#4F46E5" />
+                </View>
+              ) : (
+                <>
+                  <View className="flex-row mb-5">
+                    <View className="flex-1 bg-slate-50 rounded-2xl p-3 mr-2">
+                      <Text className="text-slate-500 text-xs font-semibold">
+                        Active days
+                      </Text>
+                      <Text className="text-slate-900 text-xl font-bold mt-1">
+                        {quizStats.activeDays}
+                      </Text>
+                    </View>
+                    <View className="flex-1 bg-slate-50 rounded-2xl p-3 mx-1">
+                      <Text className="text-slate-500 text-xs font-semibold">
+                        Streak
+                      </Text>
+                      <Text className="text-slate-900 text-xl font-bold mt-1">
+                        {quizStats.currentStreak}
+                      </Text>
+                    </View>
+                    <View className="flex-1 bg-slate-50 rounded-2xl p-3 ml-2">
+                      <Text className="text-slate-500 text-xs font-semibold">
+                        Points
+                      </Text>
+                      <Text className="text-slate-900 text-xl font-bold mt-1">
+                        {quizStats.totalScore}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      flexWrap: "wrap",
+                      gap: 6,
+                    }}
+                  >
+                    {quizStats.days.map((day) => (
+                      <View
+                        key={day.dayKey}
+                        style={{
+                          width: 18,
+                          height: 18,
+                          borderRadius: 5,
+                          backgroundColor: quizActivityColor(
+                            day.attemptedCount,
+                            day.score,
+                          ),
+                        }}
+                      />
+                    ))}
+                  </View>
+
+                  <View className="flex-row items-center justify-between mt-4">
+                    <Text className="text-slate-500 text-xs">Less</Text>
+                    <View className="flex-row items-center gap-1">
+                      {[0, 1, 2, 3].map((score) => (
+                        <View
+                          key={score}
+                          style={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: 4,
+                            backgroundColor: quizActivityColor(
+                              score === 0 ? 0 : 1,
+                              score,
+                            ),
+                          }}
+                        />
+                      ))}
+                    </View>
+                    <Text className="text-slate-500 text-xs">More</Text>
+                  </View>
+                </>
+              )}
             </View>
 
             {/* Action Menu */}

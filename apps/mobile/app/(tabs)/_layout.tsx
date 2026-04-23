@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";
-import { Bot, Home, User } from "lucide-react-native";
+import { Bot, Home, Trophy, User } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -63,6 +63,13 @@ export default function TabLayout() {
         options={{
           title: 'AI',
           tabBarIcon: ({ color, size }) => <Bot color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="quiz"
+        options={{
+          title: 'Quiz',
+          tabBarIcon: ({ color, size }) => <Trophy color={color} size={size} />,
         }}
       />
       <Tabs.Screen

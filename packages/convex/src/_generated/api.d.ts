@@ -17,7 +17,10 @@ import type * as _lib_usageLimits from "../_lib/usageLimits.js";
 import type * as _lib_userInput from "../_lib/userInput.js";
 import type * as aiChat from "../aiChat.js";
 import type * as chapter from "../chapter.js";
+import type * as crons from "../crons.js";
+import type * as dailyQuiz from "../dailyQuiz.js";
 import type * as http from "../http.js";
+import type * as settings from "../settings.js";
 import type * as user from "../user.js";
 
 import type {
@@ -36,7 +39,10 @@ declare const fullApi: ApiFromModules<{
   "_lib/userInput": typeof _lib_userInput;
   aiChat: typeof aiChat;
   chapter: typeof chapter;
+  crons: typeof crons;
+  dailyQuiz: typeof dailyQuiz;
   http: typeof http;
+  settings: typeof settings;
   user: typeof user;
 }>;
 

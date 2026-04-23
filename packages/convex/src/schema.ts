@@ -2,6 +2,10 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  config: defineTable({
+    key: v.string(),
+    value: v.string(),
+  }).index("by_key", ["key"]),
   users: defineTable({
     _id: v.id("users"),
     email: v.string(),
@@ -86,4 +90,34 @@ export default defineSchema({
   })
     .index("by_user_day", ["userId", "dayKey"])
     .index("by_day", ["dayKey"]),
+  dailyQuizQuestions: defineTable({
+    _id: v.id("dailyQuizQuestions"),
+    dayKey: v.string(),
+    subject: v.union(
+      v.literal("physics"),
+      v.literal("chemistry"),
+      v.literal("biology"),
+    ),
+    question: v.string(),
+    options: v.array(v.string()),
+    correctOptionIndex: v.number(),
+    explanation: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_day", ["dayKey"])
+    .index("by_day_subject", ["dayKey", "subject"]),
+  dailyQuizAttempts: defineTable({
+    _id: v.id("dailyQuizAttempts"),
+    questionId: v.id("dailyQuizQuestions"),
+    userId: v.id("users"),
+    selectedOptionIndex: v.number(),
+    isCorrect: v.boolean(),
+    score: v.number(),
+    submittedAt: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_question", ["questionId"])
+    .index("by_user_question", ["userId", "questionId"]),
 });
