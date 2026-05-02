@@ -241,7 +241,7 @@ export const generateDailyQuiz = internalAction({
     });
 
     const { text } = await generateText({
-      model: openrouter.chat("openai/gpt-4.1-mini"),
+      model: openrouter.chat("minimax/minimax-m2.7"),
       maxOutputTokens: 1600,
       prompt:
         `Generate today's MemoHack daily quiz for ${dayKey} (IST).\n` +
@@ -249,7 +249,8 @@ export const generateDailyQuiz = internalAction({
         "Questions should be relevant for JEE/NEET preparation, clear, and exam-style.\n" +
         "Return strict JSON only, no markdown, no commentary. Shape:\n" +
         '[{"subject":"physics","question":"...","options":["...","...","...","..."],"correctOptionIndex":0,"explanation":"..."}]\n' +
-        "Use lowercase subjects exactly: physics, chemistry, biology. Each options array must have exactly 4 options.",
+        "Use lowercase subjects exactly: physics, chemistry, biology. Each options array must have exactly 4 options.\n" +
+        "Strictly ensure correctOptionIndex points to the option proven by the explanation.",
     });
 
     const generated = parseGeneratedQuestions(text);

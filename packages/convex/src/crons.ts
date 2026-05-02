@@ -3,10 +3,10 @@ import { internal } from "./_generated/api";
 
 const crons = cronJobs();
 
-// 5:00 AM IST is 11:30 PM UTC on the previous UTC day.
+// 12:01 AM IST is 6:31 PM UTC on the previous UTC day.
 crons.daily(
   "generate daily quiz",
-  { hourUTC: 23, minuteUTC: 30 },
+  { hourUTC: 18, minuteUTC: 31 },
   internal.dailyQuiz.generateDailyQuiz,
 );
 

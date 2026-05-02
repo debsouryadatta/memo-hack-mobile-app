@@ -347,8 +347,8 @@ export default function DailyQuizScreen() {
                 {"Today's quiz is being prepared"}
               </Text>
               <Text style={{ color: "#64748B", lineHeight: 21 }}>
-                The daily questions are generated at 5:00 AM IST. Please check
-                back in a bit.
+                The daily questions are generated at 12:01 AM IST. Please
+                check back in a bit.
               </Text>
             </View>
           ) : (

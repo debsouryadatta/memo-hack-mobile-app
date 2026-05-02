@@ -16,6 +16,8 @@ export type PreparedImage = {
   mime: "image/jpeg";
 };
 
+export type ChatImageSource = "library" | "camera";
+
 function assertImageMime(mime: string | undefined): void {
   if (!mime || !mime.startsWith("image/")) {
     throw new Error("Please choose an image file.");
@@ -30,6 +32,36 @@ export async function requestMediaPermission(): Promise<boolean> {
 async function pickAsset(): Promise<ImagePicker.ImagePickerAsset | null> {
   const allowed = await requestMediaPermission();
   if (!allowed) return null;
+  const res = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: false,
+    quality: 1,
+  });
+  if (res.canceled || !res.assets[0]) return null;
+  return res.assets[0];
+}
+
+async function pickChatAsset(
+  source: ChatImageSource,
+): Promise<ImagePicker.ImagePickerAsset | null> {
+  if (source === "camera") {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      throw new Error("Camera permission is needed to take a photo.");
+    }
+    const res = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 1,
+    });
+    if (res.canceled || !res.assets[0]) return null;
+    return res.assets[0];
+  }
+
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (status !== "granted") {
+    throw new Error("Photo library permission is needed to choose an image.");
+  }
   const res = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     allowsEditing: false,
@@ -75,8 +107,10 @@ export async function prepareProfileImage(): Promise<PreparedImage | null> {
   return { uri: manipulated.uri, mime: "image/jpeg" };
 }
 
-export async function prepareChatImage(): Promise<PreparedImage | null> {
-  const asset = await pickAsset();
+export async function prepareChatImage(
+  source: ChatImageSource = "library",
+): Promise<PreparedImage | null> {
+  const asset = await pickChatAsset(source);
   if (!asset) return null;
   assertImageMime(asset.mimeType ?? "image/jpeg");
   await assertUnderMaxBytes(asset.uri);

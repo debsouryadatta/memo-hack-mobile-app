@@ -155,9 +155,26 @@ http.route({
     const openrouter = createOpenRouter({
       apiKey: process.env.OPENROUTER_API_KEY!,
     });
+    let streamedAssistantText = "";
+    let assistantPersisted = false;
+    const persistAssistantText = async (rawText: string) => {
+      if (assistantPersisted) return;
+      const text = rawText.trim();
+      if (!text) return;
+      assistantPersisted = true;
+      try {
+        await ctx.runMutation(internal.aiChat.persistAssistantMessageFromHttp, {
+          sessionId,
+          userId,
+          content: text,
+        });
+      } catch (e) {
+        console.error("persistAssistantMessageFromHttp:", e);
+      }
+    };
 
     const result = streamText({
-      model: openrouter.chat("openai/gpt-4.1-mini"),
+      model: openrouter.chat("google/gemini-3-flash-preview"),
       system:
         "You are a helpful AI tutor for JEE and NEET students. " +
         "You help with Physics, Chemistry, Mathematics, and Biology concepts. " +
@@ -166,21 +183,19 @@ http.route({
         "Avoid raw bracket math delimiters like \\[...\\]. " +
         "When the student shares an image (diagram, problem photo, notes), read it carefully and explain what you see.",
       messages: await convertToModelMessages(messages),
+      onChunk({ chunk }) {
+        if (chunk.type === "text-delta") {
+          streamedAssistantText += chunk.text;
+        }
+      },
       onError({ error }) {
         console.error("streamText error:", error);
       },
       onFinish: async (event) => {
-        const text = event.text.trim();
-        if (!text) return;
-        try {
-          await ctx.runMutation(internal.aiChat.persistAssistantMessageFromHttp, {
-            sessionId,
-            userId,
-            content: text,
-          });
-        } catch (e) {
-          console.error("persistAssistantMessageFromHttp:", e);
-        }
+        await persistAssistantText(event.text);
+      },
+      onAbort: async () => {
+        await persistAssistantText(streamedAssistantText);
       },
     });
 

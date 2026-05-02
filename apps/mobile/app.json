@@ -35,7 +35,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Memo Hack uses your photo library to set your profile picture and to share diagrams or problems with the AI tutor."
+          "photosPermission": "Memo Hack uses your photo library to set your profile picture and to share diagrams or problems with the AI tutor.",
+          "cameraPermission": "Memo Hack uses your camera so you can capture questions, diagrams, and notes for the AI tutor."
         }
       ],
       [
