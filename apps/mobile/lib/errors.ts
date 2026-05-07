@@ -1,5 +1,5 @@
 import { ConvexError } from "convex/values";
-import { Alert } from "react-native";
+import { alertInfo } from "./confirm";
 
 type AppErrorData = {
   code: string;
@@ -22,8 +22,8 @@ export function getErrorMessage(error: unknown): string {
 }
 
 /**
- * Show an Alert for any caught error.
+ * Show the shared in-app dialog for any caught error.
  */
 export function handleError(error: unknown, title = "Error") {
-  Alert.alert(title, getErrorMessage(error));
+  alertInfo(title, getErrorMessage(error));
 }

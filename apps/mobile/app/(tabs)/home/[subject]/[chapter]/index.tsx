@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, FileText, Loader2, Play } from "lucide-react-native";
 import React from "react";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import {
     Animated,
     Dimensions,
@@ -14,6 +15,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import YoutubePlayer from "react-native-youtube-iframe";
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -53,6 +55,8 @@ export default function ChapterScreen() {
     chapter: string;
   }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const [activeVideoIndex, setActiveVideoIndex] = React.useState(0);
   const [isVideoLoaded, setIsVideoLoaded] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<"video" | "notes">("video");
@@ -156,7 +160,6 @@ export default function ChapterScreen() {
 
   return (
     <View className="flex-1">
-      {/* Header with Gradient */}
       <Animated.View
         style={{
           opacity: fadeAnim,
@@ -165,16 +168,29 @@ export default function ChapterScreen() {
       >
         <LinearGradient
           colors={["#6366F1", "#4F46E5", "#4338CA"]}
-          className="pt-16 pb-6"
+          style={{ paddingTop: insets.top + 10, paddingBottom: 16 }}
         >
-          <View className="px-6">
-            <View className="flex-row items-center justify-between mb-4">
+          <View className="px-5">
+            <View className="flex-row items-center gap-3">
               <TouchableOpacity
                 onPress={() => router.back()}
-                className="bg-white/20 backdrop-blur-sm p-3 rounded-full"
+                className="items-center justify-center bg-white/20"
+                style={{ width: 42, height: 42, borderRadius: 14 }}
               >
-                <ArrowLeft size={24} color="white" />
+                <ArrowLeft size={21} color="white" />
               </TouchableOpacity>
+              <View className="flex-1 min-w-0">
+                <Text className="text-white/70 text-xs font-semibold uppercase mb-0.5">
+                  {chapterData.subject} • Class {chapterData.class}
+                </Text>
+                <Text
+                  className="text-white text-xl font-extrabold leading-6"
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
+                  {chapterData.title}
+                </Text>
+              </View>
               <View
                 className={`${difficultyColors.bg} px-3 py-1 rounded-full border ${difficultyColors.border}`}
               >
@@ -186,25 +202,19 @@ export default function ChapterScreen() {
               </View>
             </View>
 
-            <View className="mb-4">
-              <Text className="text-white/80 text-sm font-medium capitalize mb-1">
-                {chapterData.subject} • Class {chapterData.class}
-              </Text>
-              <Text className="text-white text-2xl font-bold mb-2">
-                {chapterData.title}
-              </Text>
-              <Text className="text-white/90 text-sm leading-5">
-                {chapterData.description}
-              </Text>
-            </View>
+            <Text
+              className="text-white/80 text-sm leading-5 mt-3"
+              numberOfLines={2}
+            >
+              {chapterData.description}
+            </Text>
 
-            {/* Chapter Stats */}
-            <View className="flex-row items-center space-x-6">
+            <View className="flex-row items-center mt-3">
               <View className="flex-row items-center">
-                <View className="bg-white/20 rounded-full p-2 mr-2">
-                  <Play size={16} color="white" />
+                <View className="bg-white/20 rounded-full p-1.5 mr-2">
+                  <Play size={14} color="white" />
                 </View>
-                <Text className="text-white/90 text-sm font-medium">
+                <Text className="text-white/80 text-xs font-semibold">
                   {hasVideos
                     ? `${chapterData.videos?.length || 0} Videos`
                     : "No Videos"}
@@ -218,25 +228,34 @@ export default function ChapterScreen() {
       <ScrollView
         className="flex-1 bg-slate-50"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{ paddingBottom: tabBarHeight + 20 }}
       >
-        {/* Tab Navigation */}
-        <View className="bg-white border-b border-slate-200 px-4 pt-2">
-          <View className="flex-row space-x-2">
+        <View className="bg-slate-50 px-4 pt-3 pb-2">
+          <View
+            style={{
+              flexDirection: "row",
+              gap: 4,
+              borderRadius: 16,
+              backgroundColor: "#E2E8F0",
+              padding: 4,
+            }}
+          >
             <TouchableOpacity
               onPress={() => setActiveTab("video")}
-              className={`flex-1 py-4 px-4 rounded-t-2xl border-b-2 flex-row items-center justify-center ${
-                activeTab === "video"
-                  ? "border-indigo-500 bg-indigo-50"
-                  : "border-transparent bg-slate-50"
-              }`}
+              className="flex-row items-center justify-center"
+              style={{
+                flex: 1,
+                borderRadius: 12,
+                paddingVertical: 10,
+                backgroundColor: activeTab === "video" ? "white" : "transparent",
+              }}
             >
               <Play
-                size={18}
+                size={16}
                 color={activeTab === "video" ? "#6366F1" : "#94A3B8"}
               />
               <Text
-                className={`ml-2 font-semibold ${
+                className={`ml-2 text-sm font-semibold ${
                   activeTab === "video" ? "text-indigo-600" : "text-slate-500"
                 }`}
               >
@@ -246,18 +265,20 @@ export default function ChapterScreen() {
 
             <TouchableOpacity
               onPress={() => setActiveTab("notes")}
-              className={`flex-1 py-4 px-4 rounded-t-2xl border-b-2 flex-row items-center justify-center ${
-                activeTab === "notes"
-                  ? "border-indigo-500 bg-indigo-50"
-                  : "border-transparent bg-slate-50"
-              }`}
+              className="flex-row items-center justify-center"
+              style={{
+                flex: 1,
+                borderRadius: 12,
+                paddingVertical: 10,
+                backgroundColor: activeTab === "notes" ? "white" : "transparent",
+              }}
             >
               <FileText
-                size={18}
+                size={16}
                 color={activeTab === "notes" ? "#6366F1" : "#94A3B8"}
               />
               <Text
-                className={`ml-2 font-semibold ${
+                className={`ml-2 text-sm font-semibold ${
                   activeTab === "notes" ? "text-indigo-600" : "text-slate-500"
                 }`}
               >
@@ -273,7 +294,7 @@ export default function ChapterScreen() {
             {/* Video Player Section or No Videos Message */}
             {hasVideos && currentVideo ? (
               <Animated.View
-                className="bg-white mx-4 rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100"
+                className="bg-white mx-4 mt-3 rounded-2xl overflow-hidden border border-slate-200"
                 style={{
                   opacity: fadeAnim,
                   transform: [
@@ -288,7 +309,7 @@ export default function ChapterScreen() {
               >
                 <View className="p-4 pb-2">
                   <View className="flex-row items-center justify-between mb-3">
-                    <Text className="text-slate-900 text-lg font-bold">
+                    <Text className="text-slate-900 text-base font-bold">
                       Now Playing
                     </Text>
                     <View className="bg-indigo-100 px-3 py-1 rounded-full">
@@ -299,18 +320,17 @@ export default function ChapterScreen() {
                     </View>
                   </View>
 
-                  <Text className="text-slate-900 text-base font-semibold mb-2">
+                  <Text className="text-slate-900 text-sm font-semibold mb-1" numberOfLines={2}>
                     {currentVideo.title}
                   </Text>
-                  <Text className="text-slate-500 text-sm mb-4">
+                  <Text className="text-slate-500 text-xs mb-3" numberOfLines={2}>
                     {currentVideo.description}
                   </Text>
                 </View>
 
-                {/* Video Player */}
                 <View
-                  className="bg-black rounded-2xl mx-4 mb-4 overflow-hidden"
-                  style={{ height: (screenWidth - 32) * 0.56 }} // 16:9 aspect ratio
+                  className="bg-black rounded-2xl mx-3 mb-3 overflow-hidden"
+                  style={{ height: (screenWidth - 40) * 0.56 }}
                 >
                   {!isVideoLoaded && (
                     <View className="flex-1 justify-center items-center bg-slate-900">
@@ -337,7 +357,7 @@ export default function ChapterScreen() {
               </Animated.View>
             ) : (
               <Animated.View
-                className="bg-white mx-4 -mt-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100"
+                className="bg-white mx-4 mt-3 rounded-2xl border border-slate-200"
                 style={{
                   opacity: fadeAnim,
                   transform: [
@@ -350,11 +370,11 @@ export default function ChapterScreen() {
                   ],
                 }}
               >
-                <View className="p-6 items-center">
-                  <View className="bg-slate-100 rounded-full p-6 mb-4">
-                    <Play size={32} color="#64748B" />
+                <View className="p-5 items-center">
+                  <View className="bg-slate-100 rounded-full p-4 mb-3">
+                    <Play size={28} color="#64748B" />
                   </View>
-                  <Text className="text-slate-900 text-lg font-bold mb-2">
+                  <Text className="text-slate-900 text-base font-bold mb-2">
                     No Videos Available
                   </Text>
                   <Text className="text-slate-500 text-sm text-center leading-5">
@@ -381,7 +401,7 @@ export default function ChapterScreen() {
               chapterData.notes.map((note: any, index: number) => (
                 <TouchableOpacity
                   key={index}
-                  className="bg-amber-50 border border-amber-200 rounded-xl p-3 active:bg-amber-100 shadow-sm mb-2"
+                  className="bg-amber-50 border border-amber-200 rounded-2xl p-3 active:bg-amber-100 mb-2"
                   activeOpacity={0.8}
                   onPress={() => handlePDFOpen(note.url)}
                 >
@@ -408,9 +428,9 @@ export default function ChapterScreen() {
             ) : (
               <View className="p-6 items-center">
                 <View className="bg-slate-100 rounded-full p-6 mb-4">
-                  <FileText size={32} color="#64748B" />
+                  <FileText size={28} color="#64748B" />
                 </View>
-                <Text className="text-slate-900 text-lg font-bold mb-2">
+                <Text className="text-slate-900 text-base font-bold mb-2">
                   No Notes Available
                 </Text>
                 <Text className="text-slate-500 text-sm text-center leading-5">
@@ -424,9 +444,9 @@ export default function ChapterScreen() {
 
         {/* Video List */}
         {hasVideos && activeTab === "video" && (
-          <View className="px-4 mt-6">
+          <View className="px-4 mt-5">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-slate-900 text-xl font-bold">
+              <Text className="text-slate-900 text-lg font-bold">
                 Chapter Videos
               </Text>
               <Text className="text-slate-500 text-sm">
@@ -434,7 +454,7 @@ export default function ChapterScreen() {
               </Text>
             </View>
 
-            <View className="space-y-3">
+            <View className="gap-3">
               {chapterData.videos?.map((video: VideoData, index: number) => (
                 <Animated.View
                   key={index}
@@ -451,11 +471,11 @@ export default function ChapterScreen() {
                   }}
                 >
                   <TouchableOpacity
-                    className={`bg-white rounded-2xl p-4 border ${
+                    className={`bg-white rounded-2xl p-3 border ${
                       activeVideoIndex === index
                         ? "border-indigo-200 bg-indigo-50"
                         : "border-slate-100"
-                    } shadow-sm`}
+                    }`}
                     onPress={() => {
                       setActiveVideoIndex(index);
                       setIsVideoLoaded(false);
@@ -468,10 +488,10 @@ export default function ChapterScreen() {
                           activeVideoIndex === index
                             ? "bg-indigo-500"
                             : "bg-slate-100"
-                        } rounded-xl p-3 mr-4`}
+                        } rounded-xl p-2.5 mr-3`}
                       >
                         <Play
-                          size={20}
+                          size={18}
                           color={
                             activeVideoIndex === index ? "white" : "#64748B"
                           }
@@ -487,11 +507,12 @@ export default function ChapterScreen() {
                               ? "text-indigo-900"
                               : "text-slate-900"
                           }`}
+                          numberOfLines={2}
                         >
                           {video.title}
                         </Text>
                         {video.description && (
-                          <Text className="text-slate-500 text-sm mb-2">
+                          <Text className="text-slate-500 text-xs mb-1" numberOfLines={2}>
                             {video.description}
                           </Text>
                         )}

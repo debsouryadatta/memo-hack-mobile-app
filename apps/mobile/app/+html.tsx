@@ -19,7 +19,7 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="theme-color" content="#4F46E5" />
         <meta
           name="description"
-          content="Memo Hack — JEE & NEET prep with chapters, practice, and an AI tutor."
+          content="Memo Hack — JEE & NEET prep with chapters, practice, and Memo AI."
         />
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />

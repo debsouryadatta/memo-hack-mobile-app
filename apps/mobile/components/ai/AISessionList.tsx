@@ -5,13 +5,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import {
   Bot,
   MessageSquarePlus,
-  Plus,
   Trash2,
 } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Animated,
   ScrollView,
   Text,
@@ -19,7 +17,12 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getUsageLimitMessage, isAuthRequiredError } from "@/lib/aiChatShared";
+import {
+  getUsageLimitMessage,
+  isAuthRequiredError,
+  MEMO_AI_NAME,
+} from "@/lib/aiChatShared";
+import { alertInfo } from "@/lib/confirm";
 
 export function AISessionList({
   onSelect,
@@ -71,14 +74,13 @@ export function AISessionList({
         <View
           style={{
             flexDirection: "row",
-            justifyContent: "space-between",
             alignItems: "flex-start",
             marginBottom: 14,
           }}
         >
-          <View style={{ flex: 1, paddingRight: 12 }}>
+          <View style={{ flex: 1 }}>
             <Text style={{ color: "#c7d2fe", fontSize: 15, fontWeight: "500" }}>
-              Your AI powered
+              Your study partner
             </Text>
             <Text
               style={{
@@ -89,22 +91,9 @@ export function AISessionList({
                 marginTop: 2,
               }}
             >
-              AI Tutor
+              {MEMO_AI_NAME}
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={onNew}
-            style={{
-              width: 52,
-              height: 52,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "rgba(255,255,255,0.2)",
-              borderRadius: 16,
-            }}
-          >
-            <Plus size={22} color="white" />
-          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
@@ -134,7 +123,7 @@ export function AISessionList({
               marginLeft: 10,
             }}
           >
-            Start New Chat
+            Start Memo AI Chat
           </Text>
         </TouchableOpacity>
       </Animated.View>
@@ -186,7 +175,7 @@ export function AISessionList({
                   color: "#0F172A",
                 }}
               >
-                Recent Chats
+                Memo AI Chats
               </Text>
               <Text
                 style={{
@@ -256,7 +245,7 @@ export function AISessionList({
                   marginBottom: 8,
                 }}
               >
-                No chats yet
+                No Memo AI chats yet
               </Text>
               <Text
                 style={{
@@ -266,7 +255,7 @@ export function AISessionList({
                   lineHeight: 21,
                 }}
               >
-                Tap Start New Chat to ask your first JEE / NEET question.
+                Tap Start Memo AI Chat to ask your first JEE / NEET question.
               </Text>
             </View>
           ) : (
@@ -321,7 +310,7 @@ export function AISessionList({
                         async (error) => {
                           const usageMessage = getUsageLimitMessage(error);
                           if (usageMessage) {
-                            Alert.alert("Limit reached", usageMessage);
+                            alertInfo("Limit reached", usageMessage);
                             return;
                           }
                           if (isAuthRequiredError(error)) return;

@@ -176,20 +176,20 @@ export default function ChangePasswordScreen() {
         <ScrollView
           className="flex-1"
           contentContainerStyle={{
-            padding: 20,
-            paddingBottom: tabBarHeight + insets.bottom + 28,
+            padding: 16,
+            paddingBottom: tabBarHeight + 28,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View className="bg-white rounded-2xl border border-slate-100 p-4 mb-4 shadow-sm">
+          <View className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
             <Text className="text-slate-500 text-xs font-semibold mb-2">
               NEW PASSWORD
             </Text>
             <View className={passwordFieldClass("newPassword")}>
               <Lock size={18} color="#64748B" />
               <TextInput
-                className="flex-1 py-3 px-2 text-slate-900 text-base"
+                className="flex-1 py-3 px-2 text-slate-900 text-sm"
                 value={newPassword}
                 onChangeText={setNewPassword}
                 onFocus={() => setFocusedField("newPassword")}
@@ -213,14 +213,14 @@ export default function ChangePasswordScreen() {
             </View>
           </View>
 
-          <View className="bg-white rounded-2xl border border-slate-100 p-4 mb-4 shadow-sm">
+          <View className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
             <Text className="text-slate-500 text-xs font-semibold mb-2">
               CONFIRM NEW PASSWORD
             </Text>
             <View className={passwordFieldClass("confirmPassword")}>
               <Lock size={18} color="#64748B" />
               <TextInput
-                className="flex-1 py-3 px-2 text-slate-900 text-base"
+                className="flex-1 py-3 px-2 text-slate-900 text-sm"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 onFocus={() => setFocusedField("confirmPassword")}
@@ -245,14 +245,14 @@ export default function ChangePasswordScreen() {
           </View>
 
           {otpSent ? (
-            <View className="bg-white rounded-2xl border border-slate-100 p-4 mb-6 shadow-sm">
+            <View className="bg-white rounded-2xl border border-slate-200 p-4 mb-5">
               <Text className="text-slate-500 text-xs font-semibold mb-2">
                 EMAIL OTP
               </Text>
               <View className={passwordFieldClass("emailOtp")}>
                 <KeyRound size={18} color="#64748B" />
                 <TextInput
-                  className="flex-1 py-3 px-2 text-slate-900 text-base"
+                  className="flex-1 py-3 px-2 text-slate-900 text-sm"
                   value={emailOtp}
                   onChangeText={(value) =>
                     setEmailOtp(value.replace(/\D/g, "").slice(0, 6))
@@ -277,13 +277,13 @@ export default function ChangePasswordScreen() {
           <TouchableOpacity
             onPress={handleChangePassword}
             disabled={busy}
-            className="rounded-2xl bg-indigo-600 py-4 items-center"
+            className="rounded-xl bg-indigo-600 py-3.5 items-center"
             style={{ opacity: busy ? 0.7 : 1 }}
           >
             {requestingOtp || saving ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text className="text-white text-lg font-bold">
+              <Text className="text-white text-base font-bold">
                 {otpSent ? "Change password" : "Send email code"}
               </Text>
             )}

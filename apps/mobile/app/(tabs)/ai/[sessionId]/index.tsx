@@ -2,6 +2,7 @@ import { type Id } from "@memo-hack/convex";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { AIChatScreen } from "@/components/ai/AIChatScreen";
+import { MEMO_AI_NAME } from "@/lib/aiChatShared";
 
 function paramString(
   value: string | string[] | undefined,
@@ -33,7 +34,7 @@ export default function AIChatSessionScreen() {
 
   const sessionId = sessionIdRaw as Id<"aiChatSessions">;
   const sessionTitle =
-    titleRaw && titleRaw.length > 0 ? titleRaw : "Chat";
+    titleRaw && titleRaw.length > 0 ? titleRaw : `${MEMO_AI_NAME} Chat`;
 
   return (
     <AIChatScreen

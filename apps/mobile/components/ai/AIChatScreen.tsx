@@ -6,9 +6,11 @@ import {
     COMPOSER_MIN_HEIGHT,
     getUsageLimitMessage,
     isAuthRequiredError,
+    MEMO_AI_NAME,
     userMarkdownStyles,
     type ChatMessageRow,
 } from "@/lib/aiChatShared";
+import { alertInfo } from "@/lib/confirm";
 import {
     prepareChatImage,
     uploadToConvexStorage,
@@ -44,7 +46,6 @@ import React, {
 } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Animated,
     AppState,
     Image,
@@ -406,7 +407,7 @@ export function AIChatScreen({
       const prepared = await prepareChatImage(source);
       if (prepared) setPendingChatImage(prepared);
     } catch (e) {
-      Alert.alert(
+      alertInfo(
         "Image",
         e instanceof Error ? e.message : "Could not add image.",
       );
@@ -539,13 +540,13 @@ export function AIChatScreen({
           ? {
               ...current,
               persistedId: saveResult._id,
-              statusText: "Asking AI...",
+              statusText: `Asking ${MEMO_AI_NAME}...`,
             }
           : current,
       );
       if (localImage && !imagePublicUrl) {
         throw new Error(
-          "The image was saved, but it is not ready for the AI tutor yet. Please try again.",
+          `The image was saved, but it is not ready for ${MEMO_AI_NAME} yet. Please try again.`,
         );
       }
 
@@ -596,13 +597,13 @@ export function AIChatScreen({
       }
       const usageMessage = getUsageLimitMessage(error);
       if (usageMessage) {
-        Alert.alert("Limit reached", usageMessage);
+        alertInfo("Limit reached", usageMessage);
         return;
       }
       if (isAuthRequiredError(error)) {
         return;
       }
-      Alert.alert(
+      alertInfo(
         "Could not send",
         error instanceof Error
           ? error.message
@@ -966,7 +967,7 @@ export function AIChatScreen({
                           fontWeight: "600",
                         }}
                       >
-                        AI Tutor
+                        {MEMO_AI_NAME}
                       </Text>
                     </View>
                   )}
@@ -1043,7 +1044,7 @@ export function AIChatScreen({
                       fontWeight: "600",
                     }}
                   >
-                    AI Tutor
+                    {MEMO_AI_NAME}
                   </Text>
                 </View>
                 <View
@@ -1169,7 +1170,7 @@ export function AIChatScreen({
                       fontWeight: "600",
                     }}
                   >
-                    AI Tutor
+                    {MEMO_AI_NAME}
                   </Text>
                 </View>
                 <View
@@ -1223,7 +1224,7 @@ export function AIChatScreen({
                       fontWeight: "600",
                     }}
                   >
-                    AI Tutor
+                    {MEMO_AI_NAME}
                   </Text>
                 </View>
                 <View
@@ -1271,7 +1272,7 @@ export function AIChatScreen({
                       fontWeight: "600",
                     }}
                   >
-                    AI Tutor
+                    {MEMO_AI_NAME}
                   </Text>
                 </View>
                 <View
@@ -1323,7 +1324,7 @@ export function AIChatScreen({
                       fontWeight: "600",
                     }}
                   >
-                    AI Tutor
+                    {MEMO_AI_NAME}
                   </Text>
                 </View>
                 <View
@@ -1619,8 +1620,7 @@ export function AIChatScreen({
                       marginTop: 4,
                     }}
                   >
-                    Share a question, diagram, or handwritten note with your AI
-                    tutor.
+                    Share a question, diagram, or handwritten note with {MEMO_AI_NAME}.
                   </Text>
                 </View>
 

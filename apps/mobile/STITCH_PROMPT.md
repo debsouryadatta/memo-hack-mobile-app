@@ -46,7 +46,7 @@ Multi-field form: name, email, phone, password, class selector (9/10/11/12), Mem
 - Results list: chapter cards showing title, description, subject tag, class badge, difficulty pill
 - Empty state with search icon illustration
 
-### 8. AI Tutor _(Coming Soon)_
+### 8. Memo AI _(Coming Soon)_
 
 - Indigo header with robot/bot icon
 - _"Coming Soon"_ badge

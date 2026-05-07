@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-export default function QuizLayout() {
+export default function LiveQuizReviewLayout() {
   return (
     <Stack
       screenOptions={{
@@ -9,8 +9,6 @@ export default function QuizLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="daily" options={{ headerShown: false }} />
-      <Stack.Screen name="live" options={{ headerShown: false }} />
     </Stack>
   );
 }

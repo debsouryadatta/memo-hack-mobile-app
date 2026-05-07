@@ -2,9 +2,11 @@ import { api, type Doc } from "@memo-hack/convex";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, BookOpen, ChevronDown, GraduationCap } from "lucide-react-native";
+import { ArrowLeft, BookOpen, ChevronDown, ChevronRight, GraduationCap } from "lucide-react-native";
 import React from "react";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { ActivityIndicator, Animated, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type ClassKey = "9" | "10" | "11" | "12";
 type SubjectKey = "physics" | "biology";
@@ -38,6 +40,8 @@ const getSubjectIcon = (subject: string) => {
 export default function SubjectScreen() {
   const { subject } = useLocalSearchParams<{ subject: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const [openClass, setOpenClass] = React.useState<string | null>(null);
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(50)).current;
@@ -88,7 +92,7 @@ export default function SubjectScreen() {
       setTimeout(() => {
         // Calculate approximate position based on class index
         const classIndex = classes.findIndex(cls => cls === classKey);
-        const estimatedPosition = 200 + (classIndex * 100) + (classIndex > 0 ? 200 : 0);
+        const estimatedPosition = 150 + classIndex * 78 + (classIndex > 0 ? 120 : 0);
         
         scrollViewRef.current?.scrollTo({ 
           y: estimatedPosition, 
@@ -105,29 +109,29 @@ export default function SubjectScreen() {
   // Loading state
   if (chaptersByClass === undefined) {
     return (
-      <SafeAreaView className="flex-1">
+      <SafeAreaView className="flex-1 bg-slate-50">
         <LinearGradient
           colors={getSubjectGradient(subjectName)}
-          className='absolute top-0 left-0 right-0 bottom-0'
-        />
-        
-        {/* Header */}
-        <View className="pt-12 pb-6 px-4">
-          <View className="flex-row items-center justify-between mb-4">
-            <TouchableOpacity
-              onPress={() => router.back()}
-              className="bg-white/20 backdrop-blur-sm p-3 rounded-full"
-            >
-              <ArrowLeft size={24} color="white" />
-            </TouchableOpacity>
-            <Text className="text-white text-xl font-bold capitalize">
-              {subjectName}
-            </Text>
-            <View className="w-12" />
+          style={{ paddingTop: insets.top + 10, paddingBottom: 14 }}
+        >
+          <View className="px-5">
+            <View className="flex-row items-center gap-3">
+              <TouchableOpacity
+                onPress={() => router.back()}
+                className="items-center justify-center bg-white/20"
+                style={{ width: 42, height: 42, borderRadius: 14 }}
+              >
+                <ArrowLeft size={21} color="white" />
+              </TouchableOpacity>
+              <Text className="flex-1 text-white text-xl font-bold capitalize" numberOfLines={1}>
+                {subjectName}
+              </Text>
+              <View style={{ width: 42, height: 42 }} />
+            </View>
           </View>
-        </View>
+        </LinearGradient>
 
-        <View className="bg-slate-50 rounded-t-[32px] flex-1 justify-center items-center">
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#6366F1" />
           <Text className="text-slate-600 text-base mt-4">Loading chapters...</Text>
         </View>
@@ -136,8 +140,7 @@ export default function SubjectScreen() {
   }
 
   return (
-    <View className="flex-1 bg-indigo-50">
-      {/* Animated Header with Gradient */}
+    <View className="flex-1 bg-slate-50">
       <Animated.View 
         style={{
           opacity: fadeAnim,
@@ -146,40 +149,30 @@ export default function SubjectScreen() {
       >
         <LinearGradient
           colors={getSubjectGradient(subjectName)}
-          className="pt-12 pb-8"
+          style={{ paddingTop: insets.top + 10, paddingBottom: 18 }}
         >
-          <View className="px-6">
-            <View className="flex-row justify-between items-center mb-6">
+          <View className="px-5">
+            <View className="flex-row items-center gap-3">
               <TouchableOpacity
                 onPress={() => router.back()}
-                className="bg-white/20 backdrop-blur-sm p-3 rounded-full"
+                className="items-center justify-center bg-white/20"
+                style={{ width: 42, height: 42, borderRadius: 14 }}
               >
-                <ArrowLeft size={24} color="white" />
+                <ArrowLeft size={21} color="white" />
               </TouchableOpacity>
-              <Text className="text-3xl font-bold text-white capitalize flex-1 text-center">
-                {subjectName}
-              </Text>
-              <View className="w-12 h-12" />
-            </View>
-            
-            {/* Subject Icon and Stats */}
-            <View className="items-center mb-4">
-              <View className="bg-white/20 rounded-full p-6 mb-4">
-                <Text className="text-4xl">{getSubjectIcon(subjectName)}</Text>
+              <View className="flex-1 min-w-0">
+                <Text className="text-white text-2xl font-extrabold capitalize" numberOfLines={1}>
+                  {subjectName}
+                </Text>
+                <Text className="text-white/70 text-sm mt-0.5">
+                  Classes 9-12 • {stats.totalChapters} chapters
+                </Text>
               </View>
-              <View className="flex-row space-x-6">
-                <View className="items-center">
-                  <Text className="text-white/80 text-sm">Classes</Text>
-                  <Text className="text-white font-bold text-lg">
-                    {stats?.classesWithChapters || 0}
-                  </Text>
-                </View>
-                <View className="items-center">
-                  <Text className="text-white/80 text-sm">Total Chapters</Text>
-                  <Text className="text-white font-bold text-lg">
-                    {stats?.totalChapters || 0}
-                  </Text>
-                </View>
+              <View
+                className="items-center justify-center bg-white/20"
+                style={{ width: 42, height: 42, borderRadius: 16 }}
+              >
+                <Text className="text-2xl">{getSubjectIcon(subjectName)}</Text>
               </View>
             </View>
           </View>
@@ -189,27 +182,44 @@ export default function SubjectScreen() {
       <ScrollView 
         ref={scrollViewRef}
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 120, flexGrow: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="-mt-8" style={{ minHeight: '100%' }}>
-          {/* Classes Section */}
-          <View className="bg-white rounded-t-[32px] px-6 pt-10 pb-8 shadow-2xl shadow-indigo-500/10 flex-1">
-            <View className="flex-row items-center justify-between mb-8">
+        <View style={{ flexGrow: 1 }}>
+          <View
+            className="px-5 pt-5"
+            style={{ flexGrow: 1, paddingBottom: tabBarHeight + 24 }}
+          >
+            <View className="flex-row gap-3 mb-5">
+              <View className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <Text className="text-slate-500 text-xs font-semibold">CLASSES</Text>
+                <Text className="text-slate-900 text-xl font-bold mt-1">
+                  {stats.classesWithChapters}
+                </Text>
+              </View>
+              <View className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <Text className="text-slate-500 text-xs font-semibold">CHAPTERS</Text>
+                <Text className="text-slate-900 text-xl font-bold mt-1">
+                  {stats.totalChapters}
+                </Text>
+              </View>
+            </View>
+
+            <View className="mb-4">
               <View className="flex-row items-center">
-                <View className="bg-indigo-100 p-3 rounded-2xl mr-4">
-                  <GraduationCap size={28} color="#4F46E5" />
+                <View className="bg-indigo-100 rounded-xl p-2 mr-3">
+                  <GraduationCap size={20} color="#4F46E5" />
                 </View>
                 <View>
-                  <Text className="text-2xl font-bold text-slate-900">Classes</Text>
-                  <Text className="text-slate-500 text-sm">Select your class to explore chapters</Text>
+                  <Text className="text-slate-900 text-xl font-bold">Classes</Text>
+                  <Text className="text-slate-500 text-sm mt-0.5">Select a class to view chapters</Text>
                 </View>
               </View>
             </View>
 
-            <View className="space-y-3">
+            <View className="gap-3">
               {classes.map((classKey, index) => {
                 const chapters = getChapters(classKey);
                 const isOpen = openClass === classKey;
@@ -228,31 +238,34 @@ export default function SubjectScreen() {
                       }],
                     }}
                   >
-                    <View className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                    <View className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
                       <TouchableOpacity
                         onPress={() => toggleClass(classKey)}
-                        className="p-6 flex-row justify-between items-center bg-gradient-to-r from-slate-50 to-indigo-50"
+                        className="p-4 flex-row justify-between items-center"
                         activeOpacity={0.8}
-                        style={{ elevation: 0 }}
+                        style={{ backgroundColor: isOpen ? "#F8FAFF" : "white" }}
                       >
                         <View className="flex-row items-center flex-1">
-                          <View className="bg-indigo-600 rounded-2xl p-4 mr-5 shadow-lg shadow-indigo-600/25">
-                            <Text className="text-white font-bold text-lg min-w-[24px] text-center">
+                          <View
+                            className="bg-indigo-600 rounded-xl items-center justify-center mr-4"
+                            style={{ width: 44, height: 44 }}
+                          >
+                            <Text className="text-white font-bold text-base text-center">
                               {classKey}
                             </Text>
                           </View>
                           <View className="flex-1">
-                            <Text className="text-xl font-bold text-slate-800 mb-1">
-                              {classKey} Class
+                            <Text className="text-lg font-bold text-slate-900">
+                              Class {classKey}
                             </Text>
                             <Text className="text-slate-500 text-sm font-medium">
                               {chapters.length} chapter{chapters.length !== 1 ? 's' : ''} available
                             </Text>
                           </View>
                         </View>
-                        <View className="flex-row items-center space-x-3">
-                          <View className="bg-indigo-500 rounded-xl px-4 py-2 shadow-sm">
-                            <Text className="text-white text-sm font-bold">
+                        <View className="flex-row items-center gap-2">
+                          <View className="bg-indigo-50 rounded-full px-3 py-1.5">
+                            <Text className="text-indigo-600 text-xs font-bold">
                               {chapters.length}
                             </Text>
                           </View>
@@ -262,9 +275,9 @@ export default function SubjectScreen() {
                                 rotate: isOpen ? '180deg' : '0deg' 
                               }],
                             }}
-                            className="bg-slate-100 rounded-full p-2"
+                            className="bg-slate-100 rounded-full p-1.5"
                           >
-                            <ChevronDown size={20} color="#475569" />
+                            <ChevronDown size={18} color="#475569" />
                           </Animated.View>
                         </View>
                       </TouchableOpacity>
@@ -272,42 +285,41 @@ export default function SubjectScreen() {
                       {isOpen && (
                         <Animated.View 
                           key={`${classKey}-expanded`}
-                          className="bg-slate-50/80 mx-4 mb-4 rounded-2xl border border-slate-200/50"
+                          className="bg-slate-50 mx-3 mb-3 rounded-2xl border border-slate-200"
                           style={{ opacity: fadeAnim }}
                         >
-                          <View className="p-5">
-                            <View className="flex-row items-center mb-4 pb-3 border-b border-slate-200">
-                              <View className="bg-indigo-100 p-2 rounded-xl mr-3">
-                                <BookOpen size={18} color="#4F46E5" />
+                          <View className="p-3">
+                            <View className="flex-row items-center mb-3 pb-3 border-b border-slate-200">
+                              <View className="bg-indigo-100 p-1.5 rounded-lg mr-2.5">
+                                <BookOpen size={16} color="#4F46E5" />
                               </View>
-                              <Text className="text-slate-700 text-base font-semibold">
+                              <Text className="text-slate-700 text-sm font-semibold">
                                 Available Chapters
                               </Text>
                             </View>
-                            <View className="space-y-2">
+                            <View className="gap-2">
                               {chapters.map((chapter, chapterIndex: number) => (
                                 <TouchableOpacity
                                   key={chapter._id}
-                                  className="flex-row items-center p-4 bg-white rounded-xl border border-slate-100 shadow-sm active:bg-slate-50"
+                                  className="flex-row items-center p-3 bg-white rounded-xl border border-slate-100 active:bg-slate-50"
                                   activeOpacity={0.9}
                                   onPress={() => {
                                     router.push(`/(tabs)/home/${subjectName}/${chapter._id}`);
                                   }}
                                 >
-                                  <View className="bg-indigo-500 rounded-xl p-3 mr-4 shadow-sm">
-                                    <Text className="text-white font-bold text-sm min-w-[16px] text-center">
+                                  <View
+                                    className="bg-indigo-500 rounded-lg items-center justify-center mr-3"
+                                    style={{ width: 32, height: 32 }}
+                                  >
+                                    <Text className="text-white font-bold text-xs text-center">
                                       {chapterIndex + 1}
                                     </Text>
                                   </View>
-                                  <Text className="text-slate-800 text-base flex-1 font-medium leading-5">
+                                  <Text className="text-slate-800 text-sm flex-1 font-semibold leading-5" numberOfLines={2}>
                                     {chapter.title}
                                   </Text>
-                                  <View className="bg-slate-100 rounded-full p-2 ml-2">
-                                    <ChevronDown 
-                                      size={16} 
-                                      color="#64748B" 
-                                      style={{ transform: [{ rotate: '-90deg' }] }}
-                                    />
+                                  <View className="bg-slate-100 rounded-full p-1.5 ml-2">
+                                    <ChevronRight size={15} color="#64748B" />
                                   </View>
                                 </TouchableOpacity>
                               ))}

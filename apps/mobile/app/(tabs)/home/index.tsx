@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { BookOpen, Search, TrendingUp, Users } from "lucide-react-native";
 import React from "react";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Animated, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -34,6 +35,7 @@ const stats = [
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(30)).current;
 
@@ -68,7 +70,6 @@ export default function HomeScreen() {
 
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={Platform.OS === "android"}
       >
@@ -170,7 +171,7 @@ export default function HomeScreen() {
           borderTopRightRadius: 32,
           paddingHorizontal: 24,
           paddingTop: 28,
-          paddingBottom: 24,
+          paddingBottom: tabBarHeight + 20,
           marginTop: 4,
           minHeight: 400,
         }}>

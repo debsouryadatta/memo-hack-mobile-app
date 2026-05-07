@@ -110,7 +110,7 @@ http.route({
   }),
 });
 
-// ── AI Chat streaming (JWT + session ownership required) ─────────────────
+// ── Memo AI streaming (JWT + session ownership required) ─────────────────
 
 http.route({
   path: "/api/chat",
@@ -176,7 +176,7 @@ http.route({
     const result = streamText({
       model: openrouter.chat("google/gemini-3-flash-preview"),
       system:
-        "You are a helpful AI tutor for JEE and NEET students. " +
+        "You are Memo AI, a helpful study assistant for JEE and NEET students. " +
         "You help with Physics, Chemistry, Mathematics, and Biology concepts. " +
         "Give clear, concise, and accurate explanations. " +
         "Format answers in Markdown. For formulas, use inline math with $...$ and important display formulas with $$...$$ on their own lines. " +

@@ -221,29 +221,29 @@ export default function EditProfileScreen() {
         <ScrollView
           className="flex-1"
           contentContainerStyle={{
-            padding: 20,
-            paddingBottom: tabBarHeight + insets.bottom + 28,
+            padding: 16,
+            paddingBottom: tabBarHeight + 28,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View className="items-center mb-8">
+          <View className="items-center mb-6">
             <View className="relative">
               <View
                 className="rounded-full overflow-hidden bg-slate-200"
-                style={{ width: 112, height: 112 }}
+                style={{ width: 96, height: 96 }}
               >
                 {displayUser.image ? (
                   <Image
                     source={{ uri: displayUser.image }}
-                    style={{ width: 112, height: 112 }}
+                    style={{ width: 96, height: 96 }}
                     contentFit="cover"
                     cachePolicy="memory-disk"
                     recyclingKey={displayUser.image}
                   />
                 ) : (
                   <View className="h-full w-full items-center justify-center bg-slate-300">
-                    <Text className="text-slate-600 text-3xl font-bold">
+                    <Text className="text-slate-600 text-2xl font-bold">
                       {avatarInitials(displayUser.name)}
                     </Text>
                   </View>
@@ -266,14 +266,14 @@ export default function EditProfileScreen() {
             </View>
           </View>
 
-          <View className="bg-white rounded-2xl border border-slate-100 p-4 mb-4 shadow-sm">
+          <View className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
             <Text className="text-slate-500 text-xs font-semibold mb-2">
               FULL NAME
             </Text>
             <View className="flex-row items-center rounded-xl border border-slate-200 bg-slate-50 px-3">
               <UserIcon size={18} color="#64748B" />
               <TextInput
-                className="flex-1 py-3 px-2 text-slate-900 text-base"
+                className="flex-1 py-3 px-2 text-slate-900 text-sm"
                 value={name}
                 onChangeText={setName}
                 placeholder="Your name"
@@ -283,26 +283,26 @@ export default function EditProfileScreen() {
             </View>
           </View>
 
-          <View className="bg-white rounded-2xl border border-slate-100 p-4 mb-4 shadow-sm">
+          <View className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
             <Text className="text-slate-500 text-xs font-semibold mb-2">
               EMAIL (cannot be changed)
             </Text>
             <View className="flex-row items-center rounded-xl border border-slate-100 bg-slate-100 px-3 py-3">
               <Mail size={18} color="#64748B" />
-              <Text className="flex-1 px-2 text-slate-600 text-base">
+              <Text className="flex-1 px-2 text-slate-600 text-sm">
                 {displayUser.email}
               </Text>
             </View>
           </View>
 
-          <View className="bg-white rounded-2xl border border-slate-100 p-4 mb-4 shadow-sm">
+          <View className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
             <Text className="text-slate-500 text-xs font-semibold mb-2">
               PHONE NUMBER
             </Text>
             <View className="flex-row items-center rounded-xl border border-slate-200 bg-slate-50 px-3">
               <Phone size={18} color="#64748B" />
               <TextInput
-                className="flex-1 py-3 px-2 text-slate-900 text-base"
+                className="flex-1 py-3 px-2 text-slate-900 text-sm"
                 value={phone}
                 onChangeText={(t) =>
                   setPhone(t.replace(/\D/g, "").slice(0, 10))
@@ -316,7 +316,7 @@ export default function EditProfileScreen() {
             </View>
           </View>
 
-          <View className="bg-white rounded-2xl border border-slate-100 p-4 mb-4 shadow-sm z-10">
+          <View className="bg-white rounded-2xl border border-slate-200 p-4 mb-4 z-10">
             <Text className="text-slate-500 text-xs font-semibold mb-2">
               CLASS
             </Text>
@@ -328,9 +328,13 @@ export default function EditProfileScreen() {
               <View className="flex-row items-center flex-1">
                 <GraduationCap size={18} color="#64748B" />
                 <Text
-                  className={`flex-1 px-2 text-base ${classLevel ? "text-slate-900" : "text-slate-400"}`}
+                  className={`flex-1 px-2 text-sm ${classLevel ? "text-slate-900" : "text-slate-400"}`}
                 >
-                  {classLevel ? `Class ${classLevel}` : "Select class"}
+                  {classLevel
+                    ? classLevel === "Repeater"
+                      ? "Repeater"
+                      : `Class ${classLevel}`
+                    : "Select class"}
                 </Text>
               </View>
               <ChevronDown
@@ -350,12 +354,12 @@ export default function EditProfileScreen() {
                       setClassLevel(opt);
                       setShowClassMenu(false);
                     }}
-                    className="px-4 py-3 border-b border-slate-100 last:border-b-0"
+                    className="px-4 py-2.5 border-b border-slate-100 last:border-b-0"
                   >
                     <Text
-                      className={`text-base ${classLevel === opt ? "text-indigo-600 font-semibold" : "text-slate-800"}`}
+                      className={`text-sm ${classLevel === opt ? "text-indigo-600 font-semibold" : "text-slate-800"}`}
                     >
-                      Class {opt}
+                      {opt === "Repeater" ? "Repeater" : `Class ${opt}`}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -363,7 +367,7 @@ export default function EditProfileScreen() {
             )}
           </View>
 
-          <View className="bg-white rounded-2xl border border-slate-100 p-4 mb-6 shadow-sm">
+          <View className="bg-white rounded-2xl border border-slate-200 p-4 mb-5">
             <Text className="text-slate-500 text-xs font-semibold mb-3">
               STUDYING IN MEMOHACK?
             </Text>
@@ -371,7 +375,7 @@ export default function EditProfileScreen() {
               <TouchableOpacity
                 onPress={() => setMemohackStudent(true)}
                 disabled={saving}
-                className={`flex-1 rounded-xl py-3 border-2 ${
+                className={`flex-1 rounded-xl py-3 border ${
                   memohackStudent
                     ? "border-indigo-600 bg-indigo-50"
                     : "border-slate-200 bg-slate-50"
@@ -386,7 +390,7 @@ export default function EditProfileScreen() {
               <TouchableOpacity
                 onPress={() => setMemohackStudent(false)}
                 disabled={saving}
-                className={`flex-1 rounded-xl py-3 border-2 ${
+                className={`flex-1 rounded-xl py-3 border ${
                   !memohackStudent
                     ? "border-indigo-600 bg-indigo-50"
                     : "border-slate-200 bg-slate-50"
@@ -404,13 +408,13 @@ export default function EditProfileScreen() {
           <TouchableOpacity
             onPress={handleSave}
             disabled={saving}
-            className="rounded-2xl bg-indigo-600 py-4 items-center"
+            className="rounded-xl bg-indigo-600 py-3.5 items-center"
             style={{ opacity: saving ? 0.7 : 1 }}
           >
             {saving ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text className="text-white text-lg font-bold">Save changes</Text>
+              <Text className="text-white text-base font-bold">Save changes</Text>
             )}
           </TouchableOpacity>
         </ScrollView>

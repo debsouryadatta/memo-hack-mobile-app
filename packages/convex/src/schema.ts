@@ -120,4 +120,71 @@ export default defineSchema({
   })
     .index("by_question", ["questionId"])
     .index("by_user_question", ["userId", "questionId"]),
+  liveQuizRooms: defineTable({
+    hostId: v.id("users"),
+    joinCode: v.string(),
+    status: v.union(
+      v.literal("lobby"),
+      v.literal("generating"),
+      v.literal("question"),
+      v.literal("answer_reveal"),
+      v.literal("leaderboard"),
+      v.literal("finished"),
+    ),
+    subject: v.union(
+      v.literal("physics"),
+      v.literal("chemistry"),
+      v.literal("biology"),
+      v.literal("mixed"),
+    ),
+    subjects: v.optional(
+      v.array(
+        v.union(
+          v.literal("physics"),
+          v.literal("chemistry"),
+          v.literal("biology"),
+        ),
+      ),
+    ),
+    chapterKeys: v.array(v.string()),
+    questionCount: v.number(),
+    secondsPerQuestion: v.number(),
+    currentQuestionIndex: v.number(),
+    phaseStartedAt: v.number(),
+    generationRetryCount: v.optional(v.number()),
+    questions: v.array(
+      v.object({
+        chapterKey: v.string(),
+        question: v.string(),
+        options: v.array(v.string()),
+        correctOptionIndex: v.number(),
+        explanation: v.string(),
+      }),
+    ),
+    error: v.union(v.string(), v.null()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    startedAt: v.union(v.number(), v.null()),
+    endedAt: v.union(v.number(), v.null()),
+  })
+    .index("by_join_code", ["joinCode"])
+    .index("by_status_ended", ["status", "endedAt"]),
+  liveQuizParticipants: defineTable({
+    roomId: v.id("liveQuizRooms"),
+    userId: v.id("users"),
+    score: v.number(),
+    correctCount: v.number(),
+    answers: v.array(
+      v.object({
+        questionIndex: v.number(),
+        selectedOptionIndex: v.number(),
+        isCorrect: v.boolean(),
+        responseMs: v.number(),
+        scoreDelta: v.number(),
+        answeredAt: v.number(),
+      }),
+    ),
+    joinedAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_room_user", ["roomId", "userId"]),
 });

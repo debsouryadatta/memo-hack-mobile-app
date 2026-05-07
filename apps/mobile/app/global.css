@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input,
+  textarea,
+  select,
+  button,
+  [role="textbox"],
+  [contenteditable="true"],
+  [data-focusable="true"] {
+    outline: none;
+  }
+
+  input:focus,
+  input:focus-visible,
+  textarea:focus,
+  textarea:focus-visible,
+  select:focus,
+  select:focus-visible,
+  button:focus,
+  button:focus-visible,
+  [role="textbox"]:focus,
+  [role="textbox"]:focus-visible,
+  [contenteditable="true"]:focus,
+  [contenteditable="true"]:focus-visible,
+  [data-focusable="true"]:focus,
+  [data-focusable="true"]:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}

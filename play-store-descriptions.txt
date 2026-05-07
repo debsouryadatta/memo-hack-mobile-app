@@ -5,13 +5,15 @@ Transform your JEE and NEET preparation with MemoHack, the comprehensive educati
 App Store Descriptions
 
 Short Description (80 characters max):
-MemoHack - JEE NEET preparation with interactive CBSE curriculum videos
+MemoHack - JEE NEET prep with Memo AI and live quiz battles
 
 Long Description:
 
 What Makes MemoHack Special:
 • Subject Mastery: Physics and Biology chapters with expert video explanations
 • Interactive Learning: High-quality YouTube video integration with study notes
+• Memo AI: Ask doubts, revise concepts, and get study help inside the app
+• Live Quiz Battles: Create or join multiplayer quiz rooms with friends
 • Smart Search: Instantly find any chapter, topic, or concept across subjects
 • Class-wise Organization: Content structured for Classes 9, 10, 11, and 12
 • Comprehensive Coverage: 64+ chapters covering complete CBSE syllabus
@@ -19,6 +21,9 @@ What Makes MemoHack Special:
 Key Features:
 ✅ Video Lectures: Professional educational videos with detailed explanations
 ✅ Study Notes: PDF notes available for key concepts and chapters  
+✅ Memo AI Chat: AI-powered study support for questions, revision, and explanations
+✅ Multiplayer Live Quiz: Host live quiz rooms, answer in real time, and compete on leaderboards
+✅ Daily Quiz: Fresh JEE/NEET-style practice questions across core subjects
 ✅ Progress Tracking: Monitor your learning journey with detailed statistics
 ✅ Offline-Ready: Download content for learning anywhere, anytime
 ✅ User-Friendly: Beautiful, intuitive interface designed for students
@@ -26,8 +31,9 @@ Key Features:
 
 Subjects Available:
 • Physics: Mechanics, Waves, Energy, and advanced topics
+• Chemistry: Core concepts, reactions, and exam-focused practice
 • Biology: Life Sciences, Genetics, and comprehensive coverage
-• Coming Soon: AI-powered tutoring and personalized learning assistance
+• Memo AI: AI-powered doubt solving and personalized study assistance
 
 Perfect For:
 - JEE Main & Advanced aspirants
@@ -35,12 +41,16 @@ Perfect For:
 - CBSE board exam students
 - Self-paced learning enthusiasts
 
+Live Now:
+- Memo AI doubt solving and study chat
+- Multiplayer live quiz rooms with real-time leaderboards
+- Daily JEE/NEET-style quiz practice
+
 Coming Soon:
-- AI-powered doubt solving
 - Personalized learning recommendations
 - Smart practice tests and quizzes
 - Interactive problem-solving assistance
 
-Download MemoHack today and join thousands of students who are mastering their JEE NEET preparation with our comprehensive, video-based learning platform!
+Download MemoHack today and master your JEE NEET preparation with videos, notes, Memo AI, daily quizzes, and multiplayer live quiz battles.
 
 #JEE #NEET #CBSE #Physics #Biology #Education #Learning #StudentApp

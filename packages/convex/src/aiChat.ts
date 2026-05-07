@@ -38,7 +38,7 @@ export const generateSessionTitle = action({
     const { text } = await generateText({
       model: openrouter.chat("openai/gpt-4o-mini"),
       prompt:
-        `A student studying for JEE/NEET sent this message to an AI tutor:\n"${args.firstMessage}"\n\n` +
+        `A student studying for JEE/NEET sent this message to Memo AI:\n"${args.firstMessage}"\n\n` +
         "Write a short, clear title for this chat session (max 5 words, sentence case, no quotes, no punctuation at end).",
       maxOutputTokens: 20,
     });
@@ -246,7 +246,7 @@ export const saveMessage = mutation({
     if (sessionMessages.length >= AI_LIMITS.perChatMessageCap) {
       throwAppError(
         "LIMIT_REACHED",
-        `This chat has reached its ${AI_LIMITS.perChatMessageCap}-message limit. Start a new chat to continue.`,
+        `This Memo AI chat has reached its ${AI_LIMITS.perChatMessageCap}-message limit. Start a new Memo AI chat to continue.`,
       );
     }
 
@@ -279,7 +279,7 @@ export const saveMessage = mutation({
       if (existingUsage.requestsUsed >= AI_LIMITS.dailyRequestCap) {
         throwAppError(
           "LIMIT_REACHED",
-          `Daily AI limit reached (${AI_LIMITS.dailyRequestCap} requests). Try again tomorrow.`,
+          `Daily Memo AI limit reached (${AI_LIMITS.dailyRequestCap} requests). Try again tomorrow.`,
         );
       }
 

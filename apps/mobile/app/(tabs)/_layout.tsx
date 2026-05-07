@@ -61,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ai"
         options={{
-          title: 'AI',
+          title: 'Memo AI',
           tabBarIcon: ({ color, size }) => <Bot color={color} size={size} />,
         }}
       />

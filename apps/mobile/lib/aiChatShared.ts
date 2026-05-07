@@ -3,6 +3,7 @@ import type { Doc } from "@memo-hack/convex";
 /** Taller minimum so a single-line placeholder fits on Android (font + padding). */
 export const COMPOSER_MIN_HEIGHT = 52;
 export const COMPOSER_MAX_HEIGHT = 112;
+export const MEMO_AI_NAME = "Memo AI";
 
 export type ChatMessageRow = Doc<"aiChatMessages"> & { imageUrl?: string | null };
 

@@ -1,4 +1,5 @@
 import { getErrorMessage } from "@/lib/errors";
+import { alertInfo } from "@/lib/confirm";
 import { api } from "@memo-hack/convex";
 import { useAction, useMutation } from "convex/react";
 import { Image } from "expo-image";
@@ -6,7 +7,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import { Eye, EyeOff, KeyRound, Lock, Mail } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { authTextInputStyle } from "./authInputStyles";
 import { useApp } from "../../components/ContextProvider";
 
@@ -14,6 +15,8 @@ const heroAuth = require('../../assets/illustrations/hero-auth.png');
 
 export default function SignInScreen() {
     const router = useRouter();
+    const { height } = useWindowDimensions();
+    const compact = height < 760;
     const { signin, isLoading, isAuthenticated } = useApp();
     const requestPasswordResetEmailOtp = useAction(
         api.user.requestPasswordResetEmailOtp,
@@ -66,12 +69,12 @@ export default function SignInScreen() {
 
     const handleSignIn = async () => {
         if (!email.trim() || !password.trim()) {
-            Alert.alert('Error', 'Please fill in all fields');
+            alertInfo('Error', 'Please fill in all fields');
             return;
         }
 
         if (!email.includes('@')) {
-            Alert.alert('Error', 'Please enter a valid email address');
+            alertInfo('Error', 'Please enter a valid email address');
             return;
         }
 
@@ -79,7 +82,7 @@ export default function SignInScreen() {
             await signin(email.trim().toLowerCase(), password);
             router.replace('/(tabs)/home');
         } catch (error) {
-            Alert.alert('Sign In Failed', getErrorMessage(error));
+            alertInfo('Sign In Failed', getErrorMessage(error));
         }
     }
 
@@ -87,12 +90,12 @@ export default function SignInScreen() {
         if (busy) return;
 
         if (!normalizedEmail) {
-            Alert.alert('Error', 'Please enter your email address');
+            alertInfo('Error', 'Please enter your email address');
             return;
         }
 
         if (!normalizedEmail.includes('@')) {
-            Alert.alert('Error', 'Please enter a valid email address');
+            alertInfo('Error', 'Please enter a valid email address');
             return;
         }
 
@@ -102,12 +105,12 @@ export default function SignInScreen() {
             setResetOtpSent(true);
             setResetOtpExpiresAt(result.expiresAt);
             setResetEmailOtp('');
-            Alert.alert(
+            alertInfo(
                 'Verification code sent',
                 'If an account exists for this email, we sent a 6-digit code.',
             );
         } catch (error) {
-            Alert.alert('Could not send code', getErrorMessage(error));
+            alertInfo('Could not send code', getErrorMessage(error));
         } finally {
             setRequestingResetOtp(false);
         }
@@ -120,17 +123,17 @@ export default function SignInScreen() {
         }
 
         if (!resetEmailOtp.trim()) {
-            Alert.alert('Error', 'Please enter the verification code sent to your email');
+            alertInfo('Error', 'Please enter the verification code sent to your email');
             return;
         }
 
         if (!resetPassword.trim() || !confirmResetPassword.trim()) {
-            Alert.alert('Error', 'Please fill in both password fields');
+            alertInfo('Error', 'Please fill in both password fields');
             return;
         }
 
         if (resetPassword !== confirmResetPassword) {
-            Alert.alert('Error', 'Passwords do not match');
+            alertInfo('Error', 'Passwords do not match');
             return;
         }
 
@@ -141,7 +144,7 @@ export default function SignInScreen() {
                 newPassword: resetPassword,
                 emailOtp: resetEmailOtp.trim(),
             });
-            Alert.alert('Password reset', 'Your password has been updated. Please sign in.');
+            alertInfo('Password reset', 'Your password has been updated. Please sign in.');
             setAuthMode('signin');
             setPassword('');
             setResetPassword('');
@@ -150,7 +153,7 @@ export default function SignInScreen() {
             setResetOtpSent(false);
             setResetOtpExpiresAt(null);
         } catch (error) {
-            Alert.alert('Could not reset password', getErrorMessage(error));
+            alertInfo('Could not reset password', getErrorMessage(error));
         } finally {
             setResettingPassword(false);
         }
@@ -191,38 +194,35 @@ export default function SignInScreen() {
         showsVerticalScrollIndicator={false}
         style={{ flex: 1 }}
       >
-        <View className="justify-center items-center px-8 py-12" style={{ minHeight: '100%' }}>
-            {/* Image Container */}
-          <View className="w-full items-center mb-8">
+        <View className="justify-center items-center px-6 py-8" style={{ minHeight: '100%' }}>
+          <View className="w-full items-center" style={{ marginBottom: compact ? 16 : 22 }}>
             <Image
               source={heroAuth}
-              style={{ width: 180, height: 180 }}
+              style={{ width: compact ? 108 : 124, height: compact ? 108 : 124 }}
               contentFit="contain"
               cachePolicy="memory-disk"
             />
           </View>
 
-          {/* Form Container */}
           <View className='w-full max-w-sm'>
-            <View className='bg-white/10 rounded-3xl p-8 backdrop-blur-md border border-white/20'>
-              <Text className='text-4xl font-extrabold text-white text-center mb-2'>
+            <View className='bg-white/10 rounded-2xl p-5 backdrop-blur-md border border-white/20'>
+              <Text className='text-3xl font-extrabold text-white text-center mb-2'>
                 {authMode === 'signin' ? 'Welcome Back' : 'Reset Password'}
               </Text>
-              <Text className='text-base text-white/70 text-center mb-8'>
+              <Text className='text-sm text-white/70 text-center mb-6 leading-5'>
                 {authMode === 'signin'
                   ? 'Sign in to continue your learning journey'
                   : 'Verify your email to set a new password'}
               </Text>
 
-              {/* Email Field */}
-              <View className='mb-6'>
-                <Text className='text-white/90 text-sm font-semibold mb-3 ml-1'>EMAIL ADDRESS</Text>
-                <View className={`flex-row items-center bg-white/15 rounded-2xl border-2 ${emailFocused ? 'border-white/60' : 'border-white/25'} px-4`}>
+              <View className='mb-4'>
+                <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>EMAIL ADDRESS</Text>
+                <View className={`flex-row items-center bg-white/15 rounded-xl border ${emailFocused ? 'border-white/60' : 'border-white/25'} px-3`}>
                   <View className="shrink-0">
-                    <Mail size={20} color="rgba(255,255,255,0.7)" />
+                    <Mail size={18} color="rgba(255,255,255,0.7)" />
                   </View>
                   <TextInput
-                    className="text-white py-4 px-3 text-base"
+                    className="text-white py-3 px-3 text-sm"
                     multiline={false}
                     scrollEnabled={false}
                     placeholder="Your email"
@@ -242,15 +242,14 @@ export default function SignInScreen() {
 
               {authMode === 'signin' ? (
                 <>
-                  {/* Password Field */}
                   <View className='mb-4'>
-                    <Text className='text-white/90 text-sm font-semibold mb-3 ml-1'>PASSWORD</Text>
-                    <View className={`flex-row items-center bg-white/15 rounded-2xl border-2 ${passwordFocused ? 'border-white/60' : 'border-white/25'} px-4`}>
+                    <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>PASSWORD</Text>
+                    <View className={`flex-row items-center bg-white/15 rounded-xl border ${passwordFocused ? 'border-white/60' : 'border-white/25'} px-3`}>
                       <View className="shrink-0">
-                        <Lock size={20} color="rgba(255,255,255,0.7)" />
+                        <Lock size={18} color="rgba(255,255,255,0.7)" />
                       </View>
                       <TextInput
-                        className="text-white py-4 px-3 text-base"
+                        className="text-white py-3 px-3 text-sm"
                         multiline={false}
                         scrollEnabled={false}
                         placeholder="Your password"
@@ -265,15 +264,15 @@ export default function SignInScreen() {
                         style={authTextInputStyle}
                       />
                       <TouchableOpacity onPress={() => setShowPassword(!showPassword)} disabled={busy} className='shrink-0 p-2'>
-                        {showPassword ? 
-                          <EyeOff size={20} color="rgba(255,255,255,0.7)" /> : 
-                          <Eye size={20} color="rgba(255,255,255,0.7)" />
+                        {showPassword ?
+                          <EyeOff size={18} color="rgba(255,255,255,0.7)" /> :
+                          <Eye size={18} color="rgba(255,255,255,0.7)" />
                         }
                       </TouchableOpacity>
                     </View>
                   </View>
 
-                  <View className="items-end mb-8">
+                  <View className="items-end mb-5">
                     <TouchableOpacity onPress={switchToForgotPassword} disabled={busy} className="px-2 py-1">
                       <Text className="text-white font-bold text-sm">Forgot password?</Text>
                     </TouchableOpacity>
@@ -284,13 +283,13 @@ export default function SignInScreen() {
                   {resetOtpSent && (
                     <>
                       <View className='mb-6'>
-                        <Text className='text-white/90 text-sm font-semibold mb-3 ml-1'>EMAIL OTP</Text>
-                        <View className={`flex-row items-center bg-white/15 rounded-2xl border-2 ${resetOtpFocused ? 'border-white/60' : 'border-white/25'} px-4`}>
+                        <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>EMAIL OTP</Text>
+                        <View className={`flex-row items-center bg-white/15 rounded-xl border ${resetOtpFocused ? 'border-white/60' : 'border-white/25'} px-3`}>
                           <View className="shrink-0">
-                            <KeyRound size={20} color="rgba(255,255,255,0.7)" />
+                            <KeyRound size={18} color="rgba(255,255,255,0.7)" />
                           </View>
                           <TextInput
-                            className="text-white py-4 px-3 text-base"
+                            className="text-white py-3 px-3 text-sm"
                             multiline={false}
                             scrollEnabled={false}
                             placeholder="6-digit code"
@@ -314,13 +313,13 @@ export default function SignInScreen() {
                       </View>
 
                       <View className='mb-6'>
-                        <Text className='text-white/90 text-sm font-semibold mb-3 ml-1'>NEW PASSWORD</Text>
-                        <View className={`flex-row items-center bg-white/15 rounded-2xl border-2 ${resetPasswordFocused ? 'border-white/60' : 'border-white/25'} px-4`}>
+                        <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>NEW PASSWORD</Text>
+                        <View className={`flex-row items-center bg-white/15 rounded-xl border ${resetPasswordFocused ? 'border-white/60' : 'border-white/25'} px-3`}>
                           <View className="shrink-0">
-                            <Lock size={20} color="rgba(255,255,255,0.7)" />
+                            <Lock size={18} color="rgba(255,255,255,0.7)" />
                           </View>
                           <TextInput
-                            className="text-white py-4 px-3 text-base"
+                            className="text-white py-3 px-3 text-sm"
                             multiline={false}
                             scrollEnabled={false}
                             placeholder="New password"
@@ -335,22 +334,22 @@ export default function SignInScreen() {
                             style={authTextInputStyle}
                           />
                           <TouchableOpacity onPress={() => setShowResetPassword(!showResetPassword)} disabled={busy} className='shrink-0 p-2'>
-                            {showResetPassword ? 
-                              <EyeOff size={20} color="rgba(255,255,255,0.7)" /> : 
-                              <Eye size={20} color="rgba(255,255,255,0.7)" />
+                            {showResetPassword ?
+                              <EyeOff size={18} color="rgba(255,255,255,0.7)" /> :
+                              <Eye size={18} color="rgba(255,255,255,0.7)" />
                             }
                           </TouchableOpacity>
                         </View>
                       </View>
 
-                      <View className='mb-8'>
-                        <Text className='text-white/90 text-sm font-semibold mb-3 ml-1'>CONFIRM NEW PASSWORD</Text>
-                        <View className={`flex-row items-center bg-white/15 rounded-2xl border-2 ${confirmResetPasswordFocused ? 'border-white/60' : 'border-white/25'} px-4`}>
+                      <View className='mb-5'>
+                        <Text className='text-white/90 text-xs font-semibold mb-2 ml-1'>CONFIRM NEW PASSWORD</Text>
+                        <View className={`flex-row items-center bg-white/15 rounded-xl border ${confirmResetPasswordFocused ? 'border-white/60' : 'border-white/25'} px-3`}>
                           <View className="shrink-0">
-                            <Lock size={20} color="rgba(255,255,255,0.7)" />
+                            <Lock size={18} color="rgba(255,255,255,0.7)" />
                           </View>
                           <TextInput
-                            className="text-white py-4 px-3 text-base"
+                            className="text-white py-3 px-3 text-sm"
                             multiline={false}
                             scrollEnabled={false}
                             placeholder="Repeat new password"
@@ -365,9 +364,9 @@ export default function SignInScreen() {
                             style={authTextInputStyle}
                           />
                           <TouchableOpacity onPress={() => setShowConfirmResetPassword(!showConfirmResetPassword)} disabled={busy} className='shrink-0 p-2'>
-                            {showConfirmResetPassword ? 
-                              <EyeOff size={20} color="rgba(255,255,255,0.7)" /> : 
-                              <Eye size={20} color="rgba(255,255,255,0.7)" />
+                            {showConfirmResetPassword ?
+                              <EyeOff size={18} color="rgba(255,255,255,0.7)" /> :
+                              <Eye size={18} color="rgba(255,255,255,0.7)" />
                             }
                           </TouchableOpacity>
                         </View>
@@ -377,9 +376,8 @@ export default function SignInScreen() {
                 </>
               )}
 
-              {/* Sign In Button */}
               <TouchableOpacity 
-                className='w-full rounded-2xl overflow-hidden mb-6 shadow-lg' 
+                className='w-full rounded-xl overflow-hidden mb-5'
                 onPress={authMode === 'signin' ? handleSignIn : handleResetPassword}
                 disabled={busy}
                 style={{ 
@@ -394,12 +392,12 @@ export default function SignInScreen() {
                   colors={busy ? ['#9CA3AF', '#6B7280'] : ['#8B5CF6', '#6366F1']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  className='py-4 px-6'
+                  className='py-3 px-6'
                 >
                   {requestingResetOtp || resettingPassword ? (
                     <ActivityIndicator color="white" />
                   ) : (
-                    <Text className='text-white text-center text-lg font-bold tracking-wide'>
+                    <Text className='text-white text-center text-base font-bold tracking-wide'>
                       {authMode === 'signin'
                         ? isLoading ? 'Signing In...' : 'Sign In'
                         : resetOtpSent ? 'Reset password' : 'Send email code'}

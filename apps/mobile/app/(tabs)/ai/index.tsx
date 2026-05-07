@@ -7,7 +7,6 @@ import { User } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   SafeAreaView,
   Text,
@@ -15,7 +14,12 @@ import {
   View,
 } from "react-native";
 import { AISessionList } from "@/components/ai/AISessionList";
-import { getUsageLimitMessage, isAuthRequiredError } from "@/lib/aiChatShared";
+import {
+  getUsageLimitMessage,
+  isAuthRequiredError,
+  MEMO_AI_NAME,
+} from "@/lib/aiChatShared";
+import { alertInfo } from "@/lib/confirm";
 
 export default function AIScreen() {
   const { isAuthenticated, deferAuthRedirect } = useApp();
@@ -38,14 +42,14 @@ export default function AIScreen() {
     if (!canCreateChat || creating) return;
     setCreating(true);
     try {
-      const session = await createSession({ title: "New Chat" });
+      const session = await createSession({ title: `New ${MEMO_AI_NAME} Chat` });
       if (session) {
         openChat(session._id, session.title);
       }
     } catch (error) {
       const usageMessage = getUsageLimitMessage(error);
       if (usageMessage) {
-        Alert.alert("Limit reached", usageMessage);
+        alertInfo("Limit reached", usageMessage);
         return;
       }
       if (isAuthRequiredError(error)) {

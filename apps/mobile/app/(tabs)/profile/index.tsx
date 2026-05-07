@@ -1,6 +1,7 @@
 import { useApp } from "@/components/ContextProvider";
 import { alertInfo, confirmAsync } from "@/lib/confirm";
 import { api } from "@memo-hack/convex";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useQuery } from "convex/react";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -49,6 +50,7 @@ function quizActivityColor(attemptedCount: number, score: number): string {
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const tabBarHeight = useBottomTabBarHeight();
   const { user, signout, isLoading, deferAuthRedirect, token } = useApp();
   const quizStats = useQuery(
     api.dailyQuiz.getMyDailyQuizStats,
@@ -56,7 +58,7 @@ export default function ProfileScreen() {
   );
 
   /** Explicit sizes: RN ignores %/className sizing on remote expo-image in many layouts (works on Web). */
-  const avatarOuter = Math.min(screenWidth * 0.35, 140);
+  const avatarOuter = Math.min(screenWidth * 0.28, 112);
   const ringPadding = 4;
   const avatarInner = Math.max(0, avatarOuter - ringPadding * 2);
 
@@ -100,10 +102,10 @@ export default function ProfileScreen() {
 
         <View className="flex-1 justify-center items-center px-8">
           {/* Illustration Image */}
-          <View className="items-center mb-8">
+          <View className="items-center mb-5">
             <Image
               source={require('../../../assets/illustrations/hero-auth.png')}
-              style={{ width: 180, height: 180 }}
+              style={{ width: 136, height: 136 }}
               contentFit="contain"
               cachePolicy="memory-disk"
             />
@@ -111,34 +113,34 @@ export default function ProfileScreen() {
 
           {/* Content Card */}
           <View className="w-full max-w-sm">
-            <View className="bg-white/15 rounded-3xl p-8 backdrop-blur-md border border-white/20">
+            <View className="bg-white/15 rounded-2xl p-6 backdrop-blur-md border border-white/20">
               <View className="items-center">
-                <View className="bg-white/20 rounded-full p-4 mb-4">
-                  <UserIcon size={32} color="rgba(255,255,255,0.8)" />
+                <View className="bg-white/20 rounded-full p-3 mb-4">
+                  <UserIcon size={28} color="rgba(255,255,255,0.8)" />
                 </View>
 
                 <Text className="text-2xl font-bold text-white text-center mb-3">
                   Sign In Required
                 </Text>
 
-                <Text className="text-white/70 text-center text-base mb-8 leading-6">
+                <Text className="text-white/70 text-center text-sm mb-6 leading-5">
                   Please sign in to your account to view and manage your profile
                   information
                 </Text>
 
                 {/* Sign In Button */}
                 <TouchableOpacity
-                  className="w-full bg-white rounded-2xl py-4 px-6 mb-4"
+                  className="w-full bg-white rounded-xl py-3.5 px-6 mb-4"
                   onPress={() => router.push("/(auth)/signin")}
                   style={{
                     shadowColor: "#000",
                     shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.1,
+                    shadowOpacity: 0.08,
                     shadowRadius: 8,
                     elevation: 4,
                   }}
                 >
-                  <Text className="text-indigo-600 text-center text-lg font-bold">
+                  <Text className="text-indigo-600 text-center text-base font-bold">
                     Sign In
                   </Text>
                 </TouchableOpacity>
@@ -186,19 +188,15 @@ export default function ProfileScreen() {
         className="flex-1"
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={Platform.OS === "android"}
-        contentContainerStyle={{
-          paddingBottom: Platform.OS === "ios" ? 100 : 80,
-          minHeight: "100%",
-        }}
       >
         {/* Enhanced Header with floating effect */}
         <View
-          className="pt-12 pb-6 px-4"
-          style={{ minHeight: screenWidth * 0.7 }}
+          className="pt-8 pb-5 px-5"
+          style={{ minHeight: Math.min(screenWidth * 0.52, 220) }}
         >
           <View className="items-center">
             {/* Profile Image with enhanced shadow and border */}
-            <View className="relative mb-4">
+            <View className="relative mb-3">
               {/* Outer: same circular bounds as inner so Android elevation is not a square plate */}
               <View
                 style={{
@@ -206,10 +204,10 @@ export default function ProfileScreen() {
                   height: avatarOuter,
                   borderRadius: avatarOuter / 2,
                   shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 16,
-                  elevation: 12,
+                  shadowOffset: { width: 0, height: 6 },
+                  shadowOpacity: 0.22,
+                  shadowRadius: 12,
+                  elevation: 8,
                 }}
               >
                 <View
@@ -259,17 +257,17 @@ export default function ProfileScreen() {
                 </View>
               </View>
               <TouchableOpacity
-                className="absolute -bottom-2 -right-2 bg-white rounded-full p-3"
+                className="absolute -bottom-1 -right-1 bg-white rounded-full p-2.5"
                 onPress={() => router.push("/(tabs)/profile/edit")}
                 style={{
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.2,
+                  shadowOpacity: 0.16,
                   shadowRadius: 8,
                   elevation: 8,
                 }}
               >
-                <Edit2 size={18} color="#4F46E5" />
+                <Edit2 size={16} color="#4F46E5" />
               </TouchableOpacity>
             </View>
 
@@ -277,19 +275,19 @@ export default function ProfileScreen() {
             <View className="items-center">
               <Text
                 className="text-white font-bold text-center mb-1"
-                style={{ fontSize: Math.min(screenWidth * 0.07, 28) }}
+                style={{ fontSize: Math.min(screenWidth * 0.062, 24) }}
               >
                 {user.name}
               </Text>
-              <View className="flex-row items-center mb-3">
+              <View className="flex-row items-center mb-2">
                 <View className="bg-white/20 rounded-full px-3 py-1">
-                  <Text className="text-white/90 text-sm font-medium">
+                  <Text className="text-white/90 text-xs font-semibold">
                     Class {user.class}
                   </Text>
                 </View>
               </View>
-              <Text className="text-white/70 text-base">{user.email}</Text>
-              <Text className="text-white/50 text-sm mt-1">
+              <Text className="text-white/70 text-sm">{user.email}</Text>
+              <Text className="text-white/50 text-xs mt-1">
                 Member since{" "}
                 {new Date(user.createdAt).toLocaleDateString("en-US", {
                   month: "short",
@@ -301,24 +299,27 @@ export default function ProfileScreen() {
         </View>
 
         {/* White Background Content Section */}
-        <View className="bg-slate-50 rounded-t-[32px] px-6 pt-8 pb-6 mt-4 min-h-full">
+        <View
+          className="bg-slate-50 rounded-t-[28px] px-5 pt-6 mt-2"
+          style={{ paddingBottom: tabBarHeight + 20 }}
+        >
           <View>
             {/* Enhanced Profile Details */}
-            <View className="bg-white rounded-3xl p-6 shadow-lg shadow-slate-200/50 mb-6 border border-slate-100">
-              <Text className="text-slate-900 text-xl font-bold mb-6">
+            <View className="bg-white rounded-2xl p-5 mb-4 border border-slate-200">
+              <Text className="text-slate-900 text-lg font-bold mb-4">
                 Personal Information
               </Text>
 
               <View className="space-y-5">
                 <View className="flex-row items-center">
-                  <View className="bg-indigo-100 rounded-full p-3 mr-4">
-                    <Mail size={22} color="#4F46E5" />
+                  <View className="bg-indigo-100 rounded-xl p-2.5 mr-3">
+                    <Mail size={18} color="#4F46E5" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-slate-500 text-sm font-medium">
+                    <Text className="text-slate-500 text-xs font-semibold">
                       Email Address
                     </Text>
-                    <Text className="text-slate-900 text-base font-semibold mt-1">
+                    <Text className="text-slate-900 text-sm font-semibold mt-1">
                       {user.email}
                     </Text>
                   </View>
@@ -327,14 +328,14 @@ export default function ProfileScreen() {
                 <View className="h-px bg-slate-200" />
 
                 <View className="flex-row items-center">
-                  <View className="bg-indigo-100 rounded-full p-3 mr-4">
-                    <Phone size={22} color="#4F46E5" />
+                  <View className="bg-indigo-100 rounded-xl p-2.5 mr-3">
+                    <Phone size={18} color="#4F46E5" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-slate-500 text-sm font-medium">
+                    <Text className="text-slate-500 text-xs font-semibold">
                       Phone Number
                     </Text>
-                    <Text className="text-slate-900 text-base font-semibold mt-1">
+                    <Text className="text-slate-900 text-sm font-semibold mt-1">
                       {user.phone}
                     </Text>
                   </View>
@@ -343,14 +344,14 @@ export default function ProfileScreen() {
                 <View className="h-px bg-slate-200" />
 
                 <View className="flex-row items-center">
-                  <View className="bg-indigo-100 rounded-full p-3 mr-4">
-                    <GraduationCap size={22} color="#4F46E5" />
+                  <View className="bg-indigo-100 rounded-xl p-2.5 mr-3">
+                    <GraduationCap size={18} color="#4F46E5" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-slate-500 text-sm font-medium">
+                    <Text className="text-slate-500 text-xs font-semibold">
                       Academic Level
                     </Text>
-                    <Text className="text-slate-900 text-base font-semibold mt-1">
+                    <Text className="text-slate-900 text-sm font-semibold mt-1">
                       Class {user.class}
                     </Text>
                   </View>
@@ -359,14 +360,14 @@ export default function ProfileScreen() {
                 <View className="h-px bg-slate-200" />
 
                 <View className="flex-row items-center">
-                  <View className="bg-indigo-100 rounded-full p-3 mr-4">
-                    <Calendar size={22} color="#4F46E5" />
+                  <View className="bg-indigo-100 rounded-xl p-2.5 mr-3">
+                    <Calendar size={18} color="#4F46E5" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-slate-500 text-sm font-medium">
+                    <Text className="text-slate-500 text-xs font-semibold">
                       Joined
                     </Text>
-                    <Text className="text-slate-900 text-base font-semibold mt-1">
+                    <Text className="text-slate-900 text-sm font-semibold mt-1">
                       {new Date(user.createdAt).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -382,14 +383,14 @@ export default function ProfileScreen() {
                       <View className="h-px bg-slate-200" />
 
                       <View className="flex-row items-center">
-                        <View className="bg-indigo-100 rounded-full p-3 mr-4">
-                          <GraduationCap size={22} color="#4F46E5" />
+                        <View className="bg-indigo-100 rounded-xl p-2.5 mr-3">
+                          <GraduationCap size={18} color="#4F46E5" />
                         </View>
                         <View className="flex-1">
-                          <Text className="text-slate-500 text-sm font-medium">
+                          <Text className="text-slate-500 text-xs font-semibold">
                             MemoHack Student
                           </Text>
-                          <Text className="text-slate-900 text-base font-semibold mt-1">
+                          <Text className="text-slate-900 text-sm font-semibold mt-1">
                             {user.memohackStudent ? "Yes" : "No"}
                           </Text>
                         </View>
@@ -400,16 +401,16 @@ export default function ProfileScreen() {
             </View>
 
             {/* Daily Quiz Consistency */}
-            <View className="bg-white rounded-3xl p-6 shadow-lg shadow-slate-200/50 mb-6 border border-slate-100">
-              <View className="flex-row items-center mb-5">
-                <View className="bg-indigo-100 rounded-full p-3 mr-4">
-                  <Trophy size={22} color="#4F46E5" />
+            <View className="bg-white rounded-2xl p-5 mb-4 border border-slate-200">
+              <View className="flex-row items-center mb-4">
+                <View className="bg-indigo-100 rounded-xl p-2.5 mr-3">
+                  <Trophy size={18} color="#4F46E5" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-slate-900 text-xl font-bold">
+                  <Text className="text-slate-900 text-lg font-bold">
                     Daily Quiz Consistency
                   </Text>
-                  <Text className="text-slate-500 text-sm mt-1">
+                  <Text className="text-slate-500 text-xs mt-1">
                     Last 35 days of quiz activity
                   </Text>
                 </View>
@@ -421,28 +422,28 @@ export default function ProfileScreen() {
                 </View>
               ) : (
                 <>
-                  <View className="flex-row mb-5">
-                    <View className="flex-1 bg-slate-50 rounded-2xl p-3 mr-2">
+                  <View className="flex-row mb-4">
+                    <View className="flex-1 bg-slate-50 rounded-xl p-3 mr-2">
                       <Text className="text-slate-500 text-xs font-semibold">
                         Active days
                       </Text>
-                      <Text className="text-slate-900 text-xl font-bold mt-1">
+                      <Text className="text-slate-900 text-lg font-bold mt-1">
                         {quizStats.activeDays}
                       </Text>
                     </View>
-                    <View className="flex-1 bg-slate-50 rounded-2xl p-3 mx-1">
+                    <View className="flex-1 bg-slate-50 rounded-xl p-3 mx-1">
                       <Text className="text-slate-500 text-xs font-semibold">
                         Streak
                       </Text>
-                      <Text className="text-slate-900 text-xl font-bold mt-1">
+                      <Text className="text-slate-900 text-lg font-bold mt-1">
                         {quizStats.currentStreak}
                       </Text>
                     </View>
-                    <View className="flex-1 bg-slate-50 rounded-2xl p-3 ml-2">
+                    <View className="flex-1 bg-slate-50 rounded-xl p-3 ml-2">
                       <Text className="text-slate-500 text-xs font-semibold">
                         Points
                       </Text>
-                      <Text className="text-slate-900 text-xl font-bold mt-1">
+                      <Text className="text-slate-900 text-lg font-bold mt-1">
                         {quizStats.totalScore}
                       </Text>
                     </View>
@@ -452,15 +453,15 @@ export default function ProfileScreen() {
                     style={{
                       flexDirection: "row",
                       flexWrap: "wrap",
-                      gap: 6,
+                      gap: 5,
                     }}
                   >
                     {quizStats.days.map((day) => (
                       <View
                         key={day.dayKey}
                         style={{
-                          width: 18,
-                          height: 18,
+                          width: 16,
+                          height: 16,
                           borderRadius: 5,
                           backgroundColor: quizActivityColor(
                             day.attemptedCount,
@@ -496,54 +497,54 @@ export default function ProfileScreen() {
             </View>
 
             {/* Action Menu */}
-            <View className="mb-6">
-              <Text className="text-slate-900 text-xl font-bold mb-4">
+            <View className="mb-5">
+              <Text className="text-slate-900 text-lg font-bold mb-3">
                 Account
               </Text>
 
               <View className="space-y-3">
                 <TouchableOpacity
-                  className="bg-white rounded-2xl p-4 shadow-lg shadow-slate-200/50 border border-slate-100"
+                  className="bg-white rounded-2xl p-3.5 border border-slate-200"
                   onPress={() => router.push("/(tabs)/profile/edit")}
                 >
                   <View className="flex-row items-center">
-                    <View className="bg-indigo-100 rounded-full p-3 mr-4">
-                      <Settings size={22} color="#4F46E5" />
+                    <View className="bg-indigo-100 rounded-xl p-2.5 mr-3">
+                      <Settings size={18} color="#4F46E5" />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-slate-900 text-base font-semibold">
+                      <Text className="text-slate-900 text-sm font-semibold">
                         Edit profile settings
                       </Text>
-                      <Text className="text-slate-500 text-sm">
+                      <Text className="text-slate-500 text-xs mt-0.5">
                         Photo, name, phone, class, MemoHack student
                       </Text>
                     </View>
-                    <ChevronRight size={20} color="#94A3B8" />
+                    <ChevronRight size={18} color="#94A3B8" />
                   </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  className="bg-white rounded-2xl p-4 shadow-lg shadow-slate-200/50 border border-slate-100"
+                  className="bg-white rounded-2xl p-3.5 border border-slate-200"
                   onPress={() => router.push("/(tabs)/profile/change-password")}
                 >
                   <View className="flex-row items-center">
-                    <View className="bg-indigo-100 rounded-full p-3 mr-4">
-                      <Lock size={22} color="#4F46E5" />
+                    <View className="bg-indigo-100 rounded-xl p-2.5 mr-3">
+                      <Lock size={18} color="#4F46E5" />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-slate-900 text-base font-semibold">
+                      <Text className="text-slate-900 text-sm font-semibold">
                         Change password
                       </Text>
-                      <Text className="text-slate-500 text-sm">
+                      <Text className="text-slate-500 text-xs mt-0.5">
                         Verify by email OTP before updating
                       </Text>
                     </View>
-                    <ChevronRight size={20} color="#94A3B8" />
+                    <ChevronRight size={18} color="#94A3B8" />
                   </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  className="bg-white rounded-2xl p-4 shadow-lg shadow-slate-200/50 border border-red-200"
+                  className="bg-white rounded-2xl p-3.5 border border-red-200"
                   onPress={handleSignOut}
                   disabled={isLoading}
                   style={{
@@ -551,18 +552,18 @@ export default function ProfileScreen() {
                   }}
                 >
                   <View className="flex-row items-center">
-                    <View className="bg-red-100 rounded-full p-3 mr-4">
-                      <LogOut size={22} color="#DC2626" />
+                    <View className="bg-red-100 rounded-xl p-2.5 mr-3">
+                      <LogOut size={18} color="#DC2626" />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-red-600 text-base font-semibold">
+                      <Text className="text-red-600 text-sm font-semibold">
                         Sign Out
                       </Text>
-                      <Text className="text-slate-500 text-sm">
+                      <Text className="text-slate-500 text-xs mt-0.5">
                         Sign out of your account
                       </Text>
                     </View>
-                    <ChevronRight size={20} color="#94A3B8" />
+                    <ChevronRight size={18} color="#94A3B8" />
                   </View>
                 </TouchableOpacity>
               </View>
@@ -570,13 +571,13 @@ export default function ProfileScreen() {
           </View>
 
           {/* Enhanced Footer */}
-          <View className="mt-4">
-            <View className="bg-slate-100 rounded-2xl p-6 border border-slate-200">
+          <View className="mt-3">
+            <View className="bg-slate-100 rounded-2xl p-5 border border-slate-200">
               <View className="items-center">
-                <Text className="text-slate-900 font-bold text-lg mb-2">
+                <Text className="text-slate-900 font-bold text-base mb-1.5">
                   MemoHack
                 </Text>
-                <Text className="text-slate-600 text-center text-sm leading-5">
+                <Text className="text-slate-600 text-center text-xs leading-5">
                   Version 1.0.0{"\n"}
                   Your complete JEE & NEET preparation companion
                 </Text>

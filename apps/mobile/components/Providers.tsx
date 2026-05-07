@@ -1,5 +1,6 @@
 import { EXPO_PUBLIC_CONVEX_URL } from "@/constants";
 import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
+import { AppDialogHost } from "./AppDialogHost";
 import { AppVersionGate } from "./AppVersionGate";
 import { AppProvider, UserProvider, useAuthForConvex } from "./ContextProvider";
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -16,6 +17,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <ErrorBoundary>
             <AppVersionGate />
             {children}
+            <AppDialogHost />
           </ErrorBoundary>
         </UserProvider>
       </ConvexProviderWithAuth>

@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ArrowLeft, BookOpen, Search, X } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import {
     Animated,
     FlatList,
@@ -35,6 +36,7 @@ interface Chapter {
 export default function SearchScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const [searchQuery, setSearchQuery] = useState("");
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
@@ -205,7 +207,7 @@ export default function SearchScreen() {
           keyExtractor={(item) => item._id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            paddingBottom: 100,
+            paddingBottom: tabBarHeight + 20,
             flexGrow: 1,
           }}
           ListEmptyComponent={renderEmptyState}

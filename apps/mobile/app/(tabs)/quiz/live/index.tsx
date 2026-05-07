@@ -1,23 +1,26 @@
 import { useApp } from "@/components/ContextProvider";
+import { alertInfo } from "@/lib/confirm";
 import { api } from "@memo-hack/convex";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
-  CalendarDays,
+  ArrowLeft,
   ChevronRight,
+  History,
+  LogIn,
+  Plus,
   Radio,
-  Trophy,
   User,
-  Users,
 } from "lucide-react-native";
-import React, { useMemo } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   SafeAreaView,
   ScrollView,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -81,7 +84,7 @@ function AuthRequired() {
                 marginBottom: 28,
               }}
             >
-              Sign in to play quizzes and join leaderboards.
+              Sign in to create or join live quiz rooms.
             </Text>
             <TouchableOpacity
               style={{
@@ -90,7 +93,6 @@ function AuthRequired() {
                 borderRadius: 18,
                 paddingVertical: 16,
                 paddingHorizontal: 24,
-                marginBottom: 16,
               }}
               onPress={() => router.push("/(auth)/signin")}
             >
@@ -103,11 +105,6 @@ function AuthRequired() {
                 }}
               >
                 Sign In
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
-              <Text style={{ color: "white", fontWeight: "700" }}>
-                Create an account
               </Text>
             </TouchableOpacity>
           </View>
@@ -131,27 +128,35 @@ function LoadingScreen() {
   );
 }
 
-export default function QuizHomeScreen() {
+export default function LiveQuizHomeScreen() {
   const { user, token, deferAuthRedirect } = useApp();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
+  const joinLiveQuizRoom = useMutation(api.liveQuiz.joinLiveQuizRoom);
+  const [joinCode, setJoinCode] = useState("");
+  const [joining, setJoining] = useState(false);
 
-  const queryArgs = user && !deferAuthRedirect ? {} : "skip";
-  const quiz = useQuery(api.dailyQuiz.getTodayQuiz, queryArgs);
+  const handleJoin = async () => {
+    const code = joinCode.trim().toUpperCase();
+    if (!code) {
+      alertInfo("Live Quiz", "Enter a room code.");
+      return;
+    }
 
-  const dailyStats = useMemo(() => {
-    const questions = quiz?.questions ?? [];
-    return {
-      dayKey: quiz?.dayKey ?? "",
-      attemptedCount: questions.filter((question) => question.attempt).length,
-      score: questions.reduce(
-        (sum, question) => sum + (question.attempt?.score ?? 0),
-        0,
-      ),
-      isReady: quiz?.isReady ?? false,
-    };
-  }, [quiz]);
+    setJoining(true);
+    try {
+      const result = await joinLiveQuizRoom({ joinCode: code });
+      router.push(`/(tabs)/quiz/live/${result.roomId}`);
+    } catch (error) {
+      alertInfo(
+        "Live Quiz",
+        error instanceof Error ? error.message : "Could not join this room.",
+      );
+    } finally {
+      setJoining(false);
+    }
+  };
 
   if (token && deferAuthRedirect) return <LoadingScreen />;
   if (!user) return <AuthRequired />;
@@ -164,24 +169,25 @@ export default function QuizHomeScreen() {
       >
         <View style={{ paddingHorizontal: 20, paddingBottom: 22 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <View
+            <TouchableOpacity
+              onPress={() => router.back()}
               style={{
-                width: 46,
-                height: 46,
-                borderRadius: 16,
+                width: 42,
+                height: 42,
+                borderRadius: 14,
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "rgba(255,255,255,0.18)",
+                backgroundColor: "rgba(255,255,255,0.16)",
               }}
             >
-              <Trophy size={24} color="white" />
-            </View>
+              <ArrowLeft size={22} color="white" />
+            </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <Text style={{ color: "white", fontSize: 24, fontWeight: "800" }}>
-                Quiz
+                Live Quiz
               </Text>
               <Text style={{ color: "rgba(255,255,255,0.72)", marginTop: 2 }}>
-                Daily practice and live rooms
+                Create a room or join with a code
               </Text>
             </View>
           </View>
@@ -199,7 +205,48 @@ export default function QuizHomeScreen() {
       >
         <View style={{ gap: 14 }}>
           <TouchableOpacity
-            onPress={() => router.push("/(tabs)/quiz/daily")}
+            onPress={() => router.push("/(tabs)/quiz/live/create")}
+            style={{
+              backgroundColor: "#111827",
+              borderRadius: 18,
+              padding: 18,
+              shadowColor: "#111827",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.18,
+              shadowRadius: 12,
+              elevation: 3,
+            }}
+          >
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
+            >
+              <View
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 14,
+                  backgroundColor: "rgba(255,255,255,0.12)",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Plus size={22} color="white" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{ color: "white", fontWeight: "900", fontSize: 18 }}
+                >
+                  Create Live Quiz
+                </Text>
+                <Text style={{ color: "rgba(255,255,255,0.68)", marginTop: 4 }}>
+                  Pick chapters, start a lobby, and play as host.
+                </Text>
+              </View>
+              <ChevronRight size={22} color="rgba(255,255,255,0.62)" />
+            </View>
+          </TouchableOpacity>
+
+          <View
             style={{
               backgroundColor: "white",
               borderRadius: 18,
@@ -226,88 +273,73 @@ export default function QuizHomeScreen() {
                   justifyContent: "center",
                 }}
               >
-                <CalendarDays size={22} color="#4F46E5" />
+                <Radio size={22} color="#4F46E5" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text
-                  style={{
-                    color: "#0F172A",
-                    fontWeight: "900",
-                    fontSize: 18,
-                  }}
+                  style={{ color: "#0F172A", fontWeight: "900", fontSize: 18 }}
                 >
-                  Daily Quiz
+                  Join Live Quiz
                 </Text>
                 <Text style={{ color: "#64748B", marginTop: 4 }}>
-                  Three fresh questions every day
+                  Enter the code shared by the host.
                 </Text>
               </View>
-              <ChevronRight size={22} color="#94A3B8" />
             </View>
 
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 10,
-                marginTop: 16,
-              }}
-            >
-              <View
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
+              <TextInput
+                value={joinCode}
+                onChangeText={(value) => setJoinCode(value.toUpperCase())}
+                placeholder="ROOM CODE"
+                autoCapitalize="characters"
+                maxLength={8}
                 style={{
                   flex: 1,
                   backgroundColor: "#F8FAFC",
+                  borderWidth: 1,
+                  borderColor: "#E2E8F0",
                   borderRadius: 14,
-                  padding: 12,
+                  paddingHorizontal: 14,
+                  color: "#0F172A",
+                  fontWeight: "900",
+                  letterSpacing: 1,
                 }}
-              >
-                <Text
-                  style={{ color: "#64748B", fontSize: 11, fontWeight: "800" }}
-                >
-                  TODAY
-                </Text>
-                <Text
-                  style={{ color: "#0F172A", fontWeight: "900", marginTop: 3 }}
-                >
-                  {quiz === undefined ? "Loading" : dailyStats.dayKey}
-                </Text>
-              </View>
-              <View
+              />
+              <TouchableOpacity
+                disabled={joining}
+                onPress={handleJoin}
                 style={{
-                  flex: 1,
-                  backgroundColor: "#F8FAFC",
-                  borderRadius: 14,
-                  padding: 12,
+                  width: 54,
+                  height: 54,
+                  borderRadius: 16,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: joining ? "#A5B4FC" : "#4F46E5",
                 }}
               >
-                <Text
-                  style={{ color: "#64748B", fontSize: 11, fontWeight: "800" }}
-                >
-                  SCORE
-                </Text>
-                <Text
-                  style={{ color: "#0F172A", fontWeight: "900", marginTop: 3 }}
-                >
-                  {quiz === undefined
-                    ? "..."
-                    : dailyStats.isReady
-                      ? `${dailyStats.score}/3`
-                      : "Preparing"}
-                </Text>
-              </View>
+                {joining ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <LogIn size={21} color="white" />
+                )}
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
-            onPress={() => router.push("/(tabs)/quiz/live")}
+            onPress={() => router.push("/(tabs)/quiz/live/history")}
             style={{
-              backgroundColor: "#111827",
+              backgroundColor: "white",
               borderRadius: 18,
               padding: 18,
-              shadowColor: "#111827",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.18,
-              shadowRadius: 12,
-              elevation: 3,
+              borderWidth: 1,
+              borderColor: "#E2E8F0",
+              shadowColor: "#94A3B8",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+              elevation: 2,
             }}
           >
             <View
@@ -318,45 +350,24 @@ export default function QuizHomeScreen() {
                   width: 44,
                   height: 44,
                   borderRadius: 14,
-                  backgroundColor: "rgba(255,255,255,0.12)",
+                  backgroundColor: "#F1F5F9",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                <Radio size={22} color="white" />
+                <History size={22} color="#64748B" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text
-                  style={{
-                    color: "white",
-                    fontWeight: "900",
-                    fontSize: 18,
-                  }}
+                  style={{ color: "#0F172A", fontWeight: "900", fontSize: 18 }}
                 >
-                  Live Quiz
+                  Previous Live Quizzes
                 </Text>
-                <Text style={{ color: "rgba(255,255,255,0.68)", marginTop: 4 }}>
-                  Host or join a real-time quiz room
+                <Text style={{ color: "#64748B", marginTop: 4 }}>
+                  Review answers, explanations, and final rankings.
                 </Text>
               </View>
-              <ChevronRight size={22} color="rgba(255,255,255,0.62)" />
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 8,
-                marginTop: 16,
-                backgroundColor: "rgba(255,255,255,0.1)",
-                borderRadius: 14,
-                padding: 12,
-              }}
-            >
-              <Users size={18} color="white" />
-              <Text style={{ color: "white", fontWeight: "700", flex: 1 }}>
-                Create a room, invite friends, and race the clock.
-              </Text>
+              <ChevronRight size={22} color="#94A3B8" />
             </View>
           </TouchableOpacity>
         </View>

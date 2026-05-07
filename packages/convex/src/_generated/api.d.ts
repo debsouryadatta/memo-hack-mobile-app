@@ -11,6 +11,7 @@
 import type * as _lib_auth from "../_lib/auth.js";
 import type * as _lib_errors from "../_lib/errors.js";
 import type * as _lib_jwt from "../_lib/jwt.js";
+import type * as _lib_ncertChapters from "../_lib/ncertChapters.js";
 import type * as _lib_password from "../_lib/password.js";
 import type * as _lib_publicUser from "../_lib/publicUser.js";
 import type * as _lib_usageLimits from "../_lib/usageLimits.js";
@@ -20,6 +21,7 @@ import type * as chapter from "../chapter.js";
 import type * as crons from "../crons.js";
 import type * as dailyQuiz from "../dailyQuiz.js";
 import type * as http from "../http.js";
+import type * as liveQuiz from "../liveQuiz.js";
 import type * as settings from "../settings.js";
 import type * as user from "../user.js";
 
@@ -33,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   "_lib/auth": typeof _lib_auth;
   "_lib/errors": typeof _lib_errors;
   "_lib/jwt": typeof _lib_jwt;
+  "_lib/ncertChapters": typeof _lib_ncertChapters;
   "_lib/password": typeof _lib_password;
   "_lib/publicUser": typeof _lib_publicUser;
   "_lib/usageLimits": typeof _lib_usageLimits;
@@ -42,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   dailyQuiz: typeof dailyQuiz;
   http: typeof http;
+  liveQuiz: typeof liveQuiz;
   settings: typeof settings;
   user: typeof user;
 }>;
