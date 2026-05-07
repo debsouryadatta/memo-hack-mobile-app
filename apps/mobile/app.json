@@ -2,7 +2,7 @@
   "expo": {
     "name": "Memo Hack",
     "slug": "memo-hack",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "memohack",
@@ -22,8 +22,7 @@
       },
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "pan",
-      "package": "com.debsouryadatta.memohack",
-      "versionCode": 5
+      "package": "com.debsouryadatta.memohack"
     },
     "web": {
       "bundler": "metro",
